@@ -11,6 +11,23 @@ Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rtha
 
 Run build.ps1 -Target BuildImage
 
+## Run Docker container
+
+Container doesn't store any files and exposed HTTP through port 5000. It also runs as a non-root user with id 9000.
+
+Here is sample docker-compose.yml file
+
+```yaml
+version: '2'
+services:
+  covid19:
+    restart: always
+    image: mihamarkic/slo-covid19-server:latest
+    mem_limit: 400m
+    ports:
+      - "5000:5000"
+```
+
 ## About
 
 Repository maintainer: [Miha Markič](https://twitter.com/MihaMarkic), [Righthand](https://blog.rthand.com/)

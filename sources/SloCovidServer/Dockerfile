@@ -15,8 +15,10 @@ WORKDIR "/src/SloCovidServer"
 FROM build AS publish
 RUN dotnet publish "SloCovidServer.csproj" -c Release -o /app/publish
 
+EXPOSE 5000
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-#USER 9000
+# use non-root user
+USER 9000
 ENTRYPOINT ["dotnet", "SloCovidServer.dll"]
