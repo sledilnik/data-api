@@ -3,7 +3,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 
 A running instance is available at https://covid19.rthand.com/api/ endpoint.
 
-Current Docker container for this project is available at [mihamarkic/slo-covid19-server](https://hub.docker.com/r/mihamarkic/kzs-rest).
+Current Docker container for this project is available at [mihamarkic/slo-covid19-server](https://hub.docker.com/r/mihamarkic/slo-covid19-server).
 
 ## Build Docker container
 
