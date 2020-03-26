@@ -5,6 +5,8 @@ A running instance is available at https://covid19.rthand.com/api/ endpoint.
 
 Current Docker container for this project is available at [mihamarkic/slo-covid19-server](https://hub.docker.com/r/mihamarkic/slo-covid19-server).
 
+Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rthand.com/swagger).
+
 ## Build Docker container
 
 Run build.ps1 -Target BuildImage

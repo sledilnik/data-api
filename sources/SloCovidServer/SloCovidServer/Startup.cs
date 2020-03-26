@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +11,7 @@ namespace SloCovidServer
 {
     public class Startup
     {
+        const string SchemaVersion = "3";
         const string CorsPolicy = "Any";
         public Startup(IConfiguration configuration)
         {
@@ -37,6 +38,27 @@ namespace SloCovidServer
                 });
             });
             services.AddResponseCompression();
+            services.AddSwaggerDocument(config =>
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = $"v{SchemaVersion}";
+                    document.Info.Title = "slo-covid-19 data API";
+                    document.Info.Description = "SchemaVersion";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "Miha Markič",
+                        Email = "miha@rthand.com",
+                        Url = "https://blog.rthand.com/"
+                    };
+                    document.Info.License = new NSwag.OpenApiLicense
+                    {
+                        Name = "Use under MIT",
+                        Url = "https://raw.githubusercontent.com/slo-covid-19/data-api/master/LICENSE"
+                    };
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,10 +76,12 @@ namespace SloCovidServer
             app.UseAuthorization();
             app.Use(async (context, next) =>
             {
-                context.Response.Headers.Add("SchemaVersion", "3");
+                context.Response.Headers.Add("SchemaVersion", SchemaVersion);
                 await next.Invoke();
             });
-
+            // Register the Swagger generator and the Swagger UI middleware
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

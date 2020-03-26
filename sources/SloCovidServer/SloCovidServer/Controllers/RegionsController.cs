@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +24,7 @@ namespace SloCovidServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult<ImmutableArray<RegionsDay>?>> Get()
         {
             string etag = null;
 

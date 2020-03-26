@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace SloCovidServer.Controllers
 {
+    /// <summary>
+    /// Legacy controller, will be removed eventually.
+    /// Use <see cref="StatsController"/> instead.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class DataController : ControllerBase
