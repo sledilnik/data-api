@@ -18,11 +18,13 @@ namespace SloCovidServer.Controllers
     {
         readonly ILogger<DataController> logger;
         readonly ICommunicator communicator;
+        readonly ISlackService slackService;
 
-        public DataController(ILogger<DataController> logger, ICommunicator communicator)
+        public DataController(ILogger<DataController> logger, ICommunicator communicator, ISlackService slackService)
         {
             this.logger = logger;
             this.communicator = communicator;
+            this.slackService = slackService;
         }
 
         [HttpGet]
@@ -45,12 +47,14 @@ namespace SloCovidServer.Controllers
             {
                 return StatusCode(304);
             }
-            //var query = from d in data
-            //            let sampleDate = new DateTime(d.Year, d.Month, d.Day)
-            //            where (start.HasValue && sampleDate >= start.Value || !start.HasValue)
-            //                && (end.HasValue && sampleDate <= end.Value || !end.HasValue)
-            //            select d;
-            //return query;
         }
+
+        //[HttpGet]
+        //[Route("slack")]
+        //public async Task Test()
+        //{
+        //    throw new System.Exception("Test");
+        //    await slackService.SendNotificationAsync("Testing 1..2..3.. from production", default);
+        //}
     }
 }

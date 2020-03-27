@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
+using System.Net.Http;
+using System.Threading;
 
 namespace SloCovidServer
 {
@@ -26,6 +29,8 @@ namespace SloCovidServer
             services.AddControllers();
             services.AddSingleton<ICommunicator, Communicator>();
             services.AddSingleton<Mapper>();
+            services.AddSingleton<HttpClient>();
+            services.AddSingleton<ISlackService, SlackService>();
 
             services.AddCors(options =>
             {
@@ -62,7 +67,7 @@ namespace SloCovidServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISlackService slackService)
         {
             if (env.IsDevelopment())
             {
@@ -82,6 +87,23 @@ namespace SloCovidServer
             // Register the Swagger generator and the Swagger UI middleware
             app.UseOpenApi();
             app.UseSwaggerUi3();
+
+            // notifies slack when an exception occurs
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    //var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                    //var exception = exceptionHandlerPathFeature?.Error;
+                    try
+                    {
+                        await slackService.SendNotificationAsync($"DATA API REST service failed on {context.Request?.Path}", CancellationToken.None);
+                    }
+                    catch
+                    {}
+                });
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
