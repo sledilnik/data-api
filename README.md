@@ -7,6 +7,8 @@ Current Docker container for this project is available at [mihamarkic/slo-covid1
 
 Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rthand.com/swagger).
 
+In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
+
 ## Build Docker container
 
 Run build.ps1 -Target BuildImage
@@ -26,6 +28,8 @@ services:
     mem_limit: 400m
     ports:
       - "5000:5000"
+    environment:
+      - SloCovidServer_Slack_Secret=XXX
 ```
 
 ## About

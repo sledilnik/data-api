@@ -22,9 +22,18 @@ namespace SloCovidServer.Services.Implemented
             this.logger = logger;
             secret = configuration["Slack_Secret"];
             this.client = client;
+            if (!AreNotificationsAvailable)
+            {
+                logger.LogWarning("Slack notifications are disabled because lacking secret. Set environment variable SloCovidServer_Slack_Secret to app secret.");
+            }
         }
+        bool AreNotificationsAvailable => !string.IsNullOrWhiteSpace(secret);
         public async Task SendNotificationAsync(string text, CancellationToken ct)
         {
+            if (!AreNotificationsAvailable)
+            {
+                return;
+            }
             var payload = new Payload("alert", text);
             string content = JsonSerializer.Serialize(payload, serializationOptions);
             var request = new HttpRequestMessage(HttpMethod.Post, "https://slack.com/api/chat.postMessage")
