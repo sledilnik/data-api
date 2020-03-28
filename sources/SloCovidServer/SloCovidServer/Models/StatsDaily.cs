@@ -13,6 +13,8 @@ namespace SloCovidServer.Models
         public int? PerformedTests { get; }
         public int? PositiveTestsToDate { get; }
         public int? PositiveTests { get; }
+        public int? FemaleToDate { get; }
+        public int? MaleToDate { get; }
         public TestsAt14 TestsAt14 { get; }
         public PerTreatment StatePerTreatment { get; }
         public ImmutableDictionary<string, int?> StatePerRegion { get; }
@@ -20,7 +22,8 @@ namespace SloCovidServer.Models
         public ImmutableDictionary<string, int?> SourceToDate { get; }
         public ImmutableDictionary<string, int?> PerFacilityToDate { get; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
-            int? positiveTests, TestsAt14 testsAt14, PerTreatment statePerTreatment, ImmutableDictionary<string, int?> statePerRegion,
+            int? positiveTests, int? femaleToDate, int? maleToDate,
+            TestsAt14 testsAt14, PerTreatment statePerTreatment, ImmutableDictionary<string, int?> statePerRegion,
             ImmutableArray<PerAgeBucket> statePerAgeToDate, ImmutableDictionary<string, int?> sourceToDate,
             ImmutableDictionary<string, int?> perFacilityToDate)
         {
