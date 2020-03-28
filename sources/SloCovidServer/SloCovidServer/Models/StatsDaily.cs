@@ -36,6 +36,8 @@ namespace SloCovidServer.Models
             PerformedTests = performedTests;
             PositiveTestsToDate = positiveTestsToDate;
             PositiveTests = positiveTests;
+            FemaleToDate = femaleToDate;
+            MaleToDate = maleToDate;
             TestsAt14 = testsAt14;
             StatePerTreatment = statePerTreatment;
             StatePerRegion = statePerRegion;

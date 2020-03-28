@@ -5,6 +5,8 @@ A running instance is available at https://covid19.rthand.com/api/ endpoint.
 
 Current Docker container for this project is available at [mihamarkic/slo-covid19-server](https://hub.docker.com/r/mihamarkic/slo-covid19-server).
 
+Response compression is supported, ETag/If-None-Match as well.
+
 Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rthand.com/swagger).
 
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
