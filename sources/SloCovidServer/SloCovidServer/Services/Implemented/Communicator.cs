@@ -21,9 +21,11 @@ namespace SloCovidServer.Services.Implemented
         ETagCacheItem<ImmutableArray<StatsDaily>> statsCache;
         ETagCacheItem<ImmutableArray<RegionsDay>> regionCache;
         ETagCacheItem<ImmutableArray<PatientsDay>> patientsCache;
+        ETagCacheItem<ImmutableArray<HospitalsDay>> hospitalsCache;
         readonly static object statsSync = new object();
         readonly static object regionSync = new object();
         readonly static object patientsSync = new object();
+        readonly static object hospitalsSync = new object();
         public Communicator(ILogger<Communicator> logger, Mapper mapper)
         {
             client = new HttpClient();
@@ -32,6 +34,7 @@ namespace SloCovidServer.Services.Implemented
             statsCache = new ETagCacheItem<ImmutableArray<StatsDaily>>(null, ImmutableArray<StatsDaily>.Empty);
             regionCache = new ETagCacheItem<ImmutableArray<RegionsDay>>(null, ImmutableArray<RegionsDay>.Empty);
             patientsCache = new ETagCacheItem<ImmutableArray<PatientsDay>>(null, ImmutableArray<PatientsDay>.Empty);
+            hospitalsCache = new ETagCacheItem<ImmutableArray<HospitalsDay>>(null, ImmutableArray<HospitalsDay>.Empty);
         }
 
         public async Task<(ImmutableArray<StatsDaily>? Data, string ETag)> GetStatsAsync(string callerEtag, CancellationToken ct)
@@ -50,8 +53,15 @@ namespace SloCovidServer.Services.Implemented
 
         public async Task<(ImmutableArray<PatientsDay>? Data, string ETag)> GetPatientsAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, regionSync, $"{root}/patients.csv",
+            var result = await GetAsync(callerEtag, patientsSync, $"{root}/patients.csv",
                 patientsCache, mapFromString: mapper.GetPatientsFromRaw, cacheItem => patientsCache = cacheItem, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<HospitalsDay>? Data, string ETag)> GetHospitalsAsync(string callerEtag, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, hospitalsSync, $"{root}/hospitals.csv",
+                hospitalsCache, mapFromString: mapper.GetHospitalsFromRaw, cacheItem => hospitalsCache = cacheItem, ct);
             return result;
         }
 

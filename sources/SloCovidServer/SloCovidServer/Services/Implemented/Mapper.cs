@@ -14,6 +14,8 @@ namespace SloCovidServer.Services.Implemented
         static readonly int[] ageBucketRangesNew = new[] { 4, 14, 24, 34, 44, 54, 64, 74, 84 };
         static readonly int[] ageBucketRangesLegacy = new[] { 15, 29, 49, 59 };
         static readonly string[] facilities = { "ukclj", "ukcmb", "ukg", "sbce" };
+        //static readonly string[] hospitals = { "bse", "bto", "sbbr", "sbce", "sbiz", "sbje", "sbms", "sbng", 
+        //    "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg" };
 
         static Mapper()
         {
@@ -98,6 +100,83 @@ namespace SloCovidServer.Services.Implemented
                 }
             }
             return result;
+        }
+
+        public ImmutableArray<HospitalsDay> GetHospitalsFromRaw(string raw)
+        {
+            ImmutableArray<HospitalsDay> result = ImmutableArray<HospitalsDay>.Empty;
+            string[] lines = raw.Split('\n');
+            string[] headerFields = lines[0].Trim().Split(',');
+            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
+            for (int i = 0; i < headerFields.Length; i++)
+            {
+                header = header.Add(headerFields[i], i);
+            }
+            foreach (string line in lines.Skip(1))
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    var hospital = GetDailyHospitalsFromRaw(header, line);
+                    result = result.Add(hospital);
+                }
+            }
+            return result;
+        }
+
+        HospitalsDay GetDailyHospitalsFromRaw(ImmutableDictionary<string, int> header, string line)
+        {
+            string[] fields = line.Trim().Split(',');
+            var date = GetDate(fields[header["date"]]);
+            var perHospital = new Dictionary<string, HospitalDay>(facilities.Length);
+            foreach (string facilitiy in facilities)
+            {
+                perHospital.Add(facilitiy, GetHospitalDay(facilitiy, header, fields));
+            }
+            return new HospitalsDay(
+                date.Year, date.Month, date.Day, 
+                overall: GetHospitalDay(null, header, fields),
+                perHospital: perHospital.ToImmutableDictionary()
+            );
+        }
+        HospitalDay GetHospitalDay(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        {
+            return new HospitalDay(
+                GetHospitalBeds(hospital, header, fields),
+                GetHospitalICUs(hospital, header, fields),
+                GetHospitalVents(hospital, header, fields)
+            );
+        }
+
+        HospitalBedDay GetHospitalBeds(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        {
+            string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
+            return new HospitalBedDay(
+                GetInt($"hospital{location}.bed.total", header, fields),
+                GetInt($"hospital{location}.bed.total.max", header, fields),
+                GetInt($"hospital{location}.bed.occupied", header, fields),
+                GetInt($"hospital{location}.bed.free", header, fields),
+                GetInt($"hospital{location}.bed.free.max", header, fields)
+            );
+        }
+        HospitalICUDay GetHospitalICUs(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        {
+            string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
+            return new HospitalICUDay(
+                GetInt($"hospital{location}.icu.total", header, fields),
+                GetInt($"hospital{location}.icu.total.max", header, fields),
+                GetInt($"hospital{location}.icu.occupied", header, fields),
+                GetInt($"hospital{location}.icu.free", header , fields)
+            );
+        }
+        HospitalVentDay GetHospitalVents(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        {
+            string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
+            return new HospitalVentDay(
+                GetInt($"hospital{location}.vent.total", header, fields),
+                GetInt($"hospital{location}.vent.total.max", header, fields),
+                GetInt($"hospital{location}.vent.occupied", header, fields),
+                GetInt($"hospital{location}.vent.free", header, fields)
+            );
         }
 
         RegionsDay GetDailyRegionFromRaw(ImmutableDictionary<string, int> header, string line)
