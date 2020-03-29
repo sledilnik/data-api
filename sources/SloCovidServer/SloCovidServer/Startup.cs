@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +12,7 @@ namespace SloCovidServer
 {
     public class Startup
     {
-        const string SchemaVersion = "3";
+        const string SchemaVersion = "4";
         const string CorsPolicy = "Any";
         public Startup(IConfiguration configuration)
         {
