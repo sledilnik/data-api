@@ -14,8 +14,8 @@ namespace SloCovidServer.Services.Implemented
         static readonly int[] ageBucketRangesNew = new[] { 4, 14, 24, 34, 44, 54, 64, 74, 84 };
         static readonly int[] ageBucketRangesLegacy = new[] { 15, 29, 49, 59 };
         static readonly string[] facilities = { "ukclj", "ukcmb", "ukg", "sbce" };
-        //static readonly string[] hospitals = { "bse", "bto", "sbbr", "sbce", "sbiz", "sbje", "sbms", "sbng", 
-        //    "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg" };
+        static readonly string[] hospitals = { "bse", "bto", "sbbr", "sbce", "sbiz", "sbje", "sbms", "sbng",
+            "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg" };
 
         static Mapper()
         {
@@ -123,14 +123,40 @@ namespace SloCovidServer.Services.Implemented
             return result;
         }
 
+        public ImmutableArray<Hospital> GetHospitalsListFromRaw(string raw)
+        {
+            string[] lines = raw.Split('\n');
+            string[] headerFields = lines[0].Trim().Split(',');
+            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
+            for (int i = 0; i < headerFields.Length; i++)
+            {
+                header = header.Add(headerFields[i], i);
+            }
+            int idIndex = header["id"];
+            int nameIndex = header["name"];
+            int urlIndex = header["url"];
+
+            var result = lines.Skip(1).Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => GetHospitalFromRaw(idIndex, nameIndex, urlIndex, l))
+                .ToImmutableArray();
+            
+            return result;
+        }
+
+        Hospital GetHospitalFromRaw(int idIndex, int nameIndex, int urlIndex, string line)
+        {
+            string[] fields = line.Trim().Split(',');
+            return new Hospital(fields[idIndex], fields[nameIndex], fields[urlIndex]);
+        }
+
         HospitalsDay GetDailyHospitalsFromRaw(ImmutableDictionary<string, int> header, string line)
         {
             string[] fields = line.Trim().Split(',');
             var date = GetDate(fields[header["date"]]);
             var perHospital = new Dictionary<string, HospitalDay>(facilities.Length);
-            foreach (string facilitiy in facilities)
+            foreach (string hospital in hospitals)
             {
-                perHospital.Add(facilitiy, GetHospitalDay(facilitiy, header, fields));
+                perHospital.Add(hospital, GetHospitalDay(hospital, header, fields));
             }
             return new HospitalsDay(
                 date.Year, date.Month, date.Day, 
@@ -138,6 +164,7 @@ namespace SloCovidServer.Services.Implemented
                 perHospital: perHospital.ToImmutableDictionary()
             );
         }
+
         HospitalDay GetHospitalDay(string hospital, ImmutableDictionary<string, int> header, string[] fields)
         {
             return new HospitalDay(
@@ -162,20 +189,20 @@ namespace SloCovidServer.Services.Implemented
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalICUDay(
-                GetInt($"hospital{location}.icu.total", header, fields),
-                GetInt($"hospital{location}.icu.total.max", header, fields),
-                GetInt($"hospital{location}.icu.occupied", header, fields),
-                GetInt($"hospital{location}.icu.free", header , fields)
+                GetInt($"hospital{location}.icu.total", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.icu.total.max", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.icu.occupied", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.icu.free", header , fields, isMandatory: false)
             );
         }
         HospitalVentDay GetHospitalVents(string hospital, ImmutableDictionary<string, int> header, string[] fields)
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalVentDay(
-                GetInt($"hospital{location}.vent.total", header, fields),
-                GetInt($"hospital{location}.vent.total.max", header, fields),
-                GetInt($"hospital{location}.vent.occupied", header, fields),
-                GetInt($"hospital{location}.vent.free", header, fields)
+                GetInt($"hospital{location}.vent.total", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.vent.total.max", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.vent.occupied", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.vent.free", header, fields, isMandatory: false)
             );
         }
 
@@ -378,11 +405,18 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        int? GetInt(string name, ImmutableDictionary<string, int> header, string[] fields)
+        int? GetInt(string name, ImmutableDictionary<string, int> header, string[] fields, bool isMandatory = true)
         {
             if (!header.TryGetValue(name, out int index))
             {
-                throw new Exception($"Can't find field {name}.");
+                if (isMandatory)
+                {
+                    throw new Exception($"Can't find field {name}.");
+                }
+                else
+                {
+                    return null;
+                }
             }
             string text = fields[index];
             return GetInt(text);

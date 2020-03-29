@@ -22,10 +22,12 @@ namespace SloCovidServer.Services.Implemented
         ETagCacheItem<ImmutableArray<RegionsDay>> regionCache;
         ETagCacheItem<ImmutableArray<PatientsDay>> patientsCache;
         ETagCacheItem<ImmutableArray<HospitalsDay>> hospitalsCache;
+        ETagCacheItem<ImmutableArray<Hospital>> hospitalsListCache;
         readonly static object statsSync = new object();
         readonly static object regionSync = new object();
         readonly static object patientsSync = new object();
         readonly static object hospitalsSync = new object();
+        readonly static object hospitalsListSync = new object();
         public Communicator(ILogger<Communicator> logger, Mapper mapper)
         {
             client = new HttpClient();
@@ -35,6 +37,7 @@ namespace SloCovidServer.Services.Implemented
             regionCache = new ETagCacheItem<ImmutableArray<RegionsDay>>(null, ImmutableArray<RegionsDay>.Empty);
             patientsCache = new ETagCacheItem<ImmutableArray<PatientsDay>>(null, ImmutableArray<PatientsDay>.Empty);
             hospitalsCache = new ETagCacheItem<ImmutableArray<HospitalsDay>>(null, ImmutableArray<HospitalsDay>.Empty);
+            hospitalsListCache = new ETagCacheItem<ImmutableArray<Hospital>>(null, ImmutableArray<Hospital>.Empty);
         }
 
         public async Task<(ImmutableArray<StatsDaily>? Data, string ETag)> GetStatsAsync(string callerEtag, CancellationToken ct)
@@ -62,6 +65,13 @@ namespace SloCovidServer.Services.Implemented
         {
             var result = await GetAsync(callerEtag, hospitalsSync, $"{root}/hospitals.csv",
                 hospitalsCache, mapFromString: mapper.GetHospitalsFromRaw, cacheItem => hospitalsCache = cacheItem, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<Hospital>? Data, string ETag)> GetHospitalsListAsync(string callerEtag, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, hospitalsListSync, $"{root}/dict-hospitals.csv",
+                hospitalsListCache, mapFromString: mapper.GetHospitalsListFromRaw, cacheItem => hospitalsListCache = cacheItem, ct);
             return result;
         }
 
