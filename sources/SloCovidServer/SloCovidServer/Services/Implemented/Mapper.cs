@@ -277,24 +277,6 @@ namespace SloCovidServer.Services.Implemented
                 );
                 perAgeSum = perAgeSum.Add(perAge);
             }
-            var sourceSum = ImmutableDictionary<string, int?>.Empty;
-            foreach (var pair in header)
-            {
-                string[] keyParts = pair.Key.Split('.');
-                if (keyParts.Length == 3 && keyParts[0] == "source" && keyParts[2] == "todate")
-                {
-                    sourceSum = sourceSum.Add(keyParts[1], GetInt(fields[pair.Value]));
-                }
-            }
-            var facilitySum = ImmutableDictionary<string, int?>.Empty;
-            foreach (var pair in header)
-            {
-                string[] keyParts = pair.Key.Split('.');
-                if (keyParts.Length == 3 && keyParts[0] == "facility" && keyParts[2] == "todate")
-                {
-                    facilitySum = facilitySum.Add(keyParts[1], GetInt(fields[pair.Value]));
-                }
-            }
             var date = GetDate(fields[header["date"]]);
             var result = new StatsDaily(
                 GetInt("day", header, fields) ?? 0,
@@ -310,9 +292,7 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("age.male.todate", header, fields),
                 perTreatment,
                 perRegion,
-                perAgeSum,
-                sourceSum,
-                facilitySum
+                perAgeSum
             );
             return result;
         }
