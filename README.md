@@ -13,6 +13,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.4.1
+
+- Removes 14h data from stats
+- Removes facilities and sources from stats
+- Updates SchemaVersion to 5
+
 ### 1.4.0
 
 - Adds hospitals and hospitals-list endpoints
