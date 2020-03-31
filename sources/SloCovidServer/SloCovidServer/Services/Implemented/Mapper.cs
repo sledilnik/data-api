@@ -295,12 +295,6 @@ namespace SloCovidServer.Services.Implemented
                     facilitySum = facilitySum.Add(keyParts[1], GetInt(fields[pair.Value]));
                 }
             }
-            var testsAt14 = new TestsAt14(
-                GetInt("tests.performed.14h.todate", header, fields),
-                GetInt("tests.performed.14h", header, fields),
-                GetInt("tests.positive.14h.todate", header, fields),
-                GetInt("tests.positive.14h", header, fields)
-                );
             var date = GetDate(fields[header["date"]]);
             var result = new StatsDaily(
                 GetInt("day", header, fields) ?? 0,
@@ -314,7 +308,6 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("tests.positive", header, fields),
                 GetInt("age.female.todate", header, fields),
                 GetInt("age.male.todate", header, fields),
-                testsAt14,
                 perTreatment,
                 perRegion,
                 perAgeSum,
