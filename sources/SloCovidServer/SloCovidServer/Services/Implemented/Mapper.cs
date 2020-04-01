@@ -245,6 +245,12 @@ namespace SloCovidServer.Services.Implemented
             int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
             int? outOfHospitalToDate = GetInt("state.out_of_hospital.todate", header, fields);
             int? outOfHospital = GetDelta(outOfHospitalToDate, previousOutOfHospitalToDate);
+            var cases = new Cases(
+                GetInt("cases.confirmed", header, fields),
+                GetInt("cases.confirmed.todate", header, fields),
+                GetInt("cases.closed.todate", header, fields),
+                GetInt("cases.active.todate", header, fields)
+            );
             var perTreatment = new PerTreatment(
                 GetInt("state.in_hospital", header, fields),
                 GetInt("state.in_hospital.todate", header, fields),
@@ -290,6 +296,7 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("tests.positive", header, fields),
                 GetInt("age.female.todate", header, fields),
                 GetInt("age.male.todate", header, fields),
+                cases,
                 perTreatment,
                 perRegion,
                 perAgeSum

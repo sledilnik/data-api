@@ -13,6 +13,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.4.2
+
+- Adds cases.confirmed, cases.confirmed.todate, cases.closed.todate and cases.active.todate to stats
+
 ### 1.4.1
 
 - Removes 14h data from stats
