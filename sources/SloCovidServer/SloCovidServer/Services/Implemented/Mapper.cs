@@ -12,7 +12,6 @@ namespace SloCovidServer.Services.Implemented
     {
         static readonly ImmutableArray<AgeBucketMeta> ageBuckets;
         static readonly int[] ageBucketRangesNew = new[] { 4, 14, 24, 34, 44, 54, 64, 74, 84 };
-        static readonly int[] ageBucketRangesLegacy = new[] { 15, 29, 49, 59 };
         static readonly string[] facilities = { "ukclj", "ukcmb", "ukg", "sbce" };
         static readonly string[] hospitals = { "bse", "bto", "sbbr", "sbce", "sbiz", "sbje", "sbms", "sbng",
             "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg" };
@@ -22,14 +21,6 @@ namespace SloCovidServer.Services.Implemented
             ageBuckets = ImmutableArray<AgeBucketMeta>.Empty;
             int start = 0;
             foreach (int r in ageBucketRangesNew)
-            {
-                ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, r));
-                start = r + 1;
-            }
-            ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, null));
-            // legacy
-            start = 0;
-            foreach (int r in ageBucketRangesLegacy)
             {
                 ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, r));
                 start = r + 1;

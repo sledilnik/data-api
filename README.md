@@ -16,6 +16,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 ### 1.4.2
 
 - Adds cases.confirmed, cases.confirmed.todate, cases.closed.todate and cases.active.todate to stats
+- Removes legacy buckets 0-15, 16-29, 30-49, 50-59 and 60+
 
 ### 1.4.1
 
