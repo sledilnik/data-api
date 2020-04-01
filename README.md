@@ -1,5 +1,9 @@
 # slo-covid-19 rest-server
-Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://covid19.rthand.com/api/stats), [regions](https://covid19.rthand.com/api/regions), [patients](https://covid19.rthand.com/api/patients), [hospitals](https://covid19.rthand.com/api/hospitals) and [hospitals-list](https://covid19.rthand.com/api/hospitals-list). Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
+Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://covid19.rthand.com/api/stats), 
+[regions](https://covid19.rthand.com/api/regions), [patients](https://covid19.rthand.com/api/patients), 
+[hospitals](https://covid19.rthand.com/api/hospitals), [hospitals-list](https://covid19.rthand.com/api/hospitals-list) and 
+[municipalities-list](https://covid19.rthand.com/api/municipalities-list).
+Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://covid19.rthand.com/api/ endpoint.
 
@@ -12,6 +16,10 @@ Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rtha
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+### 1.4.3
+- Adds municipalities-list endpoint
+- Updates SchemaVersion to 7
 
 ### 1.4.2
 

@@ -134,6 +134,32 @@ namespace SloCovidServer.Services.Implemented
             return result;
         }
 
+        public ImmutableArray<Municipality> GetMunicipalitiesListFromRaw(string raw)
+        {
+            string[] lines = raw.Split('\n');
+            string[] headerFields = lines[0].Trim().Split(',');
+            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
+            for (int i = 0; i < headerFields.Length; i++)
+            {
+                header = header.Add(headerFields[i], i);
+            }
+            int idIndex = header["id"];
+            int nameIndex = header["name"];
+            int populationIndex = header["population"];
+
+            var result = lines.Skip(1).Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => GetMunicipalityFromRaw(idIndex, nameIndex, populationIndex, l))
+                .ToImmutableArray();
+
+            return result;
+        }
+
+        Municipality GetMunicipalityFromRaw(int idIndex, int nameIndex, int populationIndex, string line)
+        {
+            string[] fields = line.Trim().Split(',');
+            return new Municipality(fields[idIndex], fields[nameIndex], GetInt(fields[populationIndex]) ?? 0);
+        }
+
         Hospital GetHospitalFromRaw(int idIndex, int nameIndex, int urlIndex, string line)
         {
             string[] fields = line.Trim().Split(',');
