@@ -19,7 +19,8 @@ EXPOSE 5000
 FROM base AS final
 # install slovene language
 RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen sl_SI.UTF-8 && locale -a \
-	&& localedef -i sl_SI -c -f UTF-8 -A /usr/share/locale/locale.alias sl_SI.UTF-8 && LANG sl_SI.utf8 && apt-get clean
+	&& apt-get clean
+# && localedef -i sl_SI -c -f UTF-8 -A /usr/share/locale/locale.alias sl_SI.UTF-8 && LANG sl_SI.utf8 
 WORKDIR /app
 COPY --from=publish /app/publish .
 # use non-root user
