@@ -17,6 +17,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.4.4
+
+- Removes *.needs_o2 and state.in_care from patients
+- Updates Schema version to 8
+
 ### 1.4.3
 - Adds municipalities-list endpoint
 - Updates SchemaVersion to 7

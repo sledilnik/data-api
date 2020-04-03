@@ -23,19 +23,17 @@ namespace SloCovidServer.Models
 
     public class GeneralUnit: BaseUnit<StateDeceased>
     {
-        public int? InCare { get; }
         public OutOfHospital OutOfHospital { get; }
-        public GeneralUnit(int? inCare, HospitalMovement inHospital, NeedsO2 needsO2, Movement iCU, Movement critical, StateDeceased deceased,
-            OutOfHospital outOfHospital) : base(inHospital, needsO2, iCU, critical, deceased)
+        public GeneralUnit(HospitalMovement inHospital, Movement iCU, Movement critical, StateDeceased deceased,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased)
         {
-            InCare = inCare;
             OutOfHospital = outOfHospital;
         }
     }
     public class Unit: BaseUnit<Deceased>
     {
-        public Unit(HospitalMovement inHospital, NeedsO2 needsO2, Movement iCU, Movement critical, Deceased deceased) 
-            : base(inHospital, needsO2, iCU, critical, deceased)
+        public Unit(HospitalMovement inHospital, Movement iCU, Movement critical, Deceased deceased) 
+            : base(inHospital, iCU, critical, deceased)
         {
         }
     }
@@ -43,26 +41,15 @@ namespace SloCovidServer.Models
         where TDeceased: Deceased
     {
         public HospitalMovement InHospital { get; }
-        public NeedsO2 NeedsO2 { get; }
         public Movement ICU { get; }
         public Movement Critical { get; }
         public TDeceased Deceased { get; }
-        public BaseUnit(HospitalMovement inHospital, NeedsO2 needsO2, Movement iCU, Movement critical, TDeceased deceased)
+        public BaseUnit(HospitalMovement inHospital, Movement iCU, Movement critical, TDeceased deceased)
         {
             InHospital = inHospital;
-            NeedsO2 = needsO2;
             ICU = iCU;
             Critical = critical;
             Deceased = deceased;
-        }
-    }
-
-    public class NeedsO2
-    {
-        public int? ToDate { get; }
-        public NeedsO2(int? toDate)
-        {
-            ToDate = toDate;
         }
     }
 

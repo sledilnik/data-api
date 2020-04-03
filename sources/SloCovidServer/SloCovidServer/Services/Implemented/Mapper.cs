@@ -266,7 +266,12 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("cases.confirmed", header, fields),
                 GetInt("cases.confirmed.todate", header, fields),
                 GetInt("cases.closed.todate", header, fields),
-                GetInt("cases.active.todate", header, fields)
+                GetInt("cases.active.todate", header, fields),
+                new HealthSystemSCases(GetInt("cases.hs.employee.confirmed.todate", header, fields)),
+                new RetirementHomeCases(
+                    GetInt("cases.rh.employee.confirmed.todate", header, fields),
+                    GetInt("cases.rh.occupant.confirmed.todate", header, fields)
+                )
             );
             var perTreatment = new PerTreatment(
                 GetInt("state.in_hospital", header, fields),
@@ -340,9 +345,7 @@ namespace SloCovidServer.Services.Implemented
             }
             var date = GetDate(fields[header["date"]]);
             var generalUnit = new GeneralUnit(
-                GetInt(fields[header["state.in_care"]]),
                 inHospital: GetHospitalMovement(facility: null, header, fields),
-                new NeedsO2(GetInt(fields[header["state.needs_o2"]])),
                 GetMovement(facility: null, type: "icu", header, fields),
                 GetMovement(facility: null, type: "critical", header, fields),
                 GetStateDeceased(header, fields),
@@ -353,7 +356,6 @@ namespace SloCovidServer.Services.Implemented
             {
                 var unit = new Unit(
                     inHospital: GetHospitalMovement(facility, header, fields),
-                    new NeedsO2(GetInt(fields[header[$"state.{facility}.needs_o2"]])),
                     GetMovement(facility, type: "icu", header, fields),
                     GetMovement(facility, type: "critical", header, fields),
                     GetDeceased(facility, header, fields)

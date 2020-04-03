@@ -48,12 +48,41 @@ namespace SloCovidServer.Models
         public int? ConfirmedToDate { get; }
         public int? ClosedToDate { get; }
         public int? ActiveToDate { get; }
-        public Cases(int? confirmedToday, int? confirmedToDate, int? closedToDate, int? activeToDate)
+        public HealthSystemSCases HS { get; }
+        public RetirementHomeCases RH { get; }
+        public Cases(int? confirmedToday, int? confirmedToDate, int? closedToDate, int? activeToDate, HealthSystemSCases hs, RetirementHomeCases rh)
         {
             ConfirmedToday = confirmedToday;
             ConfirmedToDate = confirmedToDate;
             ClosedToDate = closedToDate;
             ActiveToDate = activeToDate;
+            HS = hs;
+            RH = rh;
+        }
+    }
+
+    /// <summary>
+    /// Health system cases
+    /// </summary>
+    public class HealthSystemSCases
+    {
+        public int? EmployeeConfirmedToDate { get; }
+        public HealthSystemSCases(int? employeeConfirmedToDate)
+        {
+            EmployeeConfirmedToDate = employeeConfirmedToDate;
+        }
+    }
+    /// <summary>
+    /// Retirement home cases
+    /// </summary>
+    public class RetirementHomeCases
+    {
+        public int? EmployeeConfirmedToDate { get; }
+        public int? OccupantConfirmedToDate { get; }
+        public RetirementHomeCases(int? employeeConfirmedToDate, int? occupantConfirmedToDate)
+        {
+            EmployeeConfirmedToDate = employeeConfirmedToDate;
+            OccupantConfirmedToDate = occupantConfirmedToDate;
         }
     }
 }
