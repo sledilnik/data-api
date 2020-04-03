@@ -15,5 +15,17 @@ namespace SloCovidServer.Models
             Day = day;
             Regions = regions;
         }
+
+        public int? FindByPlace(string place)
+        {
+            foreach (var region in Regions)
+            {
+                if (region.Value.TryGetValue(place, out int? result))
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
     }
 }

@@ -4,6 +4,7 @@ using Polly.Extensions.Http;
 using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
@@ -24,12 +25,12 @@ namespace SloCovidServer.Services.Implemented
         ETagCacheItem<ImmutableArray<HospitalsDay>> hospitalsCache;
         ETagCacheItem<ImmutableArray<Hospital>> hospitalsListCache;
         ETagCacheItem<ImmutableArray<Municipality>> municipalitiesListCache;
-        readonly static object statsSync = new object();
-        readonly static object regionSync = new object();
-        readonly static object patientsSync = new object();
-        readonly static object hospitalsSync = new object();
-        readonly static object hospitalsListSync = new object();
-        readonly static object municipalitiesListSync = new object();
+        readonly object statsSync = new object();
+        readonly object regionSync = new object();
+        readonly object patientsSync = new object();
+        readonly object hospitalsSync = new object();
+        readonly object hospitalsListSync = new object();
+        readonly object municipalitiesListSync = new object();
         public Communicator(ILogger<Communicator> logger, Mapper mapper)
         {
             client = new HttpClient();
@@ -83,6 +84,73 @@ namespace SloCovidServer.Services.Implemented
             var result = await GetAsync(callerEtag,municipalitiesListSync, $"{root}/dict-municipality.csv",
                 municipalitiesListCache, mapFromString: mapper.GetMunicipalitiesListFromRaw, cacheItem => municipalitiesListCache = cacheItem, ct);
             return result;
+        }
+
+        public class RegionsPivotCacheData
+        {
+            public ETagCacheItem<ImmutableArray<Municipality>> Municipalities { get; }
+            public ETagCacheItem<ImmutableArray<RegionsDay>> Regions { get; }
+            public ImmutableArray<ImmutableArray<object>> Data { get;}
+            public RegionsPivotCacheData(ETagCacheItem<ImmutableArray<Municipality>> municipalities, ETagCacheItem<ImmutableArray<RegionsDay>> regions,
+                ImmutableArray<ImmutableArray<object>> data)
+            {
+                Municipalities = municipalities;
+                Regions = regions;
+                Data = data;
+            }
+        }
+        RegionsPivotCacheData regionsPivotCacheData = new RegionsPivotCacheData(
+            new ETagCacheItem<ImmutableArray<Municipality>>(null, ImmutableArray<Municipality>.Empty),
+            new ETagCacheItem<ImmutableArray<RegionsDay>>(null, ImmutableArray<RegionsDay>.Empty),
+            data: ImmutableArray<ImmutableArray<object>>.Empty
+        );
+        readonly object syncRegionsPivot = new object();
+        public async Task<(ImmutableArray<ImmutableArray<object>>? Data, string ETag)>  GetRegionsPivotAsync(string callerEtag, CancellationToken ct)
+        {
+            string[] callerETags = !string.IsNullOrEmpty(callerEtag) ? callerEtag.Split(',') : new string[2];
+            if (callerETags.Length != 2)
+            {
+                callerETags = new string[2];
+            }
+            RegionsPivotCacheData localCache;
+            lock(syncRegionsPivot)
+            {
+                localCache = regionsPivotCacheData;
+            }
+            var muncipalityTask = GetMunicipalitiesListAsync(localCache.Municipalities.ETag, ct);
+            var regions = await GetRegionsAsync(localCache.Regions.ETag, ct);
+            var municipalities = await muncipalityTask;
+            if (regions.Data.HasValue || municipalities.Data.HasValue)
+            {
+                var data = mapper.MapRegionsPivot(municipalities.Data ?? localCache.Municipalities.Data, regions.Data ?? localCache.Regions.Data);
+                localCache = new RegionsPivotCacheData(
+                    municipalities.Data.HasValue ? 
+                        new ETagCacheItem<ImmutableArray<Municipality>>(municipalities.ETag, municipalities.Data ?? ImmutableArray<Municipality>.Empty)
+                        : localCache.Municipalities,
+                    regions.Data.HasValue ? 
+                        new ETagCacheItem<ImmutableArray<RegionsDay>>(regions.ETag, regions.Data ?? ImmutableArray<RegionsDay>.Empty)
+                        : localCache.Regions,
+                    data
+                );
+                lock(syncRegionsPivot)
+                {
+                    regionsPivotCacheData = localCache;
+                }
+                return (data, $"{municipalities.ETag},{regions.ETag}");
+            }
+            else
+            {
+                string resultTag = $"{municipalities.ETag},{regions.ETag}";
+                if (string.Equals(callerETags[0], localCache.Municipalities.ETag, StringComparison.Ordinal)
+                    && string.Equals(callerETags[1], localCache.Regions.ETag, StringComparison.Ordinal))
+                {
+                    return (null, resultTag);
+                }
+                else
+                {
+                    return (localCache.Data, resultTag);
+                }
+            }
         }
 
         async Task<(TData? Data, string ETag)> GetAsync<TData>(string callerEtag, object sync, string url, ETagCacheItem<TData> cache,

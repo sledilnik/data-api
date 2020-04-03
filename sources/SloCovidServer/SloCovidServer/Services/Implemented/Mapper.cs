@@ -226,7 +226,7 @@ namespace SloCovidServer.Services.Implemented
         RegionsDay GetDailyRegionFromRaw(ImmutableDictionary<string, int> header, string line)
         {
             string[] fields = line.Trim().Split(',');
-            Dictionary<string, Dictionary<string, int?>> result = new Dictionary<string, Dictionary<string, int?>>();
+            Dictionary<string, Dictionary<string, int?>> result = new Dictionary<string, Dictionary<string, int?>>(StringComparer.OrdinalIgnoreCase);
             foreach (var headerPair in header)
             {
                 string[] headerParts = headerPair.Key.Split('.');
@@ -234,7 +234,7 @@ namespace SloCovidServer.Services.Implemented
                 {
                     if (!result.TryGetValue(headerParts[1], out Dictionary<string, int?> regions))
                     {
-                        regions = new Dictionary<string, int?>();
+                        regions = new Dictionary<string, int?>(StringComparer.OrdinalIgnoreCase);
                         result.Add(headerParts[1], regions);
                     }
                     regions[headerParts[2]] = GetInt(fields[headerPair.Value]);
@@ -402,6 +402,39 @@ namespace SloCovidServer.Services.Implemented
                 GetInt(fields[header[$"state.deceased.hospital"]]),
                 GetInt(fields[header[$"state.deceased.home"]])
             );
+        }
+
+        public ImmutableArray<ImmutableArray<object>> MapRegionsPivot(ImmutableArray<Municipality> municipalities,
+            ImmutableArray<RegionsDay> regions)
+        {
+            var sloveneCulture = new CultureInfo("sl-SI");
+            var result = new List<ImmutableArray<object>>(municipalities.Length);
+            {
+                // add header row
+                // skip first = Slovenija
+                var row = new List<object>();
+                row.Add("Place");
+                row.Add("Population");
+                foreach (var r in regions)
+                {
+                    string dayOfWeek = sloveneCulture.DateTimeFormat.GetAbbreviatedDayName(new DateTime(r.Year, r.Month, r.Day).DayOfWeek);
+                    row.Add($"{r.Day}. {r.Month}. {dayOfWeek}");
+                }
+                result.Add(row.ToImmutableArray());
+            }
+            foreach (var m in municipalities.Skip(1))
+            {
+                var row = new List<object>();
+                row.Add(m.Name);
+                row.Add(m.Population);
+                foreach (var r in regions)
+                {
+                    string dayOfWeek = sloveneCulture.DateTimeFormat.GetAbbreviatedDayName(new DateTime(r.Year, r.Month, r.Day).DayOfWeek);
+                    row.Add(r.FindByPlace(m.Id));
+                }
+                result.Add(row.ToImmutableArray());
+            }
+            return result.ToImmutableArray();
         }
 
         int? GetInt(string name, ImmutableDictionary<string, int> header, string[] fields, bool isMandatory = true)

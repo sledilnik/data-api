@@ -17,6 +17,12 @@ RUN dotnet publish "SloCovidServer.csproj" -c Release -o /app/publish
 
 EXPOSE 5000
 FROM base AS final
+# install slovene language
+RUN locale-gen sl_SI.UTF-8
+RUN locale -a
+RUN localedef -i sl_SI -c -f UTF-8 -A /usr/share/locale/locale.alias sl_SI.UTF-8
+ENV LANG sl_SI.utf8
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 # use non-root user

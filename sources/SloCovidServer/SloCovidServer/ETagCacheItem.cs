@@ -1,4 +1,6 @@
-﻿namespace SloCovidServer
+﻿using System;
+
+namespace SloCovidServer
 {
     public class ETagCacheItem<T>
     {
@@ -8,6 +10,11 @@
         {
             ETag = eTag;
             Data = data;
+        }
+
+        public ETagCacheItem<T> ShallowClone()
+        {
+            return (ETagCacheItem<T>)MemberwiseClone();
         }
     }
 }
