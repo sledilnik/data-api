@@ -18,11 +18,8 @@ RUN dotnet publish "SloCovidServer.csproj" -c Release -o /app/publish
 EXPOSE 5000
 FROM base AS final
 # install slovene language
-RUN locale-gen sl_SI.UTF-8
-RUN locale -a
-RUN localedef -i sl_SI -c -f UTF-8 -A /usr/share/locale/locale.alias sl_SI.UTF-8
-ENV LANG sl_SI.utf8
-
+RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen sl_SI.UTF-8 && locale -a \
+	&& localedef -i sl_SI -c -f UTF-8 -A /usr/share/locale/locale.alias sl_SI.UTF-8 && LANG sl_SI.utf8 && apt-get clean
 WORKDIR /app
 COPY --from=publish /app/publish .
 # use non-root user
