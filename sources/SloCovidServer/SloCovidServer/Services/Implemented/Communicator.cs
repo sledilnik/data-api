@@ -45,70 +45,67 @@ namespace SloCovidServer.Services.Implemented
             {
                 LabelNames = new[] { "endpoint" }
             });
-        ETagCacheItem<ImmutableArray<StatsDaily>> statsCache;
-        ETagCacheItem<ImmutableArray<RegionsDay>> regionCache;
-        ETagCacheItem<ImmutableArray<PatientsDay>> patientsCache;
-        ETagCacheItem<ImmutableArray<HospitalsDay>> hospitalsCache;
-        ETagCacheItem<ImmutableArray<Hospital>> hospitalsListCache;
-        ETagCacheItem<ImmutableArray<Municipality>> municipalitiesListCache;
-        readonly object statsSync = new object();
-        readonly object regionSync = new object();
-        readonly object patientsSync = new object();
-        readonly object hospitalsSync = new object();
-        readonly object hospitalsListSync = new object();
-        readonly object municipalitiesListSync = new object();
+        readonly ArrayEndpointCache<StatsDaily> statsCache;
+        readonly ArrayEndpointCache<RegionsDay> regionCache;
+        readonly ArrayEndpointCache<PatientsDay> patientsCache;
+        readonly ArrayEndpointCache<HospitalsDay> hospitalsCache;
+        readonly ArrayEndpointCache<Hospital> hospitalsListCache;
+        readonly ArrayEndpointCache<Municipality> municipalitiesListCache;
+        readonly ArrayEndpointCache<RetirementHome> retirementHomesListCache;
         public Communicator(ILogger<Communicator> logger, Mapper mapper)
         {
             client = new HttpClient();
             this.logger = logger;
             this.mapper = mapper;
-            statsCache = new ETagCacheItem<ImmutableArray<StatsDaily>>(null, ImmutableArray<StatsDaily>.Empty);
-            regionCache = new ETagCacheItem<ImmutableArray<RegionsDay>>(null, ImmutableArray<RegionsDay>.Empty);
-            patientsCache = new ETagCacheItem<ImmutableArray<PatientsDay>>(null, ImmutableArray<PatientsDay>.Empty);
-            hospitalsCache = new ETagCacheItem<ImmutableArray<HospitalsDay>>(null, ImmutableArray<HospitalsDay>.Empty);
-            hospitalsListCache = new ETagCacheItem<ImmutableArray<Hospital>>(null, ImmutableArray<Hospital>.Empty);
-            municipalitiesListCache = new ETagCacheItem<ImmutableArray<Municipality>>(null, ImmutableArray<Municipality>.Empty);
+            statsCache = new ArrayEndpointCache<StatsDaily>();
+            regionCache = new ArrayEndpointCache<RegionsDay>();
+            patientsCache = new ArrayEndpointCache<PatientsDay>();
+            hospitalsCache = new ArrayEndpointCache<HospitalsDay>();
+            hospitalsListCache = new ArrayEndpointCache<Hospital>();
+            municipalitiesListCache = new ArrayEndpointCache<Municipality>();
+            retirementHomesListCache = new ArrayEndpointCache<RetirementHome>();
         }
 
         public async Task<(ImmutableArray<StatsDaily>? Data, string ETag)> GetStatsAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, statsSync, $"{root}/stats.csv",
-                statsCache, mapFromString: mapper.GetStatsFromRaw, cacheItem => statsCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/stats.csv", statsCache, mapFromString: mapper.GetStatsFromRaw, ct);
             return result;
         }
 
         public async Task<(ImmutableArray<RegionsDay>? Data, string ETag)> GetRegionsAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, regionSync, $"{root}/regions.csv",
-                regionCache, mapFromString: mapper.GetRegionsFromRaw, cacheItem => regionCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/regions.csv",regionCache, mapFromString: mapper.GetRegionsFromRaw, ct);
             return result;
         }
 
         public async Task<(ImmutableArray<PatientsDay>? Data, string ETag)> GetPatientsAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, patientsSync, $"{root}/patients.csv",
-                patientsCache, mapFromString: mapper.GetPatientsFromRaw, cacheItem => patientsCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/patients.csv", patientsCache, mapFromString: mapper.GetPatientsFromRaw, ct);
             return result;
         }
 
         public async Task<(ImmutableArray<HospitalsDay>? Data, string ETag)> GetHospitalsAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, hospitalsSync, $"{root}/hospitals.csv",
-                hospitalsCache, mapFromString: mapper.GetHospitalsFromRaw, cacheItem => hospitalsCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/hospitals.csv", hospitalsCache, mapFromString: mapper.GetHospitalsFromRaw, ct);
             return result;
         }
 
         public async Task<(ImmutableArray<Hospital>? Data, string ETag)> GetHospitalsListAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag, hospitalsListSync, $"{root}/dict-hospitals.csv",
-                hospitalsListCache, mapFromString: mapper.GetHospitalsListFromRaw, cacheItem => hospitalsListCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/dict-hospitals.csv",hospitalsListCache, mapFromString: mapper.GetHospitalsListFromRaw, ct);
             return result;
         }
 
         public async Task<(ImmutableArray<Municipality>? Data, string ETag)> GetMunicipalitiesListAsync(string callerEtag, CancellationToken ct)
         {
-            var result = await GetAsync(callerEtag,municipalitiesListSync, $"{root}/dict-municipality.csv",
-                municipalitiesListCache, mapFromString: mapper.GetMunicipalitiesListFromRaw, cacheItem => municipalitiesListCache = cacheItem, ct);
+            var result = await GetAsync(callerEtag, $"{root}/dict-municipality.csv",municipalitiesListCache, mapFromString: mapper.GetMunicipalitiesListFromRaw, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<RetirementHome>? Data, string ETag)> GetRetirementHomesListAsync(string callerEtag, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, $"{root}/dict-retirement_homes.csv", retirementHomesListCache, 
+                mapFromString: mapper.GetRetirementHomesListFromRaw, ct);
             return result;
         }
 
@@ -179,8 +176,8 @@ namespace SloCovidServer.Services.Implemented
             }
         }
 
-        async Task<(TData? Data, string ETag)> GetAsync<TData>(string callerEtag, object sync, string url, ETagCacheItem<TData> cache,
-            Func<string, TData> mapFromString, Action<ETagCacheItem<TData>> storeToCache, CancellationToken ct)
+        async Task<(TData? Data, string ETag)> GetAsync<TData>(string callerEtag, string url, EndpointCache<TData> sync,
+            Func<string, TData> mapFromString, CancellationToken ct)
             where TData: struct
         {
             RequestCount.WithLabels(url).Inc();
@@ -189,13 +186,7 @@ namespace SloCovidServer.Services.Implemented
               .HandleTransientHttpError()
               .RetryAsync(3);
 
-            string currentETag;
-            TData currentData;
-            lock (sync)
-            {
-                currentETag = cache.ETag;
-                currentData = cache.Data;
-            }
+            ETagCacheItem<TData> current = sync.Cache;
 
             bool isException = false;
             try
@@ -203,9 +194,9 @@ namespace SloCovidServer.Services.Implemented
                 var response = await policy.ExecuteAsync(() =>
                 {
                     var request = new HttpRequestMessage(HttpMethod.Get, url);
-                    if (!string.IsNullOrEmpty(currentETag))
+                    if (!string.IsNullOrEmpty(current.ETag))
                     {
-                        request.Headers.Add("If-None-Match", currentETag);
+                        request.Headers.Add("If-None-Match", current.ETag);
                     }
                     return client.SendAsync(request, ct);
                 });
@@ -214,32 +205,33 @@ namespace SloCovidServer.Services.Implemented
                 if (response.IsSuccessStatusCode)
                 {
                     RequestMissedCache.WithLabels(url).Inc();
-                    currentETag = response.Headers.GetValues("ETag").SingleOrDefault();
+                    string newETag = response.Headers.GetValues("ETag").SingleOrDefault();
                     string content = await response.Content.ReadAsStringAsync();
-                    currentData = mapFromString(content);
+                    var newData = mapFromString(content);
+                    current = new ETagCacheItem<TData>(newETag, newData);
                     lock (sync)
                     {
-                        storeToCache(new ETagCacheItem<TData>(currentETag, currentData));
+                        sync.Cache = current;
                     }
-                    if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
+                    if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
                         logger.LogInformation($"Cache refreshed, client cache hit, {etagInfo}");
-                        return (null, currentETag);
+                        return (null, current.ETag);
                     }
                     logger.LogInformation($"Cache refreshed, client refreshed, {etagInfo}");
-                    return (currentData, currentETag);
+                    return (current.Data, current.ETag);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
-                    if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
+                    if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
                         logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
-                        return (null, currentETag);
+                        return (null, current.ETag);
                     }
                     else
                     {
                         logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
-                        return (currentData, currentETag);
+                        return (current.Data, current.ETag);
                     }
                 }
                 throw new Exception($"Failed fetching data: {response.ReasonPhrase}");

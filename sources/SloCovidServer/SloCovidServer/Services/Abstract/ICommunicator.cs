@@ -14,5 +14,6 @@ namespace SloCovidServer.Services.Abstract
         Task<(ImmutableArray<Hospital>? Data, string ETag)> GetHospitalsListAsync(string callerEtag, CancellationToken ct);
         Task<(ImmutableArray<Municipality>? Data, string ETag)> GetMunicipalitiesListAsync(string callerEtag, CancellationToken ct);
         Task<(ImmutableArray<ImmutableArray<object>>? Data, string ETag)> GetRegionsPivotAsync(string callerEtag, CancellationToken ct);
+        Task<(ImmutableArray<RetirementHome>? Data, string ETag)> GetRetirementHomesListAsync(string callerEtag, CancellationToken ct);
     }
 }

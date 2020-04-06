@@ -27,17 +27,74 @@ namespace SloCovidServer.Services.Implemented
             }
             ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, null));
         }
+        internal ImmutableArray<string> ParseLine(string raw)
+        {
+            string line = raw.Trim();
+            var header = ImmutableArray<string>.Empty;
+            int index = 0;
+            int start = 0;
+            bool isInString = false;
+            bool wasInString = false;
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+                if (isInString)
+                {
+                    if (c == '"')
+                    {
+                        isInString = false;
+                    }
+                }
+                else
+                {
+                    switch (line[i])
+                    {
+                        case ',':
+                            if (wasInString)
+                            {
+                                header = header.Add(line.Substring(start + 1, i - start - 2));
+                            }
+                            else
+                            {
+                                header = header.Add(line.Substring(start, i - start));
+                            }
+                            start = i + 1;
+                            index++;
+                            wasInString = false;
+                            break;
+                        case '"':
+                            isInString = true;
+                            wasInString = true;
+                            break;
+                    }
+                }
+            }
+            if (wasInString)
+            {
+                header = header.Add(line.Substring(start + 1, line.Length - start - 2));
+            }
+            else
+            {
+                header = header.Add(line.Substring(start, line.Length - start));
+            }
+            return header;
+        }
+        internal ImmutableDictionary<string, int> ParseHeader(string rawLine)
+        {
+            var fields = ParseLine(rawLine);
+            var header = ImmutableDictionary<string, int>.Empty;
+            for (int i = 0; i < fields.Length; i++)
+            {
+                header = header.Add(fields[i], i);
+            }
+            return header;
+        }
 
         public ImmutableArray<StatsDaily> GetStatsFromRaw(string raw)
         {
             ImmutableArray<StatsDaily> result = ImmutableArray<StatsDaily>.Empty;
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             StatsDaily previous = null;
             foreach (string line in lines.Skip(1))
             {
@@ -55,12 +112,7 @@ namespace SloCovidServer.Services.Implemented
         {
             ImmutableArray<RegionsDay> result = ImmutableArray<RegionsDay>.Empty;
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             foreach (string line in lines.Skip(1))
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -76,12 +128,7 @@ namespace SloCovidServer.Services.Implemented
         {
             ImmutableArray<PatientsDay> result = ImmutableArray<PatientsDay>.Empty;
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             foreach (string line in lines.Skip(1))
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -97,12 +144,7 @@ namespace SloCovidServer.Services.Implemented
         {
             ImmutableArray<HospitalsDay> result = ImmutableArray<HospitalsDay>.Empty;
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             foreach (string line in lines.Skip(1))
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -117,12 +159,7 @@ namespace SloCovidServer.Services.Implemented
         public ImmutableArray<Hospital> GetHospitalsListFromRaw(string raw)
         {
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             int idIndex = header["id"];
             int nameIndex = header["name"];
             int urlIndex = header["url"];
@@ -137,12 +174,7 @@ namespace SloCovidServer.Services.Implemented
         public ImmutableArray<Municipality> GetMunicipalitiesListFromRaw(string raw)
         {
             string[] lines = raw.Split('\n');
-            string[] headerFields = lines[0].Trim().Split(',');
-            ImmutableDictionary<string, int> header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < headerFields.Length; i++)
-            {
-                header = header.Add(headerFields[i], i);
-            }
+            var header = ParseHeader(lines[0]);
             int idIndex = header["id"];
             int nameIndex = header["name"];
             int populationIndex = header["population"];
@@ -154,21 +186,51 @@ namespace SloCovidServer.Services.Implemented
             return result;
         }
 
+        public ImmutableArray<RetirementHome> GetRetirementHomesListFromRaw(string raw)
+        {
+            string[] lines = raw.Split('\n');
+            var header = ParseHeader(lines[0]);
+            int idIndex = header["id"];
+            int nameIndex = header["name"];
+            int regionIndex = header["region"];
+            int typeIndex = header["type"];
+            int occupantsIndex = header["occupants"];
+            int employeesIndex = header["employees"];
+            int urlIndex = header["url"];
+
+            var result = lines.Skip(1).Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => {
+                    var fields = ParseLine(l);
+                    return new RetirementHome(
+                        fields[idIndex],
+                        fields[nameIndex],
+                        fields[regionIndex],
+                        fields[typeIndex],
+                        GetInt(fields[occupantsIndex]),
+                        GetInt(fields[employeesIndex]),
+                        fields[urlIndex]
+                    );
+                })
+                .ToImmutableArray();
+
+            return result;
+        }
+
         Municipality GetMunicipalityFromRaw(int idIndex, int nameIndex, int populationIndex, string line)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             return new Municipality(fields[idIndex], fields[nameIndex], GetInt(fields[populationIndex]) ?? 0);
         }
 
         Hospital GetHospitalFromRaw(int idIndex, int nameIndex, int urlIndex, string line)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             return new Hospital(fields[idIndex], fields[nameIndex], fields[urlIndex]);
         }
 
         HospitalsDay GetDailyHospitalsFromRaw(ImmutableDictionary<string, int> header, string line)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             var date = GetDate(fields[header["date"]]);
             var perHospital = new Dictionary<string, HospitalDay>(facilities.Length);
             foreach (string hospital in hospitals)
@@ -182,7 +244,7 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        HospitalDay GetHospitalDay(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        HospitalDay GetHospitalDay(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             return new HospitalDay(
                 GetHospitalBeds(hospital, header, fields),
@@ -191,7 +253,7 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        HospitalBedDay GetHospitalBeds(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        HospitalBedDay GetHospitalBeds(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalBedDay(
@@ -202,7 +264,7 @@ namespace SloCovidServer.Services.Implemented
                 GetInt($"hospital{location}.bed.free.max", header, fields)
             );
         }
-        HospitalICUDay GetHospitalICUs(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        HospitalICUDay GetHospitalICUs(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalICUDay(
@@ -212,7 +274,7 @@ namespace SloCovidServer.Services.Implemented
                 GetInt($"hospital{location}.icu.free", header , fields, isMandatory: false)
             );
         }
-        HospitalVentDay GetHospitalVents(string hospital, ImmutableDictionary<string, int> header, string[] fields)
+        HospitalVentDay GetHospitalVents(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalVentDay(
@@ -225,7 +287,7 @@ namespace SloCovidServer.Services.Implemented
 
         RegionsDay GetDailyRegionFromRaw(ImmutableDictionary<string, int> header, string line)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             Dictionary<string, Dictionary<string, int?>> result = new Dictionary<string, Dictionary<string, int?>>(StringComparer.OrdinalIgnoreCase);
             foreach (var headerPair in header)
             {
@@ -257,7 +319,7 @@ namespace SloCovidServer.Services.Implemented
         }
         StatsDaily GetDailyStatsFromRaw(ImmutableDictionary<string, int> header, string line, int? previousDecasedToDate, int? previousOutOfHospitalToDate)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             int? deceasedToDate = GetInt("state.deceased.todate", header, fields);
             int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
             int? outOfHospitalToDate = GetInt("state.out_of_hospital.todate", header, fields);
@@ -328,7 +390,7 @@ namespace SloCovidServer.Services.Implemented
 
         PatientsDay GetDailyPatientsFromRaw(ImmutableDictionary<string, int> header, string line)
         {
-            string[] fields = line.Trim().Split(',');
+            var fields = ParseLine(line);
             Dictionary<string, Dictionary<string, int?>> result = new Dictionary<string, Dictionary<string, int?>>();
             foreach (var headerPair in header)
             {
@@ -365,7 +427,7 @@ namespace SloCovidServer.Services.Implemented
             return new PatientsDay(GetInt(fields[header["day"]]) ?? 0, date.Year, date.Month, date.Day, generalUnit, f);
         }
 
-        HospitalMovement GetHospitalMovement(string facility, ImmutableDictionary<string, int> header, string[] fields)
+        HospitalMovement GetHospitalMovement(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(facility) ? $".{facility}" : "";
             return new HospitalMovement(
@@ -376,7 +438,7 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        Movement GetMovement(string facility, string type, ImmutableDictionary<string, int> header, string[] fields)
+        Movement GetMovement(string facility, string type, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(facility) ? $".{facility}.{type}" : $".{type}";
             return new Movement(
@@ -386,7 +448,7 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        Deceased GetDeceased(string facility, ImmutableDictionary<string, int> header, string[] fields)
+        Deceased GetDeceased(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = $".{facility}";
             return new Deceased(
@@ -394,7 +456,7 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        StateDeceased GetStateDeceased(ImmutableDictionary<string, int> header, string[] fields)
+        StateDeceased GetStateDeceased(ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             return new StateDeceased(
                 GetInt(fields[header[$"state.deceased"]]),
@@ -437,7 +499,7 @@ namespace SloCovidServer.Services.Implemented
             return result.ToImmutableArray();
         }
 
-        int? GetInt(string name, ImmutableDictionary<string, int> header, string[] fields, bool isMandatory = true)
+        int? GetInt(string name, ImmutableDictionary<string, int> header, IImmutableList<string> fields, bool isMandatory = true)
         {
             if (!header.TryGetValue(name, out int index))
             {
