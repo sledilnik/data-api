@@ -8,8 +8,8 @@ RUN dotnet restore "SloCovidServer/SloCovidServer.csproj"
 COPY . .
 WORKDIR "/src/SloCovidServer"
 RUN dotnet build "SloCovidServer.csproj" -c Release -o /app/build
-#WORKDIR "/src/SloCovidServer.Test"
-#RUN dotnet test "SloCovidServer.Test.csproj" -c Release
+WORKDIR "/src/Test/SloCovidServer.Test"
+RUN dotnet test "SloCovidServer.Test.csproj" -c Release
 
 WORKDIR "/src/SloCovidServer"
 FROM build AS publish
