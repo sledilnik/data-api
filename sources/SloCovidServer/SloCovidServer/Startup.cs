@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Prometheus;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
 using System.Net.Http;
@@ -104,6 +105,7 @@ namespace SloCovidServer
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapMetrics();
                 endpoints.MapControllers();
             });
         }

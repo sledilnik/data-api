@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
+using Prometheus;
 using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -19,6 +21,30 @@ namespace SloCovidServer.Services.Implemented
         readonly HttpClient client;
         readonly ILogger<Communicator> logger;
         readonly Mapper mapper;
+        protected static readonly Histogram RequestDuration = Metrics.CreateHistogram("source_request_duration_milliseconds",
+            "Request duration to CSV sources in milliseconds",
+            new HistogramConfiguration
+            {
+                Buckets = Histogram.ExponentialBuckets(start: 20, factor: 2, count: 10),
+                LabelNames = new[] { "endpoint", "is_exception" }
+            });
+        protected static readonly Counter RequestCount = Metrics.CreateCounter("source_request_total", "Total number of requests to source",
+            new CounterConfiguration
+            {
+                LabelNames = new[] { "endpoint" }
+            });
+        protected static readonly Counter RequestMissedCache = Metrics.CreateCounter("source_request_missed_cache_total", 
+            "Total number of missed cache when fetching from source",
+            new CounterConfiguration
+            {
+                LabelNames = new[] { "endpoint" }
+            });
+        protected static readonly Counter RequestExceptions = Metrics.CreateCounter("source_request_exceptions_total", 
+            "Total number of exceptions when fetching data from source",
+            new CounterConfiguration
+            {
+                LabelNames = new[] { "endpoint" }
+            });
         ETagCacheItem<ImmutableArray<StatsDaily>> statsCache;
         ETagCacheItem<ImmutableArray<RegionsDay>> regionCache;
         ETagCacheItem<ImmutableArray<PatientsDay>> patientsCache;
@@ -157,6 +183,8 @@ namespace SloCovidServer.Services.Implemented
             Func<string, TData> mapFromString, Action<ETagCacheItem<TData>> storeToCache, CancellationToken ct)
             where TData: struct
         {
+            RequestCount.WithLabels(url).Inc();
+            var stopwatch = Stopwatch.StartNew();
             var policy = HttpPolicyExtensions
               .HandleTransientHttpError()
               .RetryAsync(3);
@@ -169,48 +197,63 @@ namespace SloCovidServer.Services.Implemented
                 currentData = cache.Data;
             }
 
-            var response = await policy.ExecuteAsync(() =>
+            bool isException = false;
+            try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                if (!string.IsNullOrEmpty(currentETag))
+                var response = await policy.ExecuteAsync(() =>
                 {
-                    request.Headers.Add("If-None-Match", currentETag);
-                }
-                return client.SendAsync(request, ct);
-            });
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    if (!string.IsNullOrEmpty(currentETag))
+                    {
+                        request.Headers.Add("If-None-Match", currentETag);
+                    }
+                    return client.SendAsync(request, ct);
+                });
 
-            string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : "present")}";
-            if (response.IsSuccessStatusCode)
-            {
-                currentETag = response.Headers.GetValues("ETag").SingleOrDefault();
-                string content = await response.Content.ReadAsStringAsync();
-                currentData = mapFromString(content);
-                lock (sync)
+                string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : "present")}";
+                if (response.IsSuccessStatusCode)
                 {
-                    storeToCache(new ETagCacheItem<TData>(currentETag, currentData));
-                }
-                if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
-                {
-                    logger.LogInformation($"Cache refreshed, client cache hit, {etagInfo}");
-                    return (null, currentETag);
-                }
-                logger.LogInformation($"Cache refreshed, client refreshed, {etagInfo}");
-                return (currentData, currentETag);
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
-            {
-                if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
-                {
-                    logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
-                    return (null, currentETag);
-                }
-                else
-                {
-                    logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
+                    RequestMissedCache.WithLabels(url).Inc();
+                    currentETag = response.Headers.GetValues("ETag").SingleOrDefault();
+                    string content = await response.Content.ReadAsStringAsync();
+                    currentData = mapFromString(content);
+                    lock (sync)
+                    {
+                        storeToCache(new ETagCacheItem<TData>(currentETag, currentData));
+                    }
+                    if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
+                    {
+                        logger.LogInformation($"Cache refreshed, client cache hit, {etagInfo}");
+                        return (null, currentETag);
+                    }
+                    logger.LogInformation($"Cache refreshed, client refreshed, {etagInfo}");
                     return (currentData, currentETag);
                 }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
+                {
+                    if (string.Equals(currentETag, callerEtag, StringComparison.Ordinal))
+                    {
+                        logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
+                        return (null, currentETag);
+                    }
+                    else
+                    {
+                        logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
+                        return (currentData, currentETag);
+                    }
+                }
+                throw new Exception($"Failed fetching data: {response.ReasonPhrase}");
             }
-            throw new Exception($"Failed fetching data: {response.ReasonPhrase}");
+            catch
+            {
+                isException = true;
+                RequestExceptions.WithLabels(url).Inc();
+                throw;
+            }
+            finally
+            {
+                RequestDuration.WithLabels(url, isException.ToString()).Observe(stopwatch.ElapsedMilliseconds);
+            }
         }
     }
 }

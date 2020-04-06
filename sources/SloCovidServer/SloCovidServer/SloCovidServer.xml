@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SloCovidServer</name>
+    </assembly>
+    <members>
+        <member name="T:SloCovidServer.Controllers.DataController">
+            <summary>
+            Legacy controller, will be removed eventually.
+            Use <see cref="T:SloCovidServer.Controllers.StatsController"/> instead.
+            </summary>
+        </member>
+        <member name="T:SloCovidServer.Models.HealthSystemSCases">
+            <summary>
+            Health system cases
+            </summary>
+        </member>
+        <member name="T:SloCovidServer.Models.RetirementHomeCases">
+            <summary>
+            Retirement home cases
+            </summary>
+        </member>
+    </members>
+</doc>

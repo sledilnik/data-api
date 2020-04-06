@@ -17,6 +17,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.0
+ 
+- Adds prometheus metrics available at /metrics endpoint
+
 ### 1.4.5
 
 - Adds regions-pivot, a pivoted view on regions
