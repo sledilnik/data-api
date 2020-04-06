@@ -216,6 +216,77 @@ namespace SloCovidServer.Services.Implemented
             return result;
         }
 
+        public ImmutableArray<RetirementHomesDay> GetRetirementHomesFromRaw(string raw)
+        {
+            string[] lines = raw.Split('\n');
+            var header = ParseHeader(lines[0]);
+            int dateIndex = header["date"];
+            int totalIndex = header["rh.total"];
+            int employeeIndex = header["rh.employee.total"];
+            int occupantIndex = header["rh.occupant.total"];
+            var meta = GetRetirementHomeMetaFromHeader(header);
+
+            return lines.Skip(1).Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => GetRetirementHomesDayFromRaw(dateIndex, totalIndex, employeeIndex, occupantIndex, meta, l)).ToImmutableArray();
+        }
+
+        ImmutableArray<RetirementHomeMeta> GetRetirementHomeMetaFromHeader(ImmutableDictionary<string, int> header)
+        {
+            var meta = ImmutableArray<RetirementHomeMeta>.Empty;
+            var groupped = from h in header
+                           let parts = h.Key.Split('.')
+                           where parts.Length == 4
+                           group new { Id = parts[2], Type=parts[3], Index = h.Value } by parts[2] into g
+                           select g;
+            foreach (var g in groupped)
+            {
+                int totalIndex = 0;
+                int employeeIndex = 0;
+                int occupantIndex = 0;
+                foreach (var value in g)
+                {
+                    switch (value.Type)
+                    {
+                        case "total":
+                            totalIndex = value.Index;
+                            break;
+                        case "employee":
+                            employeeIndex = value.Index;
+                            break;
+                        case "occupant":
+                            occupantIndex = value.Index;
+                            break;
+                    }
+                }
+                meta = meta.Add(new RetirementHomeMeta(g.Key, totalIndex, employeeIndex, occupantIndex));
+            }
+            return meta;
+        }
+        RetirementHomesDay GetRetirementHomesDayFromRaw(int dateIndex, int totalIndex, int employeeIndex, int occupantIndex, 
+            ImmutableArray<RetirementHomeMeta> meta, string line)
+        {
+            var fields = ParseLine(line);
+            var date = GetDate(fields[dateIndex]);
+            var homes = meta.Select(m => 
+                new RetirementHomeDay(m.Id,
+                    GetInt(fields[m.TotalIndex]),
+                    GetInt(fields[m.EmployeeIndex]),
+                    GetInt(fields[m.OccupantIndex])
+                )
+            )
+            .ToImmutableArray();
+            
+            return new RetirementHomesDay(
+                date.Year, 
+                date.Month,
+                date.Day,
+                GetInt(fields[totalIndex]),
+                GetInt(fields[employeeIndex]),
+                GetInt(fields[occupantIndex]),
+                homes
+            );
+        }
+
         Municipality GetMunicipalityFromRaw(int idIndex, int nameIndex, int populationIndex, string line)
         {
             var fields = ParseLine(line);
@@ -558,6 +629,21 @@ namespace SloCovidServer.Services.Implemented
                 TargetName = $"above{ageFrom}";
                 Key = $"{AgeFrom}+";
             }
+        }
+    }
+
+    public readonly struct RetirementHomeMeta
+    {
+        public string Id { get; }
+        public int TotalIndex { get; }
+        public int EmployeeIndex { get; }
+        public int OccupantIndex { get; }
+        public RetirementHomeMeta(string id, int totalIndex, int employeeIndex, int occupantIndex)
+        {
+            Id = id;
+            TotalIndex = totalIndex;
+            EmployeeIndex = employeeIndex;
+            OccupantIndex = occupantIndex;
         }
     }
 }

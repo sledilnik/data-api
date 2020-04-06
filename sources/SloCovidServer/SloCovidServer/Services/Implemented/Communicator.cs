@@ -52,6 +52,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<Hospital> hospitalsListCache;
         readonly ArrayEndpointCache<Municipality> municipalitiesListCache;
         readonly ArrayEndpointCache<RetirementHome> retirementHomesListCache;
+        readonly ArrayEndpointCache<RetirementHomesDay> retirementHomesCache;
         public Communicator(ILogger<Communicator> logger, Mapper mapper)
         {
             client = new HttpClient();
@@ -64,6 +65,7 @@ namespace SloCovidServer.Services.Implemented
             hospitalsListCache = new ArrayEndpointCache<Hospital>();
             municipalitiesListCache = new ArrayEndpointCache<Municipality>();
             retirementHomesListCache = new ArrayEndpointCache<RetirementHome>();
+            retirementHomesCache = new ArrayEndpointCache<RetirementHomesDay>();
         }
 
         public async Task<(ImmutableArray<StatsDaily>? Data, string ETag)> GetStatsAsync(string callerEtag, CancellationToken ct)
@@ -106,6 +108,13 @@ namespace SloCovidServer.Services.Implemented
         {
             var result = await GetAsync(callerEtag, $"{root}/dict-retirement_homes.csv", retirementHomesListCache, 
                 mapFromString: mapper.GetRetirementHomesListFromRaw, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<RetirementHomesDay>? Data, string ETag)> GetRetirementHomesAsync(string callerEtag, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, $"{root}/retirement_homes.csv", retirementHomesCache,
+                mapFromString: mapper.GetRetirementHomesFromRaw, ct);
             return result;
         }
 
