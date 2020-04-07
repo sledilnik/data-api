@@ -18,6 +18,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.2
+
+- Requests to CSV source are now cached for a minute
+
 ### 1.5.1
 
 - Refactors communicator caching

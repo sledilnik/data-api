@@ -1,9 +1,11 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 namespace SloCovidServer
 {
     public class ETagCacheItem<T>
     {
+        public DateTime Created { get; } = DateTime.UtcNow;
         public string ETag { get; }
         public T Data { get; }
         public static ETagCacheItem<T> Create(string etag, T data)

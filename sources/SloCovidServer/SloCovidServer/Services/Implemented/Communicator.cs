@@ -189,7 +189,6 @@ namespace SloCovidServer.Services.Implemented
             Func<string, TData> mapFromString, CancellationToken ct)
             where TData: struct
         {
-            RequestCount.WithLabels(url).Inc();
             var stopwatch = Stopwatch.StartNew();
             var policy = HttpPolicyExtensions
               .HandleTransientHttpError()
@@ -200,18 +199,28 @@ namespace SloCovidServer.Services.Implemented
             bool isException = false;
             try
             {
-                var response = await policy.ExecuteAsync(() =>
+                HttpResponseMessage response;
+                // cache responses for a minute
+                if (current.ETag == null || (DateTime.UtcNow - current.Created) > TimeSpan.FromMinutes(1))
                 {
-                    var request = new HttpRequestMessage(HttpMethod.Get, url);
-                    if (!string.IsNullOrEmpty(current.ETag))
+                    response = await policy.ExecuteAsync(() =>
                     {
-                        request.Headers.Add("If-None-Match", current.ETag);
-                    }
-                    return client.SendAsync(request, ct);
-                });
+                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        if (!string.IsNullOrEmpty(current.ETag))
+                        {
+                            request.Headers.Add("If-None-Match", current.ETag);
+                        }
+                        RequestCount.WithLabels(url).Inc();
+                        return client.SendAsync(request, ct);
+                    });
+                }
+                else
+                {
+                    response = null;
+                }
 
                 string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : "present")}";
-                if (response.IsSuccessStatusCode)
+                if (response?.IsSuccessStatusCode ?? false)
                 {
                     RequestMissedCache.WithLabels(url).Inc();
                     string newETag = response.Headers.GetValues("ETag").SingleOrDefault();
@@ -230,7 +239,7 @@ namespace SloCovidServer.Services.Implemented
                     logger.LogInformation($"Cache refreshed, client refreshed, {etagInfo}");
                     return (current.Data, current.ETag);
                 }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
+                else if (response == null || response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
                     if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
