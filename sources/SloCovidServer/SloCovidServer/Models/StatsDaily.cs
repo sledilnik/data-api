@@ -50,7 +50,9 @@ namespace SloCovidServer.Models
         public int? ActiveToDate { get; }
         public HealthSystemSCases HS { get; }
         public RetirementHomeCases RH { get; }
-        public Cases(int? confirmedToday, int? confirmedToDate, int? closedToDate, int? activeToDate, HealthSystemSCases hs, RetirementHomeCases rh)
+        public UnclassifiedCases Unclassified { get; }
+        public Cases(int? confirmedToday, int? confirmedToDate, int? closedToDate, int? activeToDate, HealthSystemSCases hs, RetirementHomeCases rh,
+            UnclassifiedCases unclassified)
         {
             ConfirmedToday = confirmedToday;
             ConfirmedToDate = confirmedToDate;
@@ -58,6 +60,16 @@ namespace SloCovidServer.Models
             ActiveToDate = activeToDate;
             HS = hs;
             RH = rh;
+            Unclassified = unclassified;
+        }
+    }
+
+    public class UnclassifiedCases
+    {
+        public int? ConfirmedToDate { get; }
+        public UnclassifiedCases(int? confirmedToDate)
+        {
+            ConfirmedToDate = confirmedToDate;
         }
     }
 
