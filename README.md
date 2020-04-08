@@ -18,6 +18,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.3
+   
+- Adds cases.unclassified.confirmed.todate to stats
+- Changes behavior in case of failure against CSV source - data is returned from cache, slack notification is sent
+- Updates SchemaVersion to 11
+
 ### 1.5.2
 
 - Requests to CSV source are now cached for a minute
