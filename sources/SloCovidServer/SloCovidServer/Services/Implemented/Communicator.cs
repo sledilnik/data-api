@@ -5,6 +5,7 @@ using Prometheus;
 using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -21,6 +22,7 @@ namespace SloCovidServer.Services.Implemented
         readonly HttpClient client;
         readonly ILogger<Communicator> logger;
         readonly Mapper mapper;
+        readonly ISlackService slackService;
         protected static readonly Histogram RequestDuration = Metrics.CreateHistogram("source_request_duration_milliseconds",
             "Request duration to CSV sources in milliseconds",
             new HistogramConfiguration
@@ -45,6 +47,12 @@ namespace SloCovidServer.Services.Implemented
             {
                 LabelNames = new[] { "endpoint" }
             });
+        protected static readonly Gauge EndpointDown = Metrics.CreateGauge("endopoint_down",
+           "When above 0 means that given endpoint is unreachable",
+           new GaugeConfiguration
+           {
+               LabelNames = new[] { "endpoint" }
+           });
         readonly ArrayEndpointCache<StatsDaily> statsCache;
         readonly ArrayEndpointCache<RegionsDay> regionCache;
         readonly ArrayEndpointCache<PatientsDay> patientsCache;
@@ -53,11 +61,16 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<Municipality> municipalitiesListCache;
         readonly ArrayEndpointCache<RetirementHome> retirementHomesListCache;
         readonly ArrayEndpointCache<RetirementHomesDay> retirementHomesCache;
-        public Communicator(ILogger<Communicator> logger, Mapper mapper)
+        /// <summary>
+        /// Holds error flags against endpoints
+        /// </summary>
+        readonly ConcurrentDictionary<string, object> errors;
+        public Communicator(ILogger<Communicator> logger, Mapper mapper, ISlackService slackService)
         {
             client = new HttpClient();
             this.logger = logger;
             this.mapper = mapper;
+            this.slackService = slackService;
             statsCache = new ArrayEndpointCache<StatsDaily>();
             regionCache = new ArrayEndpointCache<RegionsDay>();
             patientsCache = new ArrayEndpointCache<PatientsDay>();
@@ -66,6 +79,7 @@ namespace SloCovidServer.Services.Implemented
             municipalitiesListCache = new ArrayEndpointCache<Municipality>();
             retirementHomesListCache = new ArrayEndpointCache<RetirementHome>();
             retirementHomesCache = new ArrayEndpointCache<RetirementHomesDay>();
+            errors = new ConcurrentDictionary<string, object>();
         }
 
         public async Task<(ImmutableArray<StatsDaily>? Data, string ETag)> GetStatsAsync(string callerEtag, CancellationToken ct)
@@ -185,23 +199,53 @@ namespace SloCovidServer.Services.Implemented
             }
         }
 
-        async Task<(TData? Data, string ETag)> GetAsync<TData>(string callerEtag, string url, EndpointCache<TData> sync,
-            Func<string, TData> mapFromString, CancellationToken ct)
-            where TData: struct
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="url"></param>
+        /// <param name="sync"></param>
+        /// <param name="current"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        /// <remarks>This method might update sync.Cache but only to refresh its Created property.</remarks>
+        async Task<(HttpResponseMessage Reponse, ETagCacheItem<TData> Current)> FetchDataAsync<TData>(
+            string url, EndpointCache<TData> sync, ETagCacheItem<TData> current, CancellationToken ct)
+            where TData : struct
         {
-            var stopwatch = Stopwatch.StartNew();
+            async Task ProcessErrorAsync(string message)
+            {
+                if (errors.TryAdd(url, null))
+                {
+                    EndpointDown.WithLabels(url).Inc();
+                    await slackService.SendNotificationAsync($"DATA API REST service started failing to retrieve data from {url} because {message}",
+                        CancellationToken.None);
+                }
+                else
+                {
+                    await slackService.SendNotificationAsync($"DATA API REST service failed retrieving data from {url} because {message}",
+                        CancellationToken.None);
+                }
+            }
+            async Task ProcessErrorRemovalAsync()
+            {
+                // remove error flag
+                if (errors.TryRemove(url, out _))
+                {
+                    EndpointDown.WithLabels(url).Dec();
+                    await slackService.SendNotificationAsync($"DATA API REST service started retrieving data from {url}", CancellationToken.None);
+                }
+            }
+
             var policy = HttpPolicyExtensions
               .HandleTransientHttpError()
               .RetryAsync(3);
 
-            ETagCacheItem<TData> current = sync.Cache;
-
-            bool isException = false;
-            try
+            HttpResponseMessage response;
+            // cache responses for a minute
+            if (current.ETag == null || (DateTime.UtcNow - current.Created) > TimeSpan.FromMinutes(1))
             {
-                HttpResponseMessage response;
-                // cache responses for a minute
-                if (current.ETag == null || (DateTime.UtcNow - current.Created) > TimeSpan.FromMinutes(1))
+                try
                 {
                     response = await policy.ExecuteAsync(() =>
                     {
@@ -213,11 +257,50 @@ namespace SloCovidServer.Services.Implemented
                         RequestCount.WithLabels(url).Inc();
                         return client.SendAsync(request, ct);
                     });
+                    if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotModified)
+                    {
+                        _ = ProcessErrorRemovalAsync();
+                    }
+                    else
+                    {
+                        _ = ProcessErrorAsync(response.ReasonPhrase);
+                        // refresh created to avoid hitting source too much in this case
+                        sync.Cache = new ETagCacheItem<TData>(current.ETag, current.Data);
+                        // setting response to null, so the calling method will return cached data
+                        response = null;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
+                    // setting response to null, so the calling method will return cached data
                     response = null;
+                    _ = ProcessErrorAsync(ex.Message);
+                    // refresh created to avoid hitting source too much in this case
+                    sync.Cache = new ETagCacheItem<TData>(current.ETag, current.Data);
                 }
+            }
+            else
+            {
+                response = null;
+            }
+            return (response, current);
+        }
+
+        async Task<(TData? Data, string ETag)> GetAsync<TData>(string callerEtag, string url, EndpointCache<TData> sync,
+            Func<string, TData> mapFromString, CancellationToken ct)
+            where TData: struct
+        {
+            
+            var stopwatch = Stopwatch.StartNew();
+
+            ETagCacheItem<TData> current = sync.Cache;
+
+            bool isException = false;
+            try
+            {
+                HttpResponseMessage response;
+                // current might have been updated with new Created date
+                (response, current) = await FetchDataAsync(url, sync, current, ct);
 
                 string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : "present")}";
                 if (response?.IsSuccessStatusCode ?? false)
@@ -227,10 +310,7 @@ namespace SloCovidServer.Services.Implemented
                     string content = await response.Content.ReadAsStringAsync();
                     var newData = mapFromString(content);
                     current = new ETagCacheItem<TData>(newETag, newData);
-                    lock (sync)
-                    {
-                        sync.Cache = current;
-                    }
+                    sync.Cache = current;
                     if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
                         logger.LogInformation($"Cache refreshed, client cache hit, {etagInfo}");
@@ -244,11 +324,7 @@ namespace SloCovidServer.Services.Implemented
                     // recreate cache if there was an actual request to update its Created field
                     if (response != null)
                     {
-                        current = new ETagCacheItem<TData>(current.ETag, current.Data);
-                        lock (sync)
-                        {
-                            sync.Cache = current;
-                        }
+                        sync.Cache = new ETagCacheItem<TData>(current.ETag, current.Data);
                     }
                     if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
