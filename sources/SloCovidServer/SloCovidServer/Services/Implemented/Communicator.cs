@@ -241,6 +241,15 @@ namespace SloCovidServer.Services.Implemented
                 }
                 else if (response == null || response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
+                    // recreate cache if there was an actual request to update its Created field
+                    if (response != null)
+                    {
+                        current = new ETagCacheItem<TData>(current.ETag, current.Data);
+                        lock (sync)
+                        {
+                            sync.Cache = current;
+                        }
+                    }
                     if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                     {
                         logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
