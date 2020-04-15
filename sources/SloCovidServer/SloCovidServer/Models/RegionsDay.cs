@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace SloCovidServer.Models
 {
@@ -26,6 +27,36 @@ namespace SloCovidServer.Models
                 }
             }
             return null;
+        }
+    }
+
+    public class RegionSum
+    {
+        public string Code { get; }
+        public string Name { get; }
+        public string AltName { get; }
+        public ImmutableArray<MunicipalitySum> Municipalities { get; }
+        public RegionSum(string code, string name, string altName, ImmutableArray<MunicipalitySum> municipalities)
+        {
+            Code = code;
+            Name = name;
+            AltName = altName;
+            Municipalities = municipalities;
+        }
+    }
+
+    public class MunicipalitySum
+    {
+        public string Code { get; }
+        public string Name { get; }
+        public string AltName { get; }
+        public int? Value { get; }
+        public MunicipalitySum(string code, string name, string altName, int? value)
+        {
+            Code = code;
+            Name = name;
+            AltName = altName;
+            Value = value;
         }
     }
 }

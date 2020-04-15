@@ -198,6 +198,48 @@ namespace SloCovidServer.Services.Implemented
                 }
             }
         }
+        public async Task<(ImmutableArray<RegionSum>? Data, string ETag)> GetRegionsSummaryAsync(string callerEtag, CancellationToken ct)
+        {
+            var regions = await GetRegionsAsync(callerEtag, ct);
+            if (regions.Data != null)
+            {
+                var sum = new Dictionary<string, Dictionary<string, int?>>();
+                foreach (var region in regions.Data.Value)
+                {
+                    foreach (var pair in region.Regions)
+                    {
+                        if (!sum.TryGetValue(pair.Key, out var municipalities))
+                        {
+                            municipalities = new Dictionary<string, int?>();
+                            sum.Add(pair.Key, municipalities);
+                        }
+                        foreach (var source in pair.Value)
+                        {
+                            municipalities.TryGetValue(source.Key, out int? municipality);
+                            if (source.Value.HasValue && municipality.HasValue)
+                            {
+                                municipality += source.Value;
+                                municipalities[source.Key] = municipality;
+                            }
+                        }
+                    }
+                }
+                var result = new List<RegionSum>(sum.Count);
+                foreach (var r in sum)
+                {
+                    result.Add(
+                        new RegionSum(
+                            r.Key,
+                            name: "",
+                            altName: "",
+                            municipalities: r.Value.Select(m => new MunicipalitySum(m.Key, name: "", altName: "", m.Value)).ToImmutableArray()
+                            )
+                        );
+                    return (result.ToImmutableArray(), regions.ETag);
+                }
+            }
+            return (null, regions.ETag);
+        }
 
         /// <summary>
         /// 
