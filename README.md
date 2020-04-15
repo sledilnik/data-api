@@ -18,6 +18,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.4
+
+- Adds deceased.*.todate to stats
+- Updates SchemaVersion to 12
+
 ### 1.5.3
    
 - Adds cases.unclassified.confirmed.todate to stats

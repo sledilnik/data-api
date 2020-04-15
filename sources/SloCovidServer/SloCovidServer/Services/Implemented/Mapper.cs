@@ -439,6 +439,18 @@ namespace SloCovidServer.Services.Implemented
                 );
                 perAgeSum = perAgeSum.Add(perAge);
             }
+            var deceasedPerAge = ImmutableArray<PerAgeBucket>.Empty;
+            foreach (var bucket in ageBuckets)
+            {
+                var perAge = new PerAgeBucket(
+                    bucket.AgeFrom,
+                    bucket.AgeTo,
+                    GetInt($"deceased.{bucket.Key}.todate", header, fields),
+                    GetInt($"deceased.female.{bucket.Key}.todate", header, fields),
+                    GetInt($"deceased.male.{bucket.Key}.todate", header, fields)
+                );
+                deceasedPerAge = deceasedPerAge.Add(perAge);
+            }
             var date = GetDate(fields[header["date"]]);
             var result = new StatsDaily(
                 GetInt("day", header, fields) ?? 0,
@@ -455,7 +467,8 @@ namespace SloCovidServer.Services.Implemented
                 cases,
                 perTreatment,
                 perRegion,
-                perAgeSum
+                perAgeSum,
+                deceasedPerAge
             );
             return result;
         }

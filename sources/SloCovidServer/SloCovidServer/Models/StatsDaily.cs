@@ -19,10 +19,11 @@ namespace SloCovidServer.Models
         public PerTreatment StatePerTreatment { get; }
         public ImmutableDictionary<string, int?> StatePerRegion { get; }
         public ImmutableArray<PerAgeBucket> StatePerAgeToDate { get; }
+        public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
             int? positiveTests, int? femaleToDate, int? maleToDate,
             Cases cases, PerTreatment statePerTreatment, ImmutableDictionary<string, int?> statePerRegion,
-            ImmutableArray<PerAgeBucket> statePerAgeToDate)
+            ImmutableArray<PerAgeBucket> statePerAgeToDate, ImmutableArray<PerAgeBucket> deceasedPerAgeToDate)
         {
             DayFromStart = dayFromStart;
             Year = year;
@@ -39,6 +40,7 @@ namespace SloCovidServer.Models
             StatePerTreatment = statePerTreatment;
             StatePerRegion = statePerRegion;
             StatePerAgeToDate = statePerAgeToDate;
+            DeceasedPerAgeToDate = deceasedPerAgeToDate;
         }
     }
 
