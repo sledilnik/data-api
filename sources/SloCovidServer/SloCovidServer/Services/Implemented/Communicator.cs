@@ -2,6 +2,7 @@
 using Polly;
 using Polly.Extensions.Http;
 using Prometheus;
+using SloCovidServer.Mappers;
 using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
@@ -61,6 +62,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<Municipality> municipalitiesListCache;
         readonly ArrayEndpointCache<RetirementHome> retirementHomesListCache;
         readonly ArrayEndpointCache<RetirementHomesDay> retirementHomesCache;
+        readonly ArrayEndpointCache<DeceasedPerRegionsDay> deceasedPerRegionsDayCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -79,6 +81,7 @@ namespace SloCovidServer.Services.Implemented
             municipalitiesListCache = new ArrayEndpointCache<Municipality>();
             retirementHomesListCache = new ArrayEndpointCache<RetirementHome>();
             retirementHomesCache = new ArrayEndpointCache<RetirementHomesDay>();
+            deceasedPerRegionsDayCache = new ArrayEndpointCache<DeceasedPerRegionsDay>();
             errors = new ConcurrentDictionary<string, object>();
         }
 
@@ -129,6 +132,13 @@ namespace SloCovidServer.Services.Implemented
         {
             var result = await GetAsync(callerEtag, $"{root}/retirement_homes.csv", retirementHomesCache,
                 mapFromString: mapper.GetRetirementHomesFromRaw, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<DeceasedPerRegionsDay>? Data, string ETag)> GetDeceasedPerRegionsAsync(string callerEtag, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, $"{root}/deceased-regions.csv", deceasedPerRegionsDayCache,
+                mapFromString: new DeceasedPerRegionsMapper().GetDeceasedPerRegionsDayFromRaw, ct);
             return result;
         }
 
@@ -251,7 +261,7 @@ namespace SloCovidServer.Services.Implemented
         /// <param name="ct"></param>
         /// <returns></returns>
         /// <remarks>This method might update sync.Cache but only to refresh its Created property.</remarks>
-        async Task<(HttpResponseMessage Reponse, ETagCacheItem<TData> Current)> FetchDataAsync<TData>(
+        async Task<(HttpResponseMessage Response, ETagCacheItem<TData> Current)> FetchDataAsync<TData>(
             string url, EndpointCache<TData> sync, ETagCacheItem<TData> current, CancellationToken ct)
             where TData : struct
         {

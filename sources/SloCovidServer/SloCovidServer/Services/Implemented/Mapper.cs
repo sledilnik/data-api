@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace SloCovidServer.Services.Implemented
 {
-    public class Mapper
+    public class Mapper: Mappers.Mapper
     {
         static readonly ImmutableArray<AgeBucketMeta> ageBuckets;
         static readonly int[] ageBucketRangesNew = new[] { 4, 14, 24, 34, 44, 54, 64, 74, 84 };
@@ -27,69 +27,6 @@ namespace SloCovidServer.Services.Implemented
             }
             ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, null));
         }
-        internal ImmutableArray<string> ParseLine(string raw)
-        {
-            string line = raw.Trim();
-            var header = ImmutableArray<string>.Empty;
-            int index = 0;
-            int start = 0;
-            bool isInString = false;
-            bool wasInString = false;
-            for (int i = 0; i < line.Length; i++)
-            {
-                char c = line[i];
-                if (isInString)
-                {
-                    if (c == '"')
-                    {
-                        isInString = false;
-                    }
-                }
-                else
-                {
-                    switch (line[i])
-                    {
-                        case ',':
-                            if (wasInString)
-                            {
-                                header = header.Add(line.Substring(start + 1, i - start - 2));
-                            }
-                            else
-                            {
-                                header = header.Add(line.Substring(start, i - start));
-                            }
-                            start = i + 1;
-                            index++;
-                            wasInString = false;
-                            break;
-                        case '"':
-                            isInString = true;
-                            wasInString = true;
-                            break;
-                    }
-                }
-            }
-            if (wasInString)
-            {
-                header = header.Add(line.Substring(start + 1, line.Length - start - 2));
-            }
-            else
-            {
-                header = header.Add(line.Substring(start, line.Length - start));
-            }
-            return header;
-        }
-        internal ImmutableDictionary<string, int> ParseHeader(string rawLine)
-        {
-            var fields = ParseLine(rawLine);
-            var header = ImmutableDictionary<string, int>.Empty;
-            for (int i = 0; i < fields.Length; i++)
-            {
-                header = header.Add(fields[i], i);
-            }
-            return header;
-        }
-
         public ImmutableArray<StatsDaily> GetStatsFromRaw(string raw)
         {
             ImmutableArray<StatsDaily> result = ImmutableArray<StatsDaily>.Empty;
@@ -583,43 +520,6 @@ namespace SloCovidServer.Services.Implemented
             }
             return result.ToImmutableArray();
         }
-
-        int? GetInt(string name, ImmutableDictionary<string, int> header, IImmutableList<string> fields, bool isMandatory = true)
-        {
-            if (!header.TryGetValue(name, out int index))
-            {
-                if (isMandatory)
-                {
-                    throw new Exception($"Can't find field {name}.");
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            string text = fields[index];
-            return GetInt(text);
-        }
-        int? GetInt(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return null;
-            }
-            return ParseInt(text);
-        }
-
-        (int Year, int Month, int Day) GetDate(string text)
-        {
-            string[] parts = text.Split('-');
-            return (
-                Year: ParseInt(parts[0]),
-                Month: ParseInt(parts[1]),
-                Day: ParseInt(parts[2])
-            );
-        }
-
-        int ParseInt(string text) => int.Parse(text.Replace(".", ""), CultureInfo.InvariantCulture);
     }
 
     [DebuggerDisplay("{Key,nq}")]
