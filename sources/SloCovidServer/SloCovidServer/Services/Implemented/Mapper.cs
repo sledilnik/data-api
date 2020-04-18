@@ -429,9 +429,9 @@ namespace SloCovidServer.Services.Implemented
             }
             var date = GetDate(fields[header["date"]]);
             var generalUnit = new GeneralUnit(
-                inHospital: GetHospitalMovement(facility: null, header, fields),
-                GetMovement(facility: null, type: "icu", header, fields),
-                GetMovement(facility: null, type: "critical", header, fields),
+                inHospital: GetHospitalMovement(facility: null, "in_hospital", header, fields),
+                GetHospitalMovement(facility: null, "icu", header, fields),
+                GetHospitalMovement(facility: null, "critical", header, fields),
                 GetStateDeceased(header, fields),
                 new OutOfHospital(GetInt(fields[header["state.out_of_hospital.todate"]]))
                 );
@@ -439,9 +439,9 @@ namespace SloCovidServer.Services.Implemented
             foreach (string facility in facilities)
             {
                 var unit = new Unit(
-                    inHospital: GetHospitalMovement(facility, header, fields),
-                    GetMovement(facility, type: "icu", header, fields),
-                    GetMovement(facility, type: "critical", header, fields),
+                    inHospital: GetHospitalMovement(facility, "in_hospital", header, fields),
+                    GetHospitalMovement(facility, "icu", header, fields),
+                    GetHospitalMovement(facility, "critical", header, fields),
                     GetDeceased(facility, header, fields)
                 );
                 f = f.Add(facility, unit);
@@ -449,14 +449,14 @@ namespace SloCovidServer.Services.Implemented
             return new PatientsDay(GetInt(fields[header["day"]]) ?? 0, date.Year, date.Month, date.Day, generalUnit, f);
         }
 
-        HospitalMovement GetHospitalMovement(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
+        HospitalMovement GetHospitalMovement(string facility, string type, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(facility) ? $".{facility}" : "";
             return new HospitalMovement(
-                GetInt(fields[header[$"state{location}.in_hospital.in"]]),
-                GetInt(fields[header[$"state{location}.in_hospital.out"]]),
-                GetInt(fields[header[$"state{location}.in_hospital"]]),
-                GetInt(fields[header[$"state{location}.in_hospital.todate"]])
+                GetInt(fields[header[$"state{location}.{type}.in"]]),
+                GetInt(fields[header[$"state{location}.{type}.out"]]),
+                GetInt(fields[header[$"state{location}.{type}"]]),
+                GetInt(fields[header[$"state{location}.{type}.todate"]])
             );
         }
 

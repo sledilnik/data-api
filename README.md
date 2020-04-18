@@ -22,6 +22,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 ### 1.5.5
 
 - Adds api/decased_regions
+- Adds state.<hospital>.icu.todate and state.<hospital>.critical.todate to patients
 - Updates SchemaVersion to 13
 
 ### 1.5.4
