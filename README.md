@@ -22,6 +22,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 ### 1.5.6
 
 - Adds state.deceased.hospital.icu to patients
+- Makes requests to source fail faster #29
 
 ### 1.5.5
 

@@ -69,7 +69,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ConcurrentDictionary<string, object> errors;
         public Communicator(ILogger<Communicator> logger, Mapper mapper, ISlackService slackService)
         {
-            client = new HttpClient();
+            client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
             this.logger = logger;
             this.mapper = mapper;
             this.slackService = slackService;
@@ -291,7 +291,7 @@ namespace SloCovidServer.Services.Implemented
 
             var policy = HttpPolicyExtensions
               .HandleTransientHttpError()
-              .RetryAsync(3);
+              .RetryAsync(1);
 
             HttpResponseMessage response;
             // cache responses for a minute
