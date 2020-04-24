@@ -19,7 +19,7 @@ namespace SloCovidServer.Services.Implemented
 {
     public class Communicator : ICommunicator
     {
-        const string root = "https://raw.githubusercontent.com/slo-covid-19/data/master/csv";
+        const string root = "https://raw.githubusercontent.com/sledilnik/data/master/csv";
         readonly HttpClient client;
         readonly ILogger<Communicator> logger;
         readonly Mapper mapper;
