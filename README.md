@@ -19,6 +19,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.6
+
+- Adds state.deceased.hospital.icu to patients
+
 ### 1.5.5
 
 - Adds api/decased_regions

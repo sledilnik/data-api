@@ -95,11 +95,13 @@ namespace SloCovidServer.Models
         public int? ToDate { get; }
         public int? Hospital { get; }
         public int? Home { get; }
-        public StateDeceased(int? today, int? toDate, int? hospital, int? home) : base(today)
+        public int? ICU { get; }
+        public StateDeceased(int? today, int? toDate, int? hospital, int? home, int? iCU) : base(today)
         {
             ToDate = toDate;
             Hospital = hospital;
             Home = home;
+            ICU = iCU;
         }
     }
 

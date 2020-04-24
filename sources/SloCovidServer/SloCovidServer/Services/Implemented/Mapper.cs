@@ -484,7 +484,8 @@ namespace SloCovidServer.Services.Implemented
                 GetInt(fields[header[$"state.deceased"]]),
                 GetInt(fields[header[$"state.deceased.todate"]]),
                 GetInt(fields[header[$"state.deceased.hospital"]]),
-                GetInt(fields[header[$"state.deceased.home"]])
+                GetInt(fields[header[$"state.deceased.home"]]),
+                GetInt(fields[header[$"state.deceased.hospital.icu"]])
             );
         }
 
