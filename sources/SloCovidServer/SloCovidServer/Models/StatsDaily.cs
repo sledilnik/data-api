@@ -9,10 +9,15 @@ namespace SloCovidServer.Models
         public int Month { get; }
         public int Day { get; }
         public string Phase { get; }
+        // obsolete since 1.5.7
         public int? PerformedTestsToDate { get; }
+        // obsolete since 1.5.7
         public int? PerformedTests { get; }
+        // obsolete since 1.5.7
         public int? PositiveTestsToDate { get; }
+        // obsolete since 1.5.7
         public int? PositiveTests { get; }
+        public Tests Tests { get; }
         public int? FemaleToDate { get; }
         public int? MaleToDate { get; }
         public Cases Cases { get; }
@@ -21,7 +26,8 @@ namespace SloCovidServer.Models
         public ImmutableArray<PerAgeBucket> StatePerAgeToDate { get; }
         public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
-            int? positiveTests, int? femaleToDate, int? maleToDate,
+            int? positiveTests, Tests tests,
+            int? femaleToDate, int? maleToDate,
             Cases cases, PerTreatment statePerTreatment, ImmutableDictionary<string, int?> statePerRegion,
             ImmutableArray<PerAgeBucket> statePerAgeToDate, ImmutableArray<PerAgeBucket> deceasedPerAgeToDate)
         {
@@ -34,6 +40,7 @@ namespace SloCovidServer.Models
             PerformedTests = performedTests;
             PositiveTestsToDate = positiveTestsToDate;
             PositiveTests = positiveTests;
+            Tests = tests;
             FemaleToDate = femaleToDate;
             MaleToDate = maleToDate;
             Cases = cases;
@@ -41,6 +48,43 @@ namespace SloCovidServer.Models
             StatePerRegion = statePerRegion;
             StatePerAgeToDate = statePerAgeToDate;
             DeceasedPerAgeToDate = deceasedPerAgeToDate;
+        }
+    }
+
+    public class Tests
+    {
+        public CommonTests Performed { get; }
+        public CommonTests Positive { get; }
+        public RegularTests Regular { get; }
+        public RegularTests NSApr20 { get; }
+        public Tests(CommonTests performed, CommonTests positive, RegularTests regular, RegularTests nSApr20)
+        {
+            Performed = performed;
+            Positive = positive;
+            Regular = regular;
+            NSApr20 = nSApr20;
+        }
+    }
+
+    public class RegularTests
+    {
+        public CommonTests Performed { get; }
+        public CommonTests Positive { get; }
+        public RegularTests(CommonTests performed, CommonTests positive)
+        {
+            Performed = performed;
+            Positive = positive;
+        }
+    }
+
+    public class CommonTests
+    {
+        public int? ToDate { get; }
+        public int? Today { get; }
+        public CommonTests(int? toDate, int? today)
+        {
+            ToDate = toDate;
+            Today = today;
         }
     }
 

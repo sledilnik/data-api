@@ -19,6 +19,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.7
+
+- Adds tests.regular and tests.ns-apr20
+- Updates SchemaVersion to 14
+
 ### 1.5.6
 
 - Adds state.deceased.hospital.icu to patients
