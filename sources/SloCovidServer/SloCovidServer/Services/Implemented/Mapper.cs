@@ -335,8 +335,9 @@ namespace SloCovidServer.Services.Implemented
             var cases = new Cases(
                 GetInt("cases.confirmed", header, fields),
                 GetInt("cases.confirmed.todate", header, fields),
+                GetInt("cases.recovered.todate", header, fields),
                 GetInt("cases.closed.todate", header, fields),
-                GetInt("cases.active.todate", header, fields),
+                GetInt("cases.active", header, fields),
                 new HealthSystemSCases(GetInt("cases.hs.employee.confirmed.todate", header, fields)),
                 new RetirementHomeCases(
                     GetInt("cases.rh.employee.confirmed.todate", header, fields),

@@ -19,6 +19,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+### 1.5.8
+
+- Adds cases.recovered.todate and rename cases.active (was .todate)
+- Updates SchemaVersion to 15
+
 ### 1.5.7
 
 - Adds tests.regular and tests.ns-apr20
