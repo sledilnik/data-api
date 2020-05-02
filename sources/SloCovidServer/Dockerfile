@@ -15,7 +15,6 @@ WORKDIR "/src/SloCovidServer"
 FROM build AS publish
 RUN dotnet publish "SloCovidServer.csproj" -c Release -o /app/publish
 
-EXPOSE 5000
 FROM base AS final
 # install slovene language
 RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen sl_SI.UTF-8 && locale -a \
@@ -25,4 +24,5 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 # use non-root user
 USER 9000
+EXPOSE 5000
 ENTRYPOINT ["dotnet", "SloCovidServer.dll"]
