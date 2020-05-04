@@ -21,12 +21,5 @@ namespace SloCovidServer.Controllers
         {
             return await ProcessRequestAsync(communicator.GetRegionsAsync);
         }
-
-        [HttpGet]
-        [Route("regions-pivot")]
-        public async Task<ActionResult<ImmutableArray<ImmutableArray<object>>?>> GetPivot()
-        {
-            return await ProcessRequestAsync(communicator.GetRegionsPivotAsync, "regions-pivot");
-        }
     }
 }

@@ -48,7 +48,7 @@ namespace SloCovidServer.Controllers
             endpointName = GetType().Name.Replace("Controller", "").ToLower();
         }
         protected async Task<ActionResult<T?>> ProcessRequestAsync<T>(
-            Func<string, CancellationToken, Task<(T? Data, string ETag)>> retrieval, string endpointName = null)
+            Func<string, CancellationToken, Task<(T? Data, string ETag, long? Timestamp)>> retrieval, string endpointName = null)
             where T : struct
         {
             var stopwatch = Stopwatch.StartNew();
@@ -69,6 +69,10 @@ namespace SloCovidServer.Controllers
                 RequestCount.WithLabels(endpointName, hasETag.ToString()).Inc();
                 var result = await retrieval(etag, CancellationToken.None);
                 Response.Headers[HeaderNames.ETag] = result.ETag;
+                if (result.Timestamp.HasValue)
+                {
+                    Response.Headers["Timestamp"] = result.Timestamp.Value.ToString();
+                }
                 if (result.Data.HasValue)
                 {
                     if (hasETag)
