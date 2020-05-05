@@ -3,7 +3,8 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [regions](https://covid19.rthand.com/api/regions), [patients](https://covid19.rthand.com/api/patients), 
 [hospitals](https://covid19.rthand.com/api/hospitals), [hospitals-list](https://covid19.rthand.com/api/hospitals-list), 
 [municipalities-list](https://covid19.rthand.com/api/municipalities-list), 
-[deceased-regions](https://covid19.rthand.com/api/deceased-regions) and [municipalities](https://covid19.rthand.com/api/municipalities).
+[deceased-regions](https://covid19.rthand.com/api/deceased-regions), [municipalities](https://covid19.rthand.com/api/municipalities) and 
+[health-centers](https://covid19.rthand.com/api/health-centers).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://covid19.rthand.com/api/ endpoint.
@@ -17,6 +18,11 @@ Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rtha
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 15.10
+
+- Adds health-centers endpoint
+- Updates SchemaVersion to 17
 
 ## 1.5.9
 
