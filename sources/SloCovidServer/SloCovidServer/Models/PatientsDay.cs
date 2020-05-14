@@ -30,9 +30,9 @@ namespace SloCovidServer.Models
             OutOfHospital = outOfHospital;
         }
     }
-    public class Unit: BaseUnit<Deceased>
+    public class Unit: BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, Deceased deceased) 
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased) 
             : base(inHospital, iCU, critical, deceased)
         {
         }
@@ -84,24 +84,49 @@ namespace SloCovidServer.Models
     public class Deceased
     {
         public int? Today { get; }
-        public Deceased(int? today)
+        public int? ToDate { get; }
+        public Deceased(int? today, int? toDate)
         {
             Today = today;
+            ToDate = toDate;
         }
     }
 
     public class StateDeceased: Deceased
     {
-        public int? ToDate { get; }
-        public int? Hospital { get; }
-        public int? Home { get; }
-        public int? ICU { get; }
-        public StateDeceased(int? today, int? toDate, int? hospital, int? home, int? iCU) : base(today)
+        public class HospitalStats: ToDateToday
         {
-            ToDate = toDate;
+            public ToDateToday Icu { get; }
+            public HospitalStats(int? today, int? toDate, ToDateToday icu) : base(toDate, today)
+            {
+                Icu = icu;
+            }
+        }
+        public HospitalStats Hospital { get; }
+        public ToDateToday Home { get; }
+        public StateDeceased(int? today, int? toDate, HospitalStats hospital, ToDateToday home) : base(today, toDate)
+        {
             Hospital = hospital;
             Home = home;
-            ICU = iCU;
+        }
+    }
+    public class HospitalDeceased: Deceased
+    {
+        public ToDateToday Icu { get; }
+        public HospitalDeceased(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
+        {
+            Icu = icu;
+        }
+    }
+
+    public class ToDateToday
+    {
+        public int? Today { get; }
+        public int? ToDate { get; }
+        public ToDateToday(int? today, int? toDate)
+        {
+            ToDate = toDate;
+            Today = today;
         }
     }
 

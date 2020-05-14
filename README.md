@@ -19,7 +19,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
-## 15.10
+## 1.5.11
+
+- Modifies patient's deceased schema
+- Updates SchemaVersion to 18
+
+## 1.5.10
 
 - Adds health-centers endpoint
 - Updates SchemaVersion to 17

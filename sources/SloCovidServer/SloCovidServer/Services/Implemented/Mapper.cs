@@ -501,11 +501,16 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        Deceased GetDeceased(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
+        HospitalDeceased GetDeceased(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = $".{facility}";
-            return new Deceased(
-                GetInt(fields[header[$"state{location}.deceased"]])
+            return new HospitalDeceased(
+                GetInt(fields[header[$"state{location}.deceased"]]),
+                GetInt(fields[header[$"state{location}.deceased.todate"]]),
+                new ToDateToday(
+                    GetInt(fields[header[$"state{location}.deceased.icu"]]),
+                    GetInt(fields[header[$"state{location}.deceased.icu.todate"]])
+                )
             );
         }
 
@@ -514,9 +519,18 @@ namespace SloCovidServer.Services.Implemented
             return new StateDeceased(
                 GetInt(fields[header[$"state.deceased"]]),
                 GetInt(fields[header[$"state.deceased.todate"]]),
-                GetInt(fields[header[$"state.deceased.hospital"]]),
-                GetInt(fields[header[$"state.deceased.home"]]),
-                GetInt(fields[header[$"state.deceased.hospital.icu"]])
+                new StateDeceased.HospitalStats(
+                    GetInt(fields[header[$"state.deceased.hospital"]]),
+                    GetInt(fields[header[$"state.deceased.hospital.todate"]]),
+                    icu: new ToDateToday(
+                        GetInt(fields[header[$"state.deceased.hospital.icu"]]),
+                        GetInt(fields[header[$"state.deceased.hospital.icu.todate"]])
+                        )
+                    ),
+                home: new ToDateToday(
+                        GetInt(fields[header[$"state.deceased.home"]]),
+                        GetInt(fields[header[$"state.deceased.home.todate"]])
+                )
             );
         }
 
