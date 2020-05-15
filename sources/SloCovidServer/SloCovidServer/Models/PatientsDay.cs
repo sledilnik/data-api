@@ -97,7 +97,7 @@ namespace SloCovidServer.Models
         public class HospitalStats: ToDateToday
         {
             public ToDateToday Icu { get; }
-            public HospitalStats(int? today, int? toDate, ToDateToday icu) : base(toDate, today)
+            public HospitalStats(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
             {
                 Icu = icu;
             }
