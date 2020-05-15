@@ -19,6 +19,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.12
+
+- Fixes bug in patients mixing today and toDate in deceased in hospitals
+
 ## 1.5.11
 
 - Modifies patient's deceased schema
