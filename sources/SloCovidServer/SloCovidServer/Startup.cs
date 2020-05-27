@@ -38,7 +38,8 @@ namespace SloCovidServer
                     builder
                         .AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .WithExposedHeaders("Timestamp");
                 });
             });
             services.AddResponseCompression();
