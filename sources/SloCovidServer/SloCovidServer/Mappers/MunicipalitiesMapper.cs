@@ -28,16 +28,19 @@ namespace SloCovidServer.Mappers
                         }
                         if (!region.TryGetValue(parts[2], out var municipality))
                         {
-                            municipality = new MunicipalityDayData(0, 0);
+                            municipality = new MunicipalityDayData(0, 0, 0);
                         }
                         string key = string.Join('.', parts.Skip(3));
                         switch (key)
                         {
+                            case "cases.active":
+                                municipality = new MunicipalityDayData(GetInt(fields[pair.Value]), municipality.ConfirmedToDate, municipality.DeceasedToDate);
+                                break;
                             case "cases.confirmed.todate":
-                                municipality = new MunicipalityDayData(GetInt(fields[pair.Value]), municipality.DeceasedToDate);
+                                municipality = new MunicipalityDayData(municipality.ActiveCases, GetInt(fields[pair.Value]), municipality.DeceasedToDate);
                                 break;
                             case "deceased.todate":
-                                municipality = new MunicipalityDayData(municipality.ConfirmedToDate, GetInt(fields[pair.Value]));
+                                municipality = new MunicipalityDayData(municipality.ActiveCases, municipality.ConfirmedToDate, GetInt(fields[pair.Value]));
                                 break;
                         }
                         region = region.SetItem(parts[2], municipality);

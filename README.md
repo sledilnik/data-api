@@ -19,6 +19,15 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.14
+
+- Add ActiveCases to municipalities endpoint
+- Updates SchemaVersion to 19
+
+## 1.5.13
+
+- Fixes Timestamp in headers
+
 ## 1.5.12
 
 - Fixes bug in patients mixing today and toDate in deceased in hospitals
