@@ -19,10 +19,12 @@ namespace SloCovidServer.Models
 
     public class MunicipalityDayData
     {
+        public int? ActiveCases { get; }
         public int? ConfirmedToDate { get; }
         public int? DeceasedToDate { get; }
-        public MunicipalityDayData(int? confirmedToDate, int? deceasedToDate)
+        public MunicipalityDayData(int? activeCases, int? confirmedToDate, int? deceasedToDate)
         {
+            ActiveCases = activeCases;
             ConfirmedToDate = confirmedToDate;
             DeceasedToDate = deceasedToDate;
         }

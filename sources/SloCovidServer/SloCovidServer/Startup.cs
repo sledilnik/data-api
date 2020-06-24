@@ -13,7 +13,7 @@ namespace SloCovidServer
 {
     public class Startup
     {
-        const string SchemaVersion = "18";
+        const string SchemaVersion = "19";
         const string CorsPolicy = "Any";
         public Startup(IConfiguration configuration)
         {
