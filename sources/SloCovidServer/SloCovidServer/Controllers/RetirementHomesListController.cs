@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
+using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace SloCovidServer.Controllers
         [HttpGet]
         public async Task<ActionResult<ImmutableArray<RetirementHome>?>> Get()
         {
-            return await ProcessRequestAsync(communicator.GetRetirementHomesListAsync);
+            return await ProcessRequestAsync(communicator.GetRetirementHomesListAsync, DataFilter.Empty);
         }
     }
 }

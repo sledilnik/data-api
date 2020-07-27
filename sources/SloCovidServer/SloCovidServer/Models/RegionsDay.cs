@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace SloCovidServer.Models
 {
-    public class RegionsDay
+    public class RegionsDay: IModelDate
     {
         public int Year { get; }
         public int Month { get; }

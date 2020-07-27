@@ -2,7 +2,7 @@
 
 namespace SloCovidServer.Models
 {
-    public class StatsDaily
+    public class StatsDaily: IModelDate
     {
         public int DayFromStart { get; }
         public int Year { get; }

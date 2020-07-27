@@ -3,7 +3,7 @@ using Righthand.Immutable;
 
 namespace SloCovidServer.Models
 {
-    public class HealthCentersDay
+    public class HealthCentersDay : IModelDate
     {
         public int Year { get; }
         public int Month { get; }

@@ -2,7 +2,7 @@
 
 namespace SloCovidServer.Models
 {
-    public class DeceasedPerRegionsDay
+    public class DeceasedPerRegionsDay : IModelDate
     {
         public int Year { get; }
         public int Month { get; }

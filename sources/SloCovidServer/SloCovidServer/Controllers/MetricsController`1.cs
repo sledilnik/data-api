@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Prometheus;
+using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
 using System.Collections.Immutable;
@@ -48,7 +49,9 @@ namespace SloCovidServer.Controllers
             endpointName = GetType().Name.Replace("Controller", "").ToLower();
         }
         protected async Task<ActionResult<T?>> ProcessRequestAsync<T>(
-            Func<string, CancellationToken, Task<(T? Data, string ETag, long? Timestamp)>> retrieval, string endpointName = null)
+            Func<string, DataFilter, CancellationToken, Task<(T? Data, string ETag, long? Timestamp)>> retrieval,
+            DataFilter filter,
+            string endpointName = null)
             where T : struct
         {
             var stopwatch = Stopwatch.StartNew();
@@ -67,7 +70,7 @@ namespace SloCovidServer.Controllers
                     endpointName = this.endpointName;
                 }
                 RequestCount.WithLabels(endpointName, hasETag.ToString()).Inc();
-                var result = await retrieval(etag, CancellationToken.None);
+                var result = await retrieval(etag, filter, CancellationToken.None);
                 Response.Headers[HeaderNames.ETag] = result.ETag;
                 if (result.Timestamp.HasValue)
                 {
