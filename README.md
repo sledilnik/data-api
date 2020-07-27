@@ -19,6 +19,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.15
+
+- Adds filtering by date where applicable
+
 ## 1.5.14
 
 - Add ActiveCases to municipalities endpoint
