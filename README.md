@@ -1,23 +1,30 @@
 # slo-covid-19 rest-server
-Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://covid19.rthand.com/api/stats), 
-[regions](https://covid19.rthand.com/api/regions), [patients](https://covid19.rthand.com/api/patients), 
-[hospitals](https://covid19.rthand.com/api/hospitals), [hospitals-list](https://covid19.rthand.com/api/hospitals-list), 
-[municipalities-list](https://covid19.rthand.com/api/municipalities-list), 
-[deceased-regions](https://covid19.rthand.com/api/deceased-regions), [municipalities](https://covid19.rthand.com/api/municipalities) and 
-[health-centers](https://covid19.rthand.com/api/health-centers).
+Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://api.sledilnik.org/api/stats), 
+[regions](https://api.sledilnik.org/api/regions), [patients](https://api.sledilnik.org/api/patients), 
+[hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list), 
+[municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
+[deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities) and 
+[health-centers](https://api.sledilnik.org/api/health-centers).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
-A running instance is available at https://covid19.rthand.com/api/ endpoint.
+A running instance is available at https://api.sledilnik.org/api/ endpoint.
 
-Current Docker container for this project is available at [mihamarkic/slo-covid19-server](https://hub.docker.com/r/mihamarkic/slo-covid19-server).
+Current Docker container for this project is available at [covid19sledilnik/data-api-server](https://hub.docker.com/repository/docker/covid19sledilnik/data-api-server).
+(Docker container has beeno moved on 21.9.2020)
 
-Response compression is supported, ETag/If-None-Match as well.
+Response compression is supported, Etag/If-None-Match as well.
 
-Swagger endpoint is at [https://covid19.rthand.com/swagger](https://covid19.rthand.com/swagger).
+Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik.org/swagger).
 
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.5.16
+
+- Adds new hospitals
+- Moves docker image to [covid19sledilnik/data-api-server](https://hub.docker.com/repository/docker/covid19sledilnik/data-api-server)
+- Updates readme with new URLs
 
 ## 1.5.15
 
