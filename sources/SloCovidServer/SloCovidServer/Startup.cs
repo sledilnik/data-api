@@ -39,7 +39,7 @@ namespace SloCovidServer
                         .AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .WithExposedHeaders("Timestamp");
+                        .WithExposedHeaders("Timestamp", "Etag");
                 });
             });
             services.AddResponseCompression();
