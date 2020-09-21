@@ -4,7 +4,7 @@ using System.Xml.Linq;
 var target = Argument("target", "Default");
 var pull = Argument<bool>("pull", true);
 var push = Argument<bool>("push", false);
-var dokreg = Argument<string>("dokreg", "mihamarkic");
+var dokreg = Argument<string>("dokreg", "covid19sledilnik");
 var setVersion = Argument<string>("buildVersion", null);
 
 var rootDirectory = Directory("./sources/SloCovidServer");
@@ -18,7 +18,7 @@ const string versionsRoot = "version";
 Task("BuildImage")
 	.Does(() =>{
 		string version = GetVersion();
-		BuildAndPush("slo-covid19-server", new []{ "latest", version });
+		BuildAndPush("data-api-server", new []{ "latest", version });
 	});
 
 void BuildAndPush(string tag, string[] tagSuffixes)
