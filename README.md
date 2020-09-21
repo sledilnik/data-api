@@ -25,6 +25,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 - Adds new hospitals
 - Moves docker image to [covid19sledilnik/data-api-server](https://hub.docker.com/repository/docker/covid19sledilnik/data-api-server)
 - Updates readme with new URLs
+- Adds Etag header to exposed headers
 
 ## 1.5.15
 
