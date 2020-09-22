@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.17
+
+- Adds new hospitals (SB MS)
+
 ## 1.5.16
 
 - Adds new hospitals
