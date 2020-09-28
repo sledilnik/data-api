@@ -103,13 +103,13 @@ namespace SloCovidServer.Mappers
             return ParseInt(text);
         }
 
-        internal (int Year, int Month, int Day) GetDate(string text)
+        internal Models.Date GetDate(string text)
         {
             string[] parts = text.Split('-');
-            return (
-                Year: ParseInt(parts[0]),
-                Month: ParseInt(parts[1]),
-                Day: ParseInt(parts[2])
+            return new Models.Date(
+                year: ParseInt(parts[0]),
+                month: ParseInt(parts[1]),
+                day: ParseInt(parts[2])
             );
         }
 

@@ -64,6 +64,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<DeceasedPerRegionsDay> deceasedPerRegionsDayCache;
         readonly ArrayEndpointCache<MunicipalityDay> municipalityDayCache;
         readonly ArrayEndpointCache<HealthCentersDay> healthCentersDayCache;
+        readonly ArrayEndpointCache<StatsWeeklyDay> statsWeeklyDayCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -85,6 +86,7 @@ namespace SloCovidServer.Services.Implemented
             deceasedPerRegionsDayCache = new ArrayEndpointCache<DeceasedPerRegionsDay>();
             municipalityDayCache = new ArrayEndpointCache<MunicipalityDay>();
             healthCentersDayCache = new ArrayEndpointCache<HealthCentersDay>();
+            statsWeeklyDayCache = new ArrayEndpointCache<StatsWeeklyDay>();
             errors = new ConcurrentDictionary<string, object>();
         }
 
@@ -156,6 +158,13 @@ namespace SloCovidServer.Services.Implemented
         {
             var result = await GetAsync(callerEtag, $"{root}/health_centers.csv", healthCentersDayCache,
                 mapFromString: new HealthCentersMapper().GetHealthCentersDayFromRaw, filter, ct);
+            return result;
+        }
+
+        public async Task<(ImmutableArray<StatsWeeklyDay>? Data, string ETag, long? Timestamp)> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct)
+        {
+            var result = await GetAsync(callerEtag, $"{root}/stats-weekly.csv", statsWeeklyDayCache,
+                mapFromString: new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw, filter, ct);
             return result;
         }
 

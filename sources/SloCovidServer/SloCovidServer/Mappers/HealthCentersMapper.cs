@@ -1,4 +1,5 @@
-﻿using SloCovidServer.Models;
+﻿using NJsonSchema;
+using SloCovidServer.Models;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
