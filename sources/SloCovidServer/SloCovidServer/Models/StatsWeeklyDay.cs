@@ -4,7 +4,7 @@ namespace SloCovidServer.Models
 {
     public class StatsWeeklyDay: IModelDate
     {
-        public int Week { get; }
+        public string Week { get; }
         public int Year { get; }
         public int Month { get; }
         public int Day { get; }
@@ -13,7 +13,7 @@ namespace SloCovidServer.Models
         public StatsWeeklySentTo SentTo { get; }
         public ImmutableDictionary<string, int?> Source { get; }
         public ImmutableDictionary<string, int?> From { get; }
-        public StatsWeeklyDay(int week, int year, int month, int day, Date to, int? confirmed, StatsWeeklySentTo sentTo, ImmutableDictionary<string, int?> source, 
+        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, StatsWeeklySentTo sentTo, ImmutableDictionary<string, int?> source, 
             ImmutableDictionary<string, int?> from)
         {
             Week = week;

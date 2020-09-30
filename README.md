@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.20
+
+- Added stats-weekly
+
 ## 1.5.18
 
 - Adds new hospitals (SB Jesenice)

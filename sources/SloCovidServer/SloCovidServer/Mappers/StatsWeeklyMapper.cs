@@ -44,7 +44,7 @@ namespace SloCovidServer.Mappers
                     }
                 }
                 result.Add(new StatsWeeklyDay(
-                week: GetInt(fields[weekIndex]).Value,
+                week: fields[weekIndex],
                 date.Year,
                 date.Month,
                 date.Day,
