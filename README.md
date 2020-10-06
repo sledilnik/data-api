@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.22
+
+- Remove hospital (SB NG)
+
 ## 1.5.21
 
 - Adds new hospitals (SB SG, SB NG)
