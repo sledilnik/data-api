@@ -257,7 +257,8 @@ namespace SloCovidServer.Services.Implemented
             return new HospitalDay(
                 GetHospitalBeds(hospital, header, fields),
                 GetHospitalICUs(hospital, header, fields),
-                GetHospitalVents(hospital, header, fields)
+                GetHospitalVents(hospital, header, fields),
+                GetHospitalCare(hospital, header, fields)
             );
         }
 
@@ -290,6 +291,16 @@ namespace SloCovidServer.Services.Implemented
                 GetInt($"hospital{location}.vent.total.max", header, fields, isMandatory: false),
                 GetInt($"hospital{location}.vent.occupied", header, fields, isMandatory: false),
                 GetInt($"hospital{location}.vent.free", header, fields, isMandatory: false)
+            );
+        }
+        HospitalCareDay GetHospitalCare(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
+        {
+            string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
+            return new HospitalCareDay(
+                GetInt($"hospital{location}.care.total", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.care.total.max", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.care.occupied", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.care.free", header, fields, isMandatory: false)
             );
         }
 

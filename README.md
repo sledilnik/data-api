@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.23
+
+- Hospitals: added support for care unit capacity
+
 ## 1.5.22
 
 - Remove hospital (SB NG)

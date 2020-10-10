@@ -24,11 +24,13 @@ namespace SloCovidServer.Models
         public HospitalBedDay Beds { get; }
         public HospitalICUDay ICU { get; }
         public HospitalVentDay Vents { get; }
-        public HospitalDay(HospitalBedDay beds, HospitalICUDay iCU, HospitalVentDay vents)
+        public HospitalCareDay Care { get; }
+        public HospitalDay(HospitalBedDay beds, HospitalICUDay iCU, HospitalVentDay vents, HospitalCareDay care)
         {
             Beds = beds;
             ICU = iCU;
             Vents = vents;
+            Care = care;
         }
     }
 
@@ -70,6 +72,21 @@ namespace SloCovidServer.Models
         public int? Occupied { get; }
         public int? Free { get; }
         public HospitalVentDay(int? total, int? max, int? occupied, int? free)
+        {
+            Total = total;
+            Max = max;
+            Occupied = occupied;
+            Free = free;
+        }
+    }
+
+    public class HospitalCareDay
+    {
+        public int? Total { get; }
+        public int? Max { get; }
+        public int? Occupied { get; }
+        public int? Free { get; }
+        public HospitalCareDay(int? total, int? max, int? occupied, int? free)
         {
             Total = total;
             Max = max;
