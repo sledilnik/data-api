@@ -10,15 +10,16 @@ namespace SloCovidServer.Controllers
 {
     [ApiController]
     [Route("api/retirement-homes-list")]
-    public class RetirementHomesListController: MetricsController<RetirementHomesListController>
+    public class RetirementHomesListController : MetricsController<RetirementHomesListController>
     {
         public RetirementHomesListController(ILogger<RetirementHomesListController> logger, ICommunicator communicator) : base(logger, communicator)
         {
         }
         [HttpGet]
-        public async Task<ActionResult<ImmutableArray<RetirementHome>?>> Get()
+        [ResponseCache(VaryByQueryKeys = new[] {"*"}, Duration = 60)]
+        public Task<ActionResult<ImmutableArray<RetirementHome>?>> Get()
         {
-            return await ProcessRequestAsync(communicator.GetRetirementHomesListAsync, DataFilter.Empty);
+            return ProcessRequestAsync(communicator.GetRetirementHomesListAsync, DataFilter.Empty);
         }
     }
 }

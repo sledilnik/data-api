@@ -16,9 +16,10 @@ namespace SloCovidServer.Controllers
         {
         }
         [HttpGet]
-        public async Task<ActionResult<ImmutableArray<RetirementHomesDay>?>> Get(DateTime? from, DateTime? to)
+        [ResponseCache(VaryByQueryKeys = new[] {"*"}, Duration = 60)]
+        public Task<ActionResult<ImmutableArray<RetirementHomesDay>?>> Get(DateTime? from, DateTime? to)
         {
-            return await ProcessRequestAsync(communicator.GetRetirementHomesAsync, new DataFilter(from, to));
+            return ProcessRequestAsync(communicator.GetRetirementHomesAsync, new DataFilter(from, to));
         }
     }
 }
