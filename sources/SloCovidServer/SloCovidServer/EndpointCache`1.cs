@@ -52,7 +52,6 @@ namespace SloCovidServer.Services.Implemented
         {
             get
             {
-                sync.EnterReadLock();
                 if (!this.initialized)
                 {
                     // wait for promise resolution on first request
@@ -61,7 +60,7 @@ namespace SloCovidServer.Services.Implemented
                         throw new System.Exception("Timeout waiting cache");
                     }
                 }
-
+                sync.EnterReadLock();
                 try
                 {
                     return cache;
