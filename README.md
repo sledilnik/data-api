@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.5.25
+
+- Add new hospital (SB Trbovlje)
+
 ## 1.5.24
 
 - Add new hospital (SB Ptuj)
