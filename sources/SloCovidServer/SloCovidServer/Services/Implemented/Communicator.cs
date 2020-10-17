@@ -18,7 +18,8 @@ namespace SloCovidServer.Services.Implemented
 {
     public class Communicator : ICommunicator
     {
-        const string root = "https://raw.githubusercontent.com/sledilnik/data/master/csv";
+        // const string root = "https://raw.githubusercontent.com/sledilnik/data/master/csv";
+        readonly string root = String.IsNullOrEmpty(Environment.GetEnvironmentVariable("API_DATA_SOURCE_ROOT")) ? "https://raw.githubusercontent.com/sledilnik/data/master/csv" : Environment.GetEnvironmentVariable("API_DATA_SOURCE_ROOT");
         readonly HttpClient client;
         readonly ILogger<Communicator> logger;
         readonly Mapper mapper;
@@ -51,7 +52,7 @@ namespace SloCovidServer.Services.Implemented
        "When above 0 means that given endpoint is unreachable",
        new GaugeConfiguration
        {
-         LabelNames = new[] { "endpoint" }
+           LabelNames = new[] { "endpoint" }
        });
         readonly ArrayEndpointCache<StatsDaily> statsCache;
         readonly ArrayEndpointCache<RegionsDay> regionCache;
@@ -452,7 +453,9 @@ namespace SloCovidServer.Services.Implemented
                 if (response?.IsSuccessStatusCode ?? false)
                 {
                     RequestMissedCache.WithLabels(url).Inc();
-                    string newETag = response.Headers.GetValues("ETag").SingleOrDefault();
+                    System.Collections.Generic.IEnumerable<string> headerETags;
+                    response.Headers.TryGetValues("ETag", out headerETags);
+                    string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
                     response.Content.ReadAsStringAsync().ContinueWith((task) =>
                                         {
                                             sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(newETag, mapFromString(task.Result), timestamp);
@@ -473,7 +476,7 @@ namespace SloCovidServer.Services.Implemented
 
                 ETagCacheItem<ImmutableArray<TData>> current = sync.CacheBlocking;
 
-                if (string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
+                if (!String.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                 {
                     logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
                     return (null, current.ETag, current.Timestamp);
