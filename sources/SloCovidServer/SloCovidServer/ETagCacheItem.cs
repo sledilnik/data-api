@@ -8,14 +8,13 @@ namespace SloCovidServer
         public DateTime Created { get; } = DateTime.UtcNow;
         public string ETag { get; }
         public T Data { get; }
+
+        public string Raw { get; }
         public long? Timestamp { get; }
-        public static ETagCacheItem<T> Create(string etag, T data, long? timestamp)
-        {
-            return new ETagCacheItem<T>(etag, data, timestamp);
-        }
-        public ETagCacheItem(string eTag, T data, long? timestamp)
+        public ETagCacheItem(string eTag, string raw, T data, long? timestamp)
         {
             ETag = eTag;
+            Raw = raw;
             Data = data;
             Timestamp = timestamp;
         }
@@ -28,11 +27,7 @@ namespace SloCovidServer
 
     public class ArrayETagCacheItem<T>: ETagCacheItem<ImmutableArray<T>>
     {
-        public ArrayETagCacheItem(string eTag, ImmutableArray<T> data, long? timestamp) : base(eTag, data, timestamp)
-        {
-        }
-
-        public ArrayETagCacheItem() : base(null, ImmutableArray<T>.Empty, timestamp: null)
+        public ArrayETagCacheItem() : base(null, "", ImmutableArray<T>.Empty, timestamp: null)
         {
         }
     }

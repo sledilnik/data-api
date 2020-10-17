@@ -49,7 +49,7 @@ namespace SloCovidServer.Controllers
             endpointName = GetType().Name.Replace("Controller", "").ToLower();
         }
         protected async Task<ActionResult<T?>> ProcessRequestAsync<T>(
-            Func<string, DataFilter, CancellationToken, Task<(T? Data, string ETag, long? Timestamp)>> retrieval,
+            Func<string, DataFilter, CancellationToken, Task<(T? Data, string Raw, string ETag, long? Timestamp)>> retrieval,
             DataFilter filter,
             string endpointName = null)
             where T : struct
@@ -82,7 +82,12 @@ namespace SloCovidServer.Controllers
                     {
                         RequestMissedCache.WithLabels(endpointName).Inc();
                     }
-                    return Ok(result.Data);
+                    if (Request.Headers[HeaderNames.Accept].Contains("text/csv") || Request.Query["format"].Contains("csv")) {
+                        return Ok(result.Raw);
+                    } else {
+                        return Ok(result.Data);
+                    }
+                    
                 }
                 else
                 {

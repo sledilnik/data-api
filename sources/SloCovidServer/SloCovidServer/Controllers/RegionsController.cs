@@ -18,7 +18,7 @@ namespace SloCovidServer.Controllers
 
         [HttpGet]
         [Route("regions")]
-        [ResponseCache(VaryByQueryKeys = new[] {"*"}, Duration = 60)]
+        [ResponseCache(VaryByQueryKeys = new[] {"*"}, VaryByHeader = "Accept", Duration = 60)]
         public Task<ActionResult<ImmutableArray<RegionsDay>?>> Get(DateTime? from, DateTime? to)
         {
             return ProcessRequestAsync(communicator.GetRegionsAsync, new DataFilter(from, to));

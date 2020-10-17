@@ -17,7 +17,7 @@ namespace SloCovidServer.Controllers
         {} 
 
         [HttpGet]
-        [ResponseCache(VaryByQueryKeys = new[] {"*"}, Duration = 60)]
+        [ResponseCache(VaryByQueryKeys = new[] {"*"}, VaryByHeader = "Accept", Duration = 60)]
         public Task<ActionResult<ImmutableArray<StatsDaily>?>> Get(DateTime? from, DateTime? to)
         {
             return ProcessRequestAsync(communicator.GetStatsAsync, new DataFilter(from, to));
