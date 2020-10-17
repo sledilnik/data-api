@@ -20,6 +20,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.0
+
+- Add CSV format
+- Add ResponseCache (performance imporovement)
+
 ## 1.5.25
 
 - Add new hospital (SB Trbovlje)
