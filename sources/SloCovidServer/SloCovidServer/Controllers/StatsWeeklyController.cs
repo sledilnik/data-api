@@ -17,9 +17,10 @@ namespace SloCovidServer.Controllers
 
         }
         [HttpGet]
-        public async Task<ActionResult<ImmutableArray<StatsWeeklyDay>?>> Get(DateTime? from, DateTime? to)
+        [ResponseCache(VaryByQueryKeys = new[] {"*"}, Duration = 60)]
+        public Task<ActionResult<ImmutableArray<StatsWeeklyDay>?>> Get(DateTime? from, DateTime? to)
         {
-            return await ProcessRequestAsync(communicator.GetStatsWeeklyAsync, new DataFilter(from, to));
+            return ProcessRequestAsync(communicator.GetStatsWeeklyAsync, new DataFilter(from, to));
         }
     }
 }
