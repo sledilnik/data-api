@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.1
+
+- Add new hospital (SB Šempeter - Nova Gorica)
+
 ## 1.6.0
 
 - Add CSV format
