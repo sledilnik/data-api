@@ -60,6 +60,10 @@ namespace SloCovidServer.Controllers
             if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etagValues))
             {
                 etag = etagValues.SingleOrDefault() ?? "";
+                // cloudflare only supports weak etags in non-enterprise account, strip prefix so we can work as usual
+                if(etag.StartsWith("W/")) {
+                    etag = etag.Substring(2);
+                }
             }
             bool hasETag = !string.IsNullOrEmpty(etag);
             bool exceptionOccured = false;
@@ -105,5 +109,6 @@ namespace SloCovidServer.Controllers
                 RequestDuration.WithLabels(endpointName, hasETag.ToString(), exceptionOccured.ToString()).Observe(stopwatch.Elapsed.Milliseconds);
             }
         }
+
     }
 }
