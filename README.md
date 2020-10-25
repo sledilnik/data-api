@@ -20,6 +20,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.2
+
+- Periodic cache refresh in background instead of attempt to refresh on every client request
+- Handle weak ETag-s (free cloudflare supports only weak etags)
+
 ## 1.6.1
 
 - Add new hospital (SB Šempeter - Nova Gorica)

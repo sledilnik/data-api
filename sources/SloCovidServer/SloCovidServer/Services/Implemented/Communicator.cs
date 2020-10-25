@@ -89,72 +89,94 @@ namespace SloCovidServer.Services.Implemented
             healthCentersDayCache = new ArrayEndpointCache<HealthCentersDay>();
             statsWeeklyDayCache = new ArrayEndpointCache<StatsWeeklyDay>();
             errors = new ConcurrentDictionary<string, object>();
+            Task.Run(this.CacheRefresher);
         }
 
+        public async Task CacheRefresher()
+        {
+            logger.LogInformation($"Initializing cache refresher");
+            while (true)
+            {
+                logger.LogInformation($"Refreshing GH cache");
+                var delay = Task.Delay(TimeSpan.FromSeconds(60));
+
+                var stats = this.RefreshEndpointCache($"{root}/stats.csv", this.statsCache, mapper.GetStatsFromRaw);
+                var regions = this.RefreshEndpointCache($"{root}/regions.csv", this.regionCache, mapper.GetRegionsFromRaw);
+                var patients = this.RefreshEndpointCache($"{root}/patients.csv", this.patientsCache, mapper.GetPatientsFromRaw);
+                var hospitals = this.RefreshEndpointCache($"{root}/hospitals.csv", this.hospitalsCache, mapper.GetHospitalsFromRaw);
+                var hospitalsList = this.RefreshEndpointCache($"{root}/dict-hospitals.csv", this.hospitalsListCache, mapper.GetHospitalsListFromRaw);
+                var municipalitiesList = this.RefreshEndpointCache($"{root}/dict-municipality.csv", this.municipalitiesListCache, mapper.GetMunicipalitiesListFromRaw);
+                var retirementHomesList = this.RefreshEndpointCache($"{root}/dict-retirement_homes.csv", this.retirementHomesListCache, mapper.GetRetirementHomesListFromRaw);
+                var retirementHomes = this.RefreshEndpointCache($"{root}/retirement_homes.csv", this.retirementHomesCache, mapper.GetRetirementHomesFromRaw);
+                var deceasedPerRegionsDay = this.RefreshEndpointCache($"{root}/deceased-regions.csv", this.deceasedPerRegionsDayCache, new DeceasedPerRegionsMapper().GetDeceasedPerRegionsDayFromRaw);
+                var municipalityDay = this.RefreshEndpointCache($"{root}/municipality.csv", this.municipalityDayCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
+                var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
+                var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
+
+                Task.WaitAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
+                    retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay);
+                logger.LogInformation($"GH cache refreshed");
+                await delay;
+            }
+        }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/stats.csv", statsCache, mapFromString: mapper.GetStatsFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/stats.csv", statsCache, filter, ct);
+
         }
 
         public Task<(ImmutableArray<RegionsDay>? Data, string raw, string ETag, long? Timestamp)> GetRegionsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/regions.csv", regionCache, mapFromString: mapper.GetRegionsFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/regions.csv", regionCache, filter, ct);
         }
 
         public Task<(ImmutableArray<PatientsDay>? Data, string raw, string ETag, long? Timestamp)> GetPatientsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/patients.csv", patientsCache, mapFromString: mapper.GetPatientsFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/patients.csv", patientsCache, filter, ct);
         }
 
         public Task<(ImmutableArray<HospitalsDay>? Data, string raw, string ETag, long? Timestamp)> GetHospitalsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/hospitals.csv", hospitalsCache, mapFromString: mapper.GetHospitalsFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/hospitals.csv", hospitalsCache, filter, ct);
         }
 
         public Task<(ImmutableArray<Hospital>? Data, string raw, string ETag, long? Timestamp)> GetHospitalsListAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/dict-hospitals.csv", hospitalsListCache, mapFromString: mapper.GetHospitalsListFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/dict-hospitals.csv", hospitalsListCache, filter, ct);
         }
-
         public Task<(ImmutableArray<Municipality>? Data, string raw, string ETag, long? Timestamp)> GetMunicipalitiesListAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/dict-municipality.csv", municipalitiesListCache, mapFromString: mapper.GetMunicipalitiesListFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/dict-municipality.csv", municipalitiesListCache, filter, ct);
         }
 
         public Task<(ImmutableArray<RetirementHome>? Data, string raw, string ETag, long? Timestamp)> GetRetirementHomesListAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/dict-retirement_homes.csv", retirementHomesListCache,
-                    mapFromString: mapper.GetRetirementHomesListFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/dict-retirement_homes.csv", retirementHomesListCache, filter, ct);
         }
 
         public Task<(ImmutableArray<RetirementHomesDay>? Data, string raw, string ETag, long? Timestamp)> GetRetirementHomesAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/retirement_homes.csv", retirementHomesCache,
-                    mapFromString: mapper.GetRetirementHomesFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/retirement_homes.csv", retirementHomesCache, filter, ct);
         }
 
         public Task<(ImmutableArray<DeceasedPerRegionsDay>? Data, string raw, string ETag, long? Timestamp)> GetDeceasedPerRegionsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/deceased-regions.csv", deceasedPerRegionsDayCache,
-                    mapFromString: new DeceasedPerRegionsMapper().GetDeceasedPerRegionsDayFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/deceased-regions.csv", deceasedPerRegionsDayCache, filter, ct);
         }
 
         public Task<(ImmutableArray<MunicipalityDay>? Data, string raw, string ETag, long? Timestamp)> GetMunicipalitiesAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/municipality.csv", municipalityDayCache,
-                    mapFromString: new MunicipalitiesMapper().GetMunicipalityDayFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/municipality.csv", municipalityDayCache, filter, ct);
         }
 
         public Task<(ImmutableArray<HealthCentersDay>? Data, string raw, string ETag, long? Timestamp)> GetHealthCentersAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/health_centers.csv", healthCentersDayCache,
-                    mapFromString: new HealthCentersMapper().GetHealthCentersDayFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/health_centers.csv", healthCentersDayCache, filter, ct);
         }
 
         public Task<(ImmutableArray<StatsWeeklyDay>? Data, string raw, string ETag, long? Timestamp)> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
-            return GetAsync(callerEtag, $"{root}/stats-weekly.csv", statsWeeklyDayCache,
-                    mapFromString: new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw, filter, ct);
+            return GetAsync(callerEtag, $"{root}/stats-weekly.csv", statsWeeklyDayCache, filter, ct);
         }
 
         public class RegionsPivotCacheData
@@ -175,110 +197,29 @@ namespace SloCovidServer.Services.Implemented
                 new ETagCacheItem<ImmutableArray<RegionsDay>>(null, "", ImmutableArray<RegionsDay>.Empty, timestamp: null),
                 data: ImmutableArray<ImmutableArray<object>>.Empty
         );
-        readonly object syncRegionsPivot = new object();
-        //public async Task<(ImmutableArray<ImmutableArray<object>>? Data, string ETag)>  GetRegionsPivotAsync(string callerEtag, CancellationToken ct)
-        //{
-        //    string[] callerETags = !string.IsNullOrEmpty(callerEtag) ? callerEtag.Split(',') : new string[2];
-        //    if (callerETags.Length != 2)
-        //    {
-        //        callerETags = new string[2];
-        //    }
-        //    RegionsPivotCacheData localCache;
-        //    lock(syncRegionsPivot)
-        //    {
-        //        localCache = regionsPivotCacheData;
-        //    }
-        //    var muncipalityTask = GetMunicipalitiesListAsync(localCache.Municipalities.ETag, ct);
-        //    var regions = await GetRegionsAsync(localCache.Regions.ETag, ct);
-        //    var municipalities = await muncipalityTask;
-        //    if (regions.Data.HasValue || municipalities.Data.HasValue)
-        //    {
-        //        var data = mapper.MapRegionsPivot(municipalities.Data ?? localCache.Municipalities.Data, regions.Data ?? localCache.Regions.Data);
-        //        localCache = new RegionsPivotCacheData(
-        //            municipalities.Data.HasValue ? 
-        //                new ETagCacheItem<ImmutableArray<Municipality>>(municipalities.ETag, municipalities.Data ?? ImmutableArray<Municipality>.Empty)
-        //                : localCache.Municipalities,
-        //            regions.Data.HasValue ? 
-        //                new ETagCacheItem<ImmutableArray<RegionsDay>>(regions.ETag, regions.Data ?? ImmutableArray<RegionsDay>.Empty)
-        //                : localCache.Regions,
-        //            data
-        //        );
-        //        lock(syncRegionsPivot)
-        //        {
-        //            regionsPivotCacheData = localCache;
-        //        }
-        //        return (data, $"{municipalities.ETag},{regions.ETag}");
-        //    }
-        //    else
-        //    {
-        //        string resultTag = $"{municipalities.ETag},{regions.ETag}";
-        //        if (string.Equals(callerETags[0], localCache.Municipalities.ETag, StringComparison.Ordinal)
-        //            && string.Equals(callerETags[1], localCache.Regions.ETag, StringComparison.Ordinal))
-        //        {
-        //            return (null, resultTag);
-        //        }
-        //        else
-        //        {
-        //            return (localCache.Data, resultTag);
-        //        }
-        //    }
-        //}
-        //public async Task<(ImmutableArray<RegionSum>? Data, string ETag)> GetRegionsSummaryAsync(string callerEtag, CancellationToken ct)
-        //{
-        //    var regions = await GetRegionsAsync(callerEtag, ct);
-        //    if (regions.Data != null)
-        //    {
-        //        var sum = new Dictionary<string, Dictionary<string, int?>>();
-        //        foreach (var region in regions.Data.Value)
-        //        {
-        //            foreach (var pair in region.Regions)
-        //            {
-        //                if (!sum.TryGetValue(pair.Key, out var municipalities))
-        //                {
-        //                    municipalities = new Dictionary<string, int?>();
-        //                    sum.Add(pair.Key, municipalities);
-        //                }
-        //                foreach (var source in pair.Value)
-        //                {
-        //                    municipalities.TryGetValue(source.Key, out int? municipality);
-        //                    if (source.Value.HasValue && municipality.HasValue)
-        //                    {
-        //                        municipality += source.Value;
-        //                        municipalities[source.Key] = municipality;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        var result = new List<RegionSum>(sum.Count);
-        //        foreach (var r in sum)
-        //        {
-        //            result.Add(
-        //                new RegionSum(
-        //                    r.Key,
-        //                    name: "",
-        //                    altName: "",
-        //                    municipalities: r.Value.Select(m => new MunicipalitySum(m.Key, name: "", altName: "", m.Value)).ToImmutableArray()
-        //                    )
-        //                );
-        //            return (result.ToImmutableArray(), regions.ETag);
-        //        }
-        //    }
-        //    return (null, regions.ETag);
-        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="url"></param>
-        /// <param name="sync"></param>
-        /// <param name="current"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        /// <remarks>This method might update sync.Cache but only to refresh its Created property.</remarks>
-        async Task<(HttpResponseMessage Response, ETagCacheItem<TData> Current, string Timestamp)> FetchDataAsync<TData>(
-                string url, EndpointCache<TData> sync, ETagCacheItem<TData> current, CancellationToken ct)
-                where TData : struct
+        async Task<long?> GetTimestampAsync(string url)
+        {
+            string timestampUrl = $"{url}.timestamp";
+            try
+            {
+                long ts = 0;
+                var tsStr = await client.GetStringAsync(timestampUrl);
+                long.TryParse(tsStr, out ts);
+                return ts;
+            }
+            catch (HttpRequestException ex) {
+                // ignore annoying 404 errors
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error {error} retrieving timestamp from {url}", ex.Message, timestampUrl);
+                return null;
+            }
+        }
+
+        async Task RefreshEndpointCache<TData>(string url, ArrayEndpointCache<TData> sync, Func<string, ImmutableArray<TData>> mapFromString)
         {
             Task ProcessErrorAsync(string message)
             {
@@ -311,71 +252,36 @@ namespace SloCovidServer.Services.Implemented
                 .RetryAsync(1);
 
             HttpResponseMessage response;
-            // cache responses for a minute
-            if (current.ETag == null || (DateTime.UtcNow - current.Created) > TimeSpan.FromMinutes(1))
-            {
-                try
-                {
-                    response = await policy.ExecuteAsync(() =>
-                    {
-                        var request = new HttpRequestMessage(HttpMethod.Get, url);
-                        if (!string.IsNullOrEmpty(current.ETag))
-                        {
-                            request.Headers.Add("If-None-Match", current.ETag);
-                        }
-                        RequestCount.WithLabels(url).Inc();
-                        return client.SendAsync(request, ct);
-                    });
-                    if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotModified)
-                    {
-                        _ = ProcessErrorRemovalAsync();
-                    }
-                    else
-                    {
-                        _ = ProcessErrorAsync(response.ReasonPhrase);
-                        // refresh created to avoid hitting source too much in this case
-                        sync.Cache = new ETagCacheItem<TData>(current.ETag, current.Raw, current.Data, current.Timestamp);
-                        // setting response to null, so the calling method will return cached data
-                        response = null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // setting response to null, so the calling method will return cached data
-                    response = null;
-                    _ = ProcessErrorAsync(ex.Message);
-                    // refresh created to avoid hitting source too much in this case
-                    sync.Cache = new ETagCacheItem<TData>(current.ETag, current.Raw, current.Data, current.Timestamp);
-                }
-            }
-            else
-            {
-                response = null;
-            }
-            string timestamp;
-            if (response != null)
-            {
-                timestamp = await GetTimestampAsync(url);
-            }
-            else
-            {
-                timestamp = null;
-            }
-            return (response, current, timestamp);
-        }
 
-        async Task<string> GetTimestampAsync(string url)
-        {
-            string timestampUrl = $"{url}.timestamp";
             try
             {
-                return await client.GetStringAsync(timestampUrl);
+                response = await policy.ExecuteAsync(() =>
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    RequestCount.WithLabels(url).Inc();
+                    return client.SendAsync(request);
+                });
+                if (response.IsSuccessStatusCode)
+                {
+                    _ = ProcessErrorRemovalAsync();
+                    var timestamp = await GetTimestampAsync(url);
+
+                    System.Collections.Generic.IEnumerable<string> headerETags;
+                    response.Headers.TryGetValues("ETag", out headerETags);
+                    string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(newETag, responseBody, mapFromString(responseBody), timestamp);
+                }
+                else
+                {
+                    _ = ProcessErrorAsync(response.ReasonPhrase);
+                }
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Error {error} retrieving timestamp from {url}", ex.Message, timestampUrl);
-                return null;
+                _ = ProcessErrorAsync(ex.Message);
             }
+            return;
         }
 
         // filters data based on date
@@ -419,55 +325,14 @@ namespace SloCovidServer.Services.Implemented
         /// In cache is always all data though filtered is returned.
         /// </remarks>
         async Task<(ImmutableArray<TData>? Data, string raw, string ETag, long? Timestamp)> GetAsync<TData>(string callerEtag, string url,
-                EndpointCache<ImmutableArray<TData>> sync, Func<string, ImmutableArray<TData>> mapFromString, DataFilter filter, CancellationToken ct)
+                EndpointCache<ImmutableArray<TData>> sync, DataFilter filter, CancellationToken ct)
                 where TData : class
         {
             var stopwatch = Stopwatch.StartNew();
 
             bool isException = false;
 
-            string timestampText;
-            string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : "present")}";
-
-            // current might have been updated with new Created date
-            FetchDataAsync(url, sync, sync.Cache, ct).ContinueWith((task) =>
-            {
-                // this task will refresh EndpointCache in background, without blocking request
-                // so client might not get latest data immediately, but he will eventually
-                HttpResponseMessage response;
-                ETagCacheItem<ImmutableArray<TData>> current;
-                (response, current, timestampText) = task.Result;
-
-                long? timestamp;
-                if (long.TryParse(timestampText, out long ts))
-                {
-                    timestamp = ts;
-                }
-                else
-                {
-                    timestamp = null;
-                }
-
-                if (response?.IsSuccessStatusCode ?? false)
-                {
-                    RequestMissedCache.WithLabels(url).Inc();
-                    System.Collections.Generic.IEnumerable<string> headerETags;
-                    response.Headers.TryGetValues("ETag", out headerETags);
-                    string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
-                    response.Content.ReadAsStringAsync().ContinueWith((task) =>
-                                        {
-                                            sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(newETag, task.Result, mapFromString(task.Result), timestamp);
-                                        });
-                }
-                else if (response == null || response.StatusCode == System.Net.HttpStatusCode.NotModified)
-                {
-                    // recreate cache if there was an actual request to update its Created field
-                    if (response != null)
-                    {
-                        sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(current.ETag, current.Raw, current.Data, current.Timestamp);
-                    }
-                }
-            });
+            string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : $"present {callerEtag}")}";
 
             try
             {
