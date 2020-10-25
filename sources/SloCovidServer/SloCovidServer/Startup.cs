@@ -68,13 +68,16 @@ namespace SloCovidServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISlackService slackService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISlackService slackService, ICommunicator communicator)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            // initialize cache before starting server
+            communicator.RefreshCache();
+            
             app.UseRouting();
             app.UseCors(CorsPolicy);
             app.UseResponseCompression();
