@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.3
+
+- Add all hospitals
+
 ## 1.6.2
 
 - Periodic cache refresh in background instead of attempt to refresh on every client request
