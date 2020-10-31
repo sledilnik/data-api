@@ -496,11 +496,15 @@ namespace SloCovidServer.Services.Implemented
         HospitalMovement GetHospitalMovement(string facility, string type, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(facility) ? $".{facility}" : "";
+            string inKey = $"state{location}.{type}.in";
+            string outKey = $"state{location}.{type}.out";
+            string currentKey = $"state{location}.{type}";
+            const string toDateKey = "state{location}.{type}.todate";
             return new HospitalMovement(
-                GetInt(fields[header[$"state{location}.{type}.in"]]),
-                GetInt(fields[header[$"state{location}.{type}.out"]]),
-                GetInt(fields[header[$"state{location}.{type}"]]),
-                GetInt(fields[header[$"state{location}.{type}.todate"]])
+                header.ContainsKey(inKey) ? GetInt(fields[header[inKey]]) : null,
+                header.ContainsKey(outKey) ? GetInt(fields[header[outKey]]): null,
+                header.ContainsKey(currentKey) ? GetInt(fields[header[currentKey]]): null,
+                header.ContainsKey(toDateKey) ? GetInt(fields[header[$"state{location}.{type}.todate"]]): null
             );
         }
 
