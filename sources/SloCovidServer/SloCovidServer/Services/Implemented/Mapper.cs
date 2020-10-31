@@ -544,6 +544,10 @@ namespace SloCovidServer.Services.Implemented
                         GetInt(fields[header[$"state.deceased.hospital.icu.todate"]])
                         )
                     ),
+                care: new ToDateToday(
+                        GetInt(fields[header[$"state.deceased.care"]]),
+                        GetInt(fields[header[$"state.deceased.care.todate"]])
+                ),
                 home: new ToDateToday(
                         GetInt(fields[header[$"state.deceased.home"]]),
                         GetInt(fields[header[$"state.deceased.home.todate"]])
