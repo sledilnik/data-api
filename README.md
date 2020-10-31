@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.5
+
+- Patients: add support for care hospitals
+
 ## 1.6.4
 
 - Hospital ID fix (Bolnišnica Sežana)

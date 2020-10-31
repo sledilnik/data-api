@@ -24,16 +24,16 @@ namespace SloCovidServer.Models
     public class GeneralUnit: BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased,
-            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased)
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, StateDeceased deceased,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, care, deceased)
         {
             OutOfHospital = outOfHospital;
         }
     }
     public class Unit: BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased) 
-            : base(inHospital, iCU, critical, deceased)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, HospitalDeceased deceased) 
+            : base(inHospital, iCU, critical, care, deceased)
         {
         }
     }
@@ -43,12 +43,14 @@ namespace SloCovidServer.Models
         public HospitalMovement InHospital { get; }
         public HospitalMovement ICU { get; }
         public HospitalMovement Critical { get; }
+        public HospitalMovement Care { get; }
         public TDeceased Deceased { get; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased)
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, TDeceased deceased)
         {
             InHospital = inHospital;
             ICU = iCU;
             Critical = critical;
+            Care = care;
             Deceased = deceased;
         }
     }

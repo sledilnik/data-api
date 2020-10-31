@@ -474,6 +474,7 @@ namespace SloCovidServer.Services.Implemented
                 inHospital: GetHospitalMovement(facility: null, "in_hospital", header, fields),
                 GetHospitalMovement(facility: null, "icu", header, fields),
                 GetHospitalMovement(facility: null, "critical", header, fields),
+                GetHospitalMovement(facility: null, "care", header, fields),
                 GetStateDeceased(header, fields),
                 new OutOfHospital(GetInt(fields[header["state.out_of_hospital.todate"]]))
                 );
@@ -484,6 +485,7 @@ namespace SloCovidServer.Services.Implemented
                     inHospital: GetHospitalMovement(facility, "in_hospital", header, fields),
                     GetHospitalMovement(facility, "icu", header, fields),
                     GetHospitalMovement(facility, "critical", header, fields),
+                    GetHospitalMovement(facility, "care", header, fields),
                     GetDeceased(facility, header, fields)
                 );
                 f = f.Add(facility, unit);
