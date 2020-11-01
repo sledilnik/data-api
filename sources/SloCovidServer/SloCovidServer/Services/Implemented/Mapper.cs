@@ -533,10 +533,10 @@ namespace SloCovidServer.Services.Implemented
             );
         }
 
-        Deceased GetDeceasedCare(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
+        ToDateToday GetDeceasedCare(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = $".{facility}";
-            return new Deceased(
+            return new ToDateToday(
                     GetInt(fields[header[$"state{location}.deceased.care"]]),
                     GetInt(fields[header[$"state{location}.deceased.care.todate"]])
                 );
