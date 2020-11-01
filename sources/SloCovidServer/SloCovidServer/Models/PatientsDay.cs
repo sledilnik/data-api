@@ -24,16 +24,16 @@ namespace SloCovidServer.Models
     public class GeneralUnit: BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, StateDeceased deceased,
-            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, care, deceased)
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, Deceased deceasedCare,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
         }
     }
     public class Unit: BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, HospitalDeceased deceased) 
-            : base(inHospital, iCU, critical, care, deceased)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, Deceased deceasedCare) 
+            : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
         }
     }
@@ -43,15 +43,18 @@ namespace SloCovidServer.Models
         public HospitalMovement InHospital { get; }
         public HospitalMovement ICU { get; }
         public HospitalMovement Critical { get; }
-        public HospitalMovement Care { get; }
         public TDeceased Deceased { get; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalMovement care, TDeceased deceased)
+        public HospitalMovement Care { get; }
+        public Deceased DeceasedCare { get; }
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, Deceased deceasedCare)
         {
             InHospital = inHospital;
             ICU = iCU;
             Critical = critical;
-            Care = care;
             Deceased = deceased;
+
+            Care = care;
+            DeceasedCare = deceasedCare;
         }
     }
 
