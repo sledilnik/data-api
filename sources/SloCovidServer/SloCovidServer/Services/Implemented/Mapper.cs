@@ -501,12 +501,12 @@ namespace SloCovidServer.Services.Implemented
             string inKey = $"state{location}.{type}.in";
             string outKey = $"state{location}.{type}.out";
             string currentKey = $"state{location}.{type}";
-            const string toDateKey = "state{location}.{type}.todate";
+            string toDateKey = $"state{location}.{type}.todate";
             return new HospitalMovement(
                 header.ContainsKey(inKey) ? GetInt(fields[header[inKey]]) : null,
                 header.ContainsKey(outKey) ? GetInt(fields[header[outKey]]): null,
                 header.ContainsKey(currentKey) ? GetInt(fields[header[currentKey]]): null,
-                header.ContainsKey(toDateKey) ? GetInt(fields[header[$"state{location}.{type}.todate"]]): null
+                header.ContainsKey(toDateKey) ? GetInt(fields[header[toDateKey]]): null
             );
         }
 

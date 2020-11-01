@@ -22,6 +22,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.6.5
 
+- Bug fix: toDate was not exposed properly in patients
+
+## 1.6.5
+
 - Patients: add support for care hospitals
 
 ## 1.6.4
