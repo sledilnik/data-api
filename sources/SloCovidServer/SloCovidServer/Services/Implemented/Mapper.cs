@@ -535,10 +535,10 @@ namespace SloCovidServer.Services.Implemented
 
         ToDateToday GetDeceasedCare(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
-            string location = $".{facility}";
+            string location = !string.IsNullOrEmpty(facility) ? $".{facility}": "";
             return new ToDateToday(
-                    GetInt(fields[header[$"state{location}.deceased.care"]]),
-                    GetInt(fields[header[$"state{location}.deceased.care.todate"]])
+                    GetInt($"state{location}.deceased.care", header, fields, isMandatory: false),
+                    GetInt($"state{location}.deceased.care.todate", header, fields, isMandatory: false)
                 );
         }
 
