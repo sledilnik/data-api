@@ -20,7 +20,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
-## 1.6.5
+## 1.6.6
 
 - Bug fix: toDate was not exposed properly in patients
 
