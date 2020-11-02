@@ -12,9 +12,9 @@ namespace SloCovidServer.Services.Implemented
     {
         static readonly ImmutableArray<AgeBucketMeta> ageBuckets;
         static readonly int[] ageBucketRangesNew = new[] { 4, 14, 24, 34, 44, 54, 64, 74, 84 };
-        static readonly string[] facilities = { "ukclj", "ukcmb", "ukg", "sbce", "sbnm", "sbms", "sbje", "sbsg", "sbpt", "sbtr", "sbng", "sbbr", "bto", "bse", "sbiz" };
+        static readonly string[] facilities = { "ukclj", "ukcmb", "ukg", "sbce", "sbnm", "sbms", "sbje", "sbsg", "sbpt", "sbtr", "sbng", "sbbr", "bto", "bse", "sbiz", "upklj", "pbbe", "pbvo", "pbor", "pbid" };
         static readonly string[] hospitals = { "bse", "bto", "sbbr", "sbce", "sbiz", "sbje", "sbms", "sbng",
-            "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg" };
+            "sbnm", "sbpt", "sbsg", "sbtr", "ukclj", "ukcmb", "ukg", "upklj", "pbbe", "pbvo", "pbor", "pbid" };
 
         static Mapper()
         {
@@ -266,11 +266,11 @@ namespace SloCovidServer.Services.Implemented
         {
             string location = !string.IsNullOrEmpty(hospital) ? $".{hospital}" : "";
             return new HospitalBedDay(
-                GetInt($"hospital{location}.bed.total", header, fields),
-                GetInt($"hospital{location}.bed.total.max", header, fields),
-                GetInt($"hospital{location}.bed.occupied", header, fields),
-                GetInt($"hospital{location}.bed.free", header, fields),
-                GetInt($"hospital{location}.bed.free.max", header, fields)
+                GetInt($"hospital{location}.bed.total", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.bed.total.max", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.bed.occupied", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.bed.free", header, fields, isMandatory: false),
+                GetInt($"hospital{location}.bed.free.max", header, fields, isMandatory: false)
             );
         }
         HospitalICUDay GetHospitalICUs(string hospital, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
@@ -524,11 +524,11 @@ namespace SloCovidServer.Services.Implemented
         {
             string location = $".{facility}";
             return new HospitalDeceased(
-                GetInt(fields[header[$"state{location}.deceased"]]),
-                GetInt(fields[header[$"state{location}.deceased.todate"]]),
+                GetInt($"state{location}.deceased", header, fields, isMandatory: false),
+                GetInt($"state{location}.deceased.todate", header, fields, isMandatory: false),
                 new ToDateToday(
-                    GetInt(fields[header[$"state{location}.deceased.icu"]]),
-                    GetInt(fields[header[$"state{location}.deceased.icu.todate"]])
+                    GetInt($"state{location}.deceased.icu", header, fields, isMandatory: false),
+                    GetInt($"state{location}.deceased.icu.todate", header, fields, isMandatory: false)
                 )
             );
         }
