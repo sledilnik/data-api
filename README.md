@@ -20,6 +20,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.7.0
+
+- Adds owid data through owid endpoint. Supports application/json and text/csv outputs. CSV output uses InvariantCulture formatting.
+  Filter arguments are from, to and countries - all are optional.
+  Sample: api/owid?from=2020-06-02&to=2020-06-30&countries=BEL,SLV
+
 ## 1.6.4
 
 - Hospital ID fix (Bolnišnica Sežana)
