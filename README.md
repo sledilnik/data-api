@@ -4,7 +4,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list), 
 [municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
 [deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities) and 
-[health-centers](https://api.sledilnik.org/api/health-centers).
+[health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
