@@ -20,6 +20,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.6.8
+
+- Weekly: added in week.investigated and week.healthcare
+
 ## 1.6.7
 
 - Patients, Hospitals: added support for psychiatric hospitals (care units only)

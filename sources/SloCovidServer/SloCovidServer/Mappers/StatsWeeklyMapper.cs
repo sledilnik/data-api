@@ -14,6 +14,8 @@ namespace SloCovidServer.Mappers
             int weekIndex = header["week"];
             int dateToIndex = header["date.to"];
             int weekConfirmedIndex = header["week.confirmed"];
+            int weekInvestigatedIndex = header["week.investigated"];
+            int weekHealthcareIndex = header["week.healthcare"];
             int weekSentToQuarantineIndex = header["week.sent_to.quarantine"];
             var result = new List<StatsWeeklyDay>();
             foreach (string line in IterateLines(lines))
@@ -50,6 +52,8 @@ namespace SloCovidServer.Mappers
                 date.Day,
                 dateTo,
                 GetInt(fields[weekConfirmedIndex]),
+                GetInt(fields[weekInvestigatedIndex]),
+                GetInt(fields[weekHealthcareIndex]),
                 sentTo: sentTo,
                 source,
                 from
