@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prometheus;
+using SloCovidServer.Formatters;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
 using System.Net.Http;
@@ -70,7 +71,9 @@ namespace SloCovidServer
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+                })
+                // adds support for text/csv output, won't work for nested structures
+                .AddCsvSerializerFormatters();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

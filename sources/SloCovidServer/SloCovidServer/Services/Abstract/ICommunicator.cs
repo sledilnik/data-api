@@ -1,4 +1,5 @@
 ﻿using SloCovidServer.Models;
+using SloCovidServer.Services.Implemented;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,5 +21,6 @@ namespace SloCovidServer.Services.Abstract
         Task<(ImmutableArray<MunicipalityDay>? Data, string raw, string ETag, long? Timestamp)> GetMunicipalitiesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<HealthCentersDay>? Data, string raw, string ETag, long? Timestamp)> GetHealthCentersAsync(string callerEtag, DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<StatsWeeklyDay>? Data, string raw, string ETag, long? Timestamp)> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        (ImmutableDictionary<string, Models.Owid.Country> Data, string raw, string eTag) GetOwidCountries(string callerEtag);
     }
 }

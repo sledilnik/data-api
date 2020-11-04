@@ -48,6 +48,23 @@ namespace SloCovidServer.Controllers
             this.communicator = communicator;
             endpointName = GetType().Name.Replace("Controller", "").ToLower();
         }
+        protected string RequestETag
+        {
+            get
+            {
+                if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etagValues))
+                {
+                    string etag = etagValues.SingleOrDefault() ?? "";
+                    // cloudflare only supports weak etags in non-enterprise account, strip prefix so we can work as usual
+                    if (etag.StartsWith("W/"))
+                    {
+                        etag = etag.Substring(2);
+                    }
+                    return etag;
+                }
+                return null;
+            }
+        }
         protected async Task<ActionResult<T?>> ProcessRequestAsync<T>(
             Func<string, DataFilter, CancellationToken, Task<(T? Data, string Raw, string ETag, long? Timestamp)>> retrieval,
             DataFilter filter,
@@ -55,16 +72,7 @@ namespace SloCovidServer.Controllers
             where T : struct
         {
             var stopwatch = Stopwatch.StartNew();
-            string etag = null;
-
-            if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etagValues))
-            {
-                etag = etagValues.SingleOrDefault() ?? "";
-                // cloudflare only supports weak etags in non-enterprise account, strip prefix so we can work as usual
-                if(etag.StartsWith("W/")) {
-                    etag = etag.Substring(2);
-                }
-            }
+            string etag = RequestETag;
             bool hasETag = !string.IsNullOrEmpty(etag);
             bool exceptionOccured = false;
             try

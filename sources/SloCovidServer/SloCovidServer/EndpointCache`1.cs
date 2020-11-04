@@ -55,7 +55,8 @@ namespace SloCovidServer.Services.Implemented
                 if (!this.initialized)
                 {
                     // wait for promise resolution on first request
-                    if (!this.initPromise.Task.Wait(5000))
+                    // owid countries requires a lot of time
+                    if (!this.initPromise.Task.Wait(120000))
                     {
                         throw new System.Exception("Timeout waiting cache");
                     }

@@ -124,7 +124,7 @@ namespace SloCovidServer.Services.Implemented
                     logger.LogInformation($"Cache refresher cancelled");
                 }
             }
-            logger.LogInformation($"Cache refresher stoped");
+            logger.LogInformation($"Cache refresher stopped");
         }
 
         public async Task RefreshCache(CancellationToken ct)
@@ -206,6 +206,11 @@ namespace SloCovidServer.Services.Implemented
         public Task<(ImmutableArray<StatsWeeklyDay>? Data, string raw, string ETag, long? Timestamp)> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/stats-weekly.csv", statsWeeklyDayCache, filter, ct);
+        }
+
+        public (ImmutableDictionary<string, Models.Owid.Country> Data, string raw, string eTag) GetOwidCountries(string callerEtag)
+        {
+            return GetFormCache(callerEtag, owidCountriesCache);
         }
 
         public class RegionsPivotCacheData
@@ -469,6 +474,24 @@ namespace SloCovidServer.Services.Implemented
             finally
             {
                 RequestDuration.WithLabels(url, isException.ToString()).Observe(stopwatch.ElapsedMilliseconds);
+            }
+        }
+
+        (TData Data, string raw, string ETag) GetFormCache<TData>(string callerEtag, EndpointCache<TData> sync)
+                where TData : class
+        {
+            string etagInfo = $"ETag {(string.IsNullOrEmpty(callerEtag) ? "none" : $"present {callerEtag}")}";
+            ETagCacheItem<TData> current = sync.CacheBlocking;
+
+            if (!string.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
+            {
+                logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
+                return (null, current.Raw, current.ETag);
+            }
+            else
+            {
+                logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
+                return (current.Data, current.Raw, current.ETag);
             }
         }
     }
