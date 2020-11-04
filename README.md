@@ -26,6 +26,22 @@ In case of failures a notification is set to slack channel #alert through Data A
   Filter arguments are from, to and countries - all are optional.
   Sample: api/owid?from=2020-06-02&to=2020-06-30&countries=BEL,SLV
 
+## 1.6.8
+
+- Weekly: added in week.investigated and week.healthcare
+
+## 1.6.7
+
+- Patients, Hospitals: added support for psychiatric hospitals (care units only)
+
+## 1.6.6
+
+- Bug fix: toDate was not exposed properly in patients
+
+## 1.6.5
+
+- Patients: add support for care hospitals
+
 ## 1.6.4
 
 - Hospital ID fix (Bolnišnica Sežana)

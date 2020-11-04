@@ -24,16 +24,16 @@ namespace SloCovidServer.Models
     public class GeneralUnit: BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased,
-            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased)
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, ToDateToday deceasedCare,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
         }
     }
     public class Unit: BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased) 
-            : base(inHospital, iCU, critical, deceased)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, ToDateToday deceasedCare) 
+            : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
         }
     }
@@ -44,12 +44,17 @@ namespace SloCovidServer.Models
         public HospitalMovement ICU { get; }
         public HospitalMovement Critical { get; }
         public TDeceased Deceased { get; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased)
+        public HospitalMovement Care { get; }
+        public ToDateToday DeceasedCare { get; }
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, ToDateToday deceasedCare)
         {
             InHospital = inHospital;
             ICU = iCU;
             Critical = critical;
             Deceased = deceased;
+
+            Care = care;
+            DeceasedCare = deceasedCare;
         }
     }
 
@@ -103,10 +108,12 @@ namespace SloCovidServer.Models
             }
         }
         public HospitalStats Hospital { get; }
+        public ToDateToday Care { get; }
         public ToDateToday Home { get; }
-        public StateDeceased(int? today, int? toDate, HospitalStats hospital, ToDateToday home) : base(today, toDate)
+        public StateDeceased(int? today, int? toDate, HospitalStats hospital, ToDateToday care, ToDateToday home) : base(today, toDate)
         {
             Hospital = hospital;
+            Care = care;
             Home = home;
         }
     }
