@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using SloCovidServer.Services.Abstract;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace SloCovidServer
 {
@@ -8,7 +11,13 @@ namespace SloCovidServer
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            var communicator = host.Services.GetService<ICommunicator>();
+            var cts = new CancellationTokenSource();
+            var refresher = communicator.StartCacheRefresherAsync(cts.Token);
+            host.Run();
+            cts.Cancel();
+            // should wait but refreshed really doesn't do anything worth waiting for
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

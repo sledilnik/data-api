@@ -31,4 +31,11 @@ namespace SloCovidServer
         {
         }
     }
+    public class DictionaryETagCacheItem<TKey, TValue> : ETagCacheItem<ImmutableDictionary<TKey, TValue>>
+    {
+        public DictionaryETagCacheItem() : base(null, "", ImmutableDictionary<TKey, TValue>.Empty, timestamp: null)
+        {
+        }
+    }
+
 }

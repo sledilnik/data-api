@@ -80,10 +80,7 @@ namespace SloCovidServer
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            // initialize cache before starting server
-            communicator.RefreshCache();
-            
+           
             app.UseRouting();
             app.UseCors(CorsPolicy);
             app.UseResponseCompression();

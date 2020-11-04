@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Polly;
 using Polly.Extensions.Http;
 using Prometheus;
@@ -7,8 +9,10 @@ using SloCovidServer.Models;
 using SloCovidServer.Services.Abstract;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -66,10 +70,22 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<MunicipalityDay> municipalityDayCache;
         readonly ArrayEndpointCache<HealthCentersDay> healthCentersDayCache;
         readonly ArrayEndpointCache<StatsWeeklyDay> statsWeeklyDayCache;
+        readonly DictionaryEndpointCache<string, Models.Owid.Country> owidCountriesCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
         readonly ConcurrentDictionary<string, object> errors;
+        readonly static JsonSerializer owidSerializer;
+        static Communicator()
+        {
+            owidSerializer = new JsonSerializer
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                }
+            };
+        }
         public Communicator(ILogger<Communicator> logger, Mapper mapper, ISlackService slackService)
         {
             client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
@@ -88,24 +104,33 @@ namespace SloCovidServer.Services.Implemented
             municipalityDayCache = new ArrayEndpointCache<MunicipalityDay>();
             healthCentersDayCache = new ArrayEndpointCache<HealthCentersDay>();
             statsWeeklyDayCache = new ArrayEndpointCache<StatsWeeklyDay>();
+            owidCountriesCache = new DictionaryEndpointCache<string, Models.Owid.Country>();
             errors = new ConcurrentDictionary<string, object>();
-            Task.Run(this.CacheRefresher);
         }
 
-        public async Task CacheRefresher()
+        public async Task StartCacheRefresherAsync(CancellationToken ct)
         {
             logger.LogInformation($"Initializing cache refresher");
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                var delay = Task.Delay(TimeSpan.FromSeconds(60));
-                await this.RefreshCache();
-                await delay;
+                try
+                {
+                    var delay = Task.Delay(TimeSpan.FromSeconds(60), ct);
+                    await RefreshCache(ct);
+                    await delay;
+                }
+                catch (OperationCanceledException)
+                {
+                    logger.LogInformation($"Cache refresher cancelled");
+                }
             }
+            logger.LogInformation($"Cache refresher stoped");
         }
 
-        public async Task RefreshCache()
+        public async Task RefreshCache(CancellationToken ct)
         {
             logger.LogInformation($"Refreshing GH cache");
+            var sw = Stopwatch.StartNew();
             var stats = this.RefreshEndpointCache($"{root}/stats.csv", this.statsCache, mapper.GetStatsFromRaw);
             var regions = this.RefreshEndpointCache($"{root}/regions.csv", this.regionCache, mapper.GetRegionsFromRaw);
             var patients = this.RefreshEndpointCache($"{root}/patients.csv", this.patientsCache, mapper.GetPatientsFromRaw);
@@ -118,16 +143,15 @@ namespace SloCovidServer.Services.Implemented
             var municipalityDay = this.RefreshEndpointCache($"{root}/municipality.csv", this.municipalityDayCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
             var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
             var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
+            var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
 
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
-                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay);
-            logger.LogInformation($"GH cache refreshed");
-            return;
+                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries);
+            logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/stats.csv", statsCache, filter, ct);
-
         }
 
         public Task<(ImmutableArray<RegionsDay>? Data, string raw, string ETag, long? Timestamp)> GetRegionsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
@@ -224,34 +248,112 @@ namespace SloCovidServer.Services.Implemented
                 return null;
             }
         }
-
-        async Task RefreshEndpointCache<TData>(string url, ArrayEndpointCache<TData> sync, Func<string, ImmutableArray<TData>> mapFromString)
+        Task ProcessErrorAsync(string url, string message)
         {
-            Task ProcessErrorAsync(string message)
+            if (errors.TryAdd(url, null))
             {
-                if (errors.TryAdd(url, null))
+                EndpointDown.WithLabels(url).Inc();
+                slackService.SendNotificationAsync($"DATA API REST service started failing to retrieve data from {url} because {message}",
+                        CancellationToken.None);
+            }
+            else
+            {
+                slackService.SendNotificationAsync($"DATA API REST service failed retrieving data from {url} because {message}",
+                        CancellationToken.None);
+            }
+            return null;
+        }
+        Task ProcessErrorRemovalAsync(string url)
+        {
+            // remove error flag
+            if (errors.TryRemove(url, out _))
+            {
+                EndpointDown.WithLabels(url).Dec();
+                slackService.SendNotificationAsync($"DATA API REST service started retrieving data from {url}", CancellationToken.None);
+            }
+            return null;
+        }
+        //async Task RefreshJsonEndpointCache<TData>(string url, EndpointCache<TData> sync, JsonSerializer serializer)
+        //{
+        //    var policy = HttpPolicyExtensions
+        //        .HandleTransientHttpError()
+        //        .RetryAsync(1);
+
+        //    HttpResponseMessage response;
+        //    try
+        //    {
+        //        response = await policy.ExecuteAsync(() =>
+        //        {
+        //            var request = new HttpRequestMessage(HttpMethod.Get, url);
+        //            RequestCount.WithLabels(url).Inc();
+        //            return client.SendAsync(request);
+        //        });
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            _ = ProcessErrorRemovalAsync(url);
+
+        //            IEnumerable<string> headerETags;
+        //            response.Headers.TryGetValues("ETag", out headerETags);
+        //            string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
+        //            using (StreamReader sr = new StreamReader(await response.Content.ReadAsStreamAsync()))
+        //            {
+        //                var data = (TData)serializer.Deserialize(sr, typeof(TData));
+        //                sync.Cache = new ETagCacheItem<TData>(newETag, null, data, null);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _ = ProcessErrorAsync(url, response.ReasonPhrase);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _ = ProcessErrorAsync(url, ex.Message);
+        //    }
+        //}
+        async Task RefreshJsonEndpointCache<TData>(string url, EndpointCache<TData> sync, JsonSerializer serializer,
+            CancellationToken ct)
+        {
+            var policy = HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .RetryAsync(1);
+            // cache responses for a minute
+            var current = sync.Cache;
+            HttpResponseMessage response;
+            try
+            {
+                response = await policy.ExecuteAsync(() =>
                 {
-                    EndpointDown.WithLabels(url).Inc();
-                    slackService.SendNotificationAsync($"DATA API REST service started failing to retrieve data from {url} because {message}",
-                            CancellationToken.None);
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    if (!string.IsNullOrEmpty(current.ETag))
+                    {
+                        request.Headers.Add("If-None-Match", current.ETag);
+                    }
+                    RequestCount.WithLabels(url).Inc();
+                    return client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+                });
+                if (response.IsSuccessStatusCode || response.StatusCode != System.Net.HttpStatusCode.NotModified)
+                {
+                    _ = ProcessErrorRemovalAsync(url);
+                    string newETag = response.Headers.GetValues("ETag")?.SingleOrDefault();
+                    using (StreamReader sr = new StreamReader(await response.Content.ReadAsStreamAsync()))
+                    {
+                        var data = (TData)serializer.Deserialize(sr, typeof(TData));
+                        sync.Cache = new ETagCacheItem<TData>(newETag, null, data, null);
+                    }
                 }
                 else
                 {
-                    slackService.SendNotificationAsync($"DATA API REST service failed retrieving data from {url} because {message}",
-                            CancellationToken.None);
+                    _ = ProcessErrorAsync(url, response.ReasonPhrase);
                 }
-                return null;
             }
-            Task ProcessErrorRemovalAsync()
+            catch (Exception ex)
             {
-                // remove error flag
-                if (errors.TryRemove(url, out _))
-                {
-                    EndpointDown.WithLabels(url).Dec();
-                    slackService.SendNotificationAsync($"DATA API REST service started retrieving data from {url}", CancellationToken.None);
-                }
-                return null;
+                _ = ProcessErrorAsync(url, ex.Message);
             }
+        }
+        async Task RefreshEndpointCache<TData>(string url, ArrayEndpointCache<TData> sync, Func<string, ImmutableArray<TData>> mapFromString)
+        {
 
             var policy = HttpPolicyExtensions
                 .HandleTransientHttpError()
@@ -269,10 +371,10 @@ namespace SloCovidServer.Services.Implemented
                 });
                 if (response.IsSuccessStatusCode)
                 {
-                    _ = ProcessErrorRemovalAsync();
+                    _ = ProcessErrorRemovalAsync(url);
                     var timestamp = await GetTimestampAsync(url);
 
-                    System.Collections.Generic.IEnumerable<string> headerETags;
+                    IEnumerable<string> headerETags;
                     response.Headers.TryGetValues("ETag", out headerETags);
                     string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
                     string responseBody = await response.Content.ReadAsStringAsync();
@@ -280,14 +382,13 @@ namespace SloCovidServer.Services.Implemented
                 }
                 else
                 {
-                    _ = ProcessErrorAsync(response.ReasonPhrase);
+                    _ = ProcessErrorAsync(url, response.ReasonPhrase);
                 }
             }
             catch (Exception ex)
             {
-                _ = ProcessErrorAsync(ex.Message);
+                _ = ProcessErrorAsync(url, ex.Message);
             }
-            return;
         }
 
         // filters data based on date

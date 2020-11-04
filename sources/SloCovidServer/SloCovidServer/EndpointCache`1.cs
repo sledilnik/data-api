@@ -86,4 +86,14 @@ namespace SloCovidServer.Services.Implemented
         public ArrayEndpointCache() : this(new ArrayETagCacheItem<T>())
         { }
     }
+
+    public class DictionaryEndpointCache<TKey, TValue> : EndpointCache<ImmutableDictionary<TKey, TValue>>
+    {
+        public DictionaryEndpointCache(DictionaryETagCacheItem<TKey, TValue> cache) : base(cache)
+        {
+        }
+
+        public DictionaryEndpointCache() : this(new DictionaryETagCacheItem<TKey, TValue>())
+        { }
+    }
 }
