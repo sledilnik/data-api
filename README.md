@@ -20,6 +20,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.8.0
+
+* Updates to .Net 5.0
+* Upgrades classes to records where applicable and switches to expressions
+
 ## 1.7.0
 
 - Adds owid data through owid endpoint. Supports application/json and text/csv outputs. CSV output uses InvariantCulture formatting.
@@ -165,7 +170,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 - Updates SchemaVersion to 12
 
 ### 1.5.3
-   
+
 - Adds cases.unclassified.confirmed.todate to stats
 - Changes behavior in case of failure against CSV source - data is returned from cache, slack notification is sent
 - Updates SchemaVersion to 11
@@ -181,7 +186,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 - Updates SchemaVersion to 10
 
 ### 1.5.0
- 
+
 - Adds prometheus metrics available at /metrics endpoint
 
 ### 1.4.5
