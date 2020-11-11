@@ -2,17 +2,17 @@
 
 namespace SloCovidServer.Models
 {
-    public class OwidCountryDay
+    public record OwidCountryDay
     {
-        public DateTime Date { get; }
-        public string IsoCode { get; }
-        public float? NewCases { get; }
-        public float? NewCasesPerMillion { get; }
-        public float? TotalCases { get; }
-        public float? TotalCasesPerMillion { get; }
-        public float? TotalDeaths { get; }
-        public float? TotalDeathsPerMillion { get; }
-        public OwidCountryDay(DateTime date, string isoCode, float? newCases, float? newCasesPerMillion, float? totalCases, float? totalCasesPerMillion, 
+        public DateTime Date { get; init; }
+        public string IsoCode { get; init; }
+        public float? NewCases { get; init; }
+        public float? NewCasesPerMillion { get; init; }
+        public float? TotalCases { get; init; }
+        public float? TotalCasesPerMillion { get; init; }
+        public float? TotalDeaths { get; init; }
+        public float? TotalDeathsPerMillion { get; init; }
+        public OwidCountryDay(DateTime date, string isoCode, float? newCases, float? newCasesPerMillion, float? totalCases, float? totalCasesPerMillion,
             float? totalDeaths, float? totalDeathsPerMillion)
         {
             Date = date;

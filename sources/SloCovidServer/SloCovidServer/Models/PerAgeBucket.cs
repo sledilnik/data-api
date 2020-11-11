@@ -1,12 +1,12 @@
 ﻿namespace SloCovidServer.Models
 {
-    public class PerAgeBucket
+    public record PerAgeBucket
     {
-        public int? AgeFrom { get; }
-        public int? AgeTo { get; }
-        public int? AllToDate { get; }
-        public int? FemaleToDate { get; }
-        public int? MaleToDate { get; }
+        public int? AgeFrom { get; init; }
+        public int? AgeTo { get; init; }
+        public int? AllToDate { get; init; }
+        public int? FemaleToDate { get; init; }
+        public int? MaleToDate { get; init; }
         public PerAgeBucket(int? ageFrom, int? ageTo, int? allToDate, int? femaleToDate, int? maleToDate)
         {
             AgeFrom = ageFrom;

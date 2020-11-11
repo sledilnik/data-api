@@ -2,29 +2,29 @@
 
 namespace SloCovidServer.Models
 {
-    public class StatsDaily: IModelDate
+    public record StatsDaily : IModelDate
     {
-        public int DayFromStart { get; }
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
-        public string Phase { get; }
+        public int DayFromStart { get; init; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
+        public string Phase { get; init; }
         // obsolete since 1.5.7
-        public int? PerformedTestsToDate { get; }
+        public int? PerformedTestsToDate { get; init; }
         // obsolete since 1.5.7
-        public int? PerformedTests { get; }
+        public int? PerformedTests { get; init; }
         // obsolete since 1.5.7
-        public int? PositiveTestsToDate { get; }
+        public int? PositiveTestsToDate { get; init; }
         // obsolete since 1.5.7
-        public int? PositiveTests { get; }
-        public Tests Tests { get; }
-        public int? FemaleToDate { get; }
-        public int? MaleToDate { get; }
-        public Cases Cases { get; }
-        public PerTreatment StatePerTreatment { get; }
-        public ImmutableDictionary<string, int?> StatePerRegion { get; }
-        public ImmutableArray<PerAgeBucket> StatePerAgeToDate { get; }
-        public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; }
+        public int? PositiveTests { get; init; }
+        public Tests Tests { get; init; }
+        public int? FemaleToDate { get; init; }
+        public int? MaleToDate { get; init; }
+        public Cases Cases { get; init; }
+        public PerTreatment StatePerTreatment { get; init; }
+        public ImmutableDictionary<string, int?> StatePerRegion { get; init; }
+        public ImmutableArray<PerAgeBucket> StatePerAgeToDate { get; init; }
+        public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; init; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
             int? positiveTests, Tests tests,
             int? femaleToDate, int? maleToDate,
@@ -51,12 +51,12 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class Tests
+    public record Tests
     {
-        public CommonTests Performed { get; }
-        public CommonTests Positive { get; }
-        public RegularTests Regular { get; }
-        public RegularTests NSApr20 { get; }
+        public CommonTests Performed { get; init; }
+        public CommonTests Positive { get; init; }
+        public RegularTests Regular { get; init; }
+        public RegularTests NSApr20 { get; init; }
         public Tests(CommonTests performed, CommonTests positive, RegularTests regular, RegularTests nSApr20)
         {
             Performed = performed;
@@ -66,10 +66,10 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class RegularTests
+    public record RegularTests
     {
-        public CommonTests Performed { get; }
-        public CommonTests Positive { get; }
+        public CommonTests Performed { get; init; }
+        public CommonTests Positive { get; init; }
         public RegularTests(CommonTests performed, CommonTests positive)
         {
             Performed = performed;
@@ -77,10 +77,10 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class CommonTests
+    public record CommonTests
     {
-        public int? ToDate { get; }
-        public int? Today { get; }
+        public int? ToDate { get; init; }
+        public int? Today { get; init; }
         public CommonTests(int? toDate, int? today)
         {
             ToDate = toDate;
@@ -88,18 +88,18 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class Cases
+    public record Cases
     {
-        public int? ConfirmedToday { get; }
-        public int? ConfirmedToDate { get; }
-        public int? RecoveredToDate { get; }
-        public int? ClosedToDate { get; }
+        public int? ConfirmedToday { get; init; }
+        public int? ConfirmedToDate { get; init; }
+        public int? RecoveredToDate { get; init; }
+        public int? ClosedToDate { get; init; }
         // obsolete since 1.5.8
-        public int? ActiveToDate { get; }
-        public int? Active { get; }
-        public HealthSystemSCases HS { get; }
-        public RetirementHomeCases RH { get; }
-        public UnclassifiedCases Unclassified { get; }
+        public int? ActiveToDate { get; init; }
+        public int? Active { get; init; }
+        public HealthSystemSCases HS { get; init; }
+        public RetirementHomeCases RH { get; init; }
+        public UnclassifiedCases Unclassified { get; init; }
         public Cases(int? confirmedToday, int? confirmedToDate, int? recoveredToDate, int? closedToDate, int? active, HealthSystemSCases hs, RetirementHomeCases rh,
             UnclassifiedCases unclassified)
         {
@@ -114,9 +114,9 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class UnclassifiedCases
+    public record UnclassifiedCases
     {
-        public int? ConfirmedToDate { get; }
+        public int? ConfirmedToDate { get; init; }
         public UnclassifiedCases(int? confirmedToDate)
         {
             ConfirmedToDate = confirmedToDate;
@@ -126,9 +126,9 @@ namespace SloCovidServer.Models
     /// <summary>
     /// Health system cases
     /// </summary>
-    public class HealthSystemSCases
+    public record HealthSystemSCases
     {
-        public int? EmployeeConfirmedToDate { get; }
+        public int? EmployeeConfirmedToDate { get; init; }
         public HealthSystemSCases(int? employeeConfirmedToDate)
         {
             EmployeeConfirmedToDate = employeeConfirmedToDate;
@@ -137,10 +137,10 @@ namespace SloCovidServer.Models
     /// <summary>
     /// Retirement home cases
     /// </summary>
-    public class RetirementHomeCases
+    public record RetirementHomeCases
     {
-        public int? EmployeeConfirmedToDate { get; }
-        public int? OccupantConfirmedToDate { get; }
+        public int? EmployeeConfirmedToDate { get; init; }
+        public int? OccupantConfirmedToDate { get; init; }
         public RetirementHomeCases(int? employeeConfirmedToDate, int? occupantConfirmedToDate)
         {
             EmployeeConfirmedToDate = employeeConfirmedToDate;

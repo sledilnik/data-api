@@ -128,3 +128,4 @@ Artwork
 *.nogit.*
 /tools/**
 !/tools/packages.config
+.cr/

@@ -31,18 +31,13 @@ namespace SloCovidServer.Mappers
                             municipality = new MunicipalityDayData(0, 0, 0);
                         }
                         string key = string.Join('.', parts.Skip(3));
-                        switch (key)
+                        municipality = key switch
                         {
-                            case "cases.active":
-                                municipality = new MunicipalityDayData(GetInt(fields[pair.Value]), municipality.ConfirmedToDate, municipality.DeceasedToDate);
-                                break;
-                            case "cases.confirmed.todate":
-                                municipality = new MunicipalityDayData(municipality.ActiveCases, GetInt(fields[pair.Value]), municipality.DeceasedToDate);
-                                break;
-                            case "deceased.todate":
-                                municipality = new MunicipalityDayData(municipality.ActiveCases, municipality.ConfirmedToDate, GetInt(fields[pair.Value]));
-                                break;
-                        }
+                            "cases.active" => municipality with { ActiveCases = GetInt(fields[pair.Value]) },
+                            "cases.confirmed.todate" => municipality with { ConfirmedToDate = GetInt(fields[pair.Value]) },
+                            "deceased.todate" => municipality with { DeceasedToDate = GetInt(fields[pair.Value]) },
+                            _ => municipality,
+                        };
                         region = region.SetItem(parts[2], municipality);
                         regions = regions.SetItem(parts[1], region);
                     }

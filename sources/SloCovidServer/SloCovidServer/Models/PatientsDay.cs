@@ -2,14 +2,14 @@
 
 namespace SloCovidServer.Models
 {
-    public class PatientsDay : IModelDate
+    public record PatientsDay : IModelDate
     {
-        public int DayFromStart { get; }
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
-        public GeneralUnit Total { get; }
-        public ImmutableDictionary<string, Unit> Facilities { get; }
+        public int DayFromStart { get; init; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
+        public GeneralUnit Total { get; init; }
+        public ImmutableDictionary<string, Unit> Facilities { get; init; }
         public PatientsDay(int dayFromStart, int year, int month, int day, GeneralUnit total, ImmutableDictionary<string, Unit> facilities)
         {
             DayFromStart = dayFromStart;
@@ -21,31 +21,31 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class GeneralUnit: BaseUnit<StateDeceased>
+    public record GeneralUnit : BaseUnit<StateDeceased>
     {
-        public OutOfHospital OutOfHospital { get; }
+        public OutOfHospital OutOfHospital { get; init; }
         public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, ToDateToday deceasedCare,
             OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
         }
     }
-    public class Unit: BaseUnit<HospitalDeceased>
+    public record Unit : BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, ToDateToday deceasedCare) 
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, ToDateToday deceasedCare)
             : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
         }
     }
-    public class BaseUnit<TDeceased>
-        where TDeceased: Deceased
+    public record BaseUnit<TDeceased>
+        where TDeceased : Deceased
     {
-        public HospitalMovement InHospital { get; }
-        public HospitalMovement ICU { get; }
-        public HospitalMovement Critical { get; }
-        public TDeceased Deceased { get; }
-        public HospitalMovement Care { get; }
-        public ToDateToday DeceasedCare { get; }
+        public HospitalMovement InHospital { get; init; }
+        public HospitalMovement ICU { get; init; }
+        public HospitalMovement Critical { get; init; }
+        public TDeceased Deceased { get; init; }
+        public HospitalMovement Care { get; init; }
+        public ToDateToday DeceasedCare { get; init; }
         public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, ToDateToday deceasedCare)
         {
             InHospital = inHospital;
@@ -58,12 +58,12 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class HospitalMovement
+    public record HospitalMovement
     {
-        public int? In { get; }
-        public int? Out { get; }
-        public int? Today { get; }
-        public int? ToDate { get; }
+        public int? In { get; init; }
+        public int? Out { get; init; }
+        public int? Today { get; init; }
+        public int? ToDate { get; init; }
         public HospitalMovement(int? inMovement, int? outMovement, int? current, int? today)
         {
             In = inMovement;
@@ -73,11 +73,11 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class Movement
+    public record Movement
     {
-        public int? In { get; }
-        public int? Out { get; }
-        public int? Today { get; }
+        public int? In { get; init; }
+        public int? Out { get; init; }
+        public int? Today { get; init; }
         public Movement(int? inMovement, int? outMovement, int? today)
         {
             In = inMovement;
@@ -86,10 +86,10 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class Deceased
+    public record Deceased
     {
-        public int? Today { get; }
-        public int? ToDate { get; }
+        public int? Today { get; init; }
+        public int? ToDate { get; init; }
         public Deceased(int? today, int? toDate)
         {
             Today = today;
@@ -97,19 +97,19 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class StateDeceased: Deceased
+    public record StateDeceased : Deceased
     {
-        public class HospitalStats: ToDateToday
+        public record HospitalStats : ToDateToday
         {
-            public ToDateToday Icu { get; }
+            public ToDateToday Icu { get; init; }
             public HospitalStats(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
             {
                 Icu = icu;
             }
         }
-        public HospitalStats Hospital { get; }
-        public ToDateToday Care { get; }
-        public ToDateToday Home { get; }
+        public HospitalStats Hospital { get; init; }
+        public ToDateToday Care { get; init; }
+        public ToDateToday Home { get; init; }
         public StateDeceased(int? today, int? toDate, HospitalStats hospital, ToDateToday care, ToDateToday home) : base(today, toDate)
         {
             Hospital = hospital;
@@ -117,19 +117,19 @@ namespace SloCovidServer.Models
             Home = home;
         }
     }
-    public class HospitalDeceased: Deceased
+    public record HospitalDeceased : Deceased
     {
-        public ToDateToday Icu { get; }
+        public ToDateToday Icu { get; init; }
         public HospitalDeceased(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
         {
             Icu = icu;
         }
     }
 
-    public class ToDateToday
+    public record ToDateToday
     {
-        public int? Today { get; }
-        public int? ToDate { get; }
+        public int? Today { get; init; }
+        public int? ToDate { get; init; }
         public ToDateToday(int? today, int? toDate)
         {
             ToDate = toDate;
@@ -137,9 +137,9 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class OutOfHospital
+    public record OutOfHospital
     {
-        public int? ToDate { get; }
+        public int? ToDate { get; init; }
         public OutOfHospital(int? toDate)
         {
             ToDate = toDate;

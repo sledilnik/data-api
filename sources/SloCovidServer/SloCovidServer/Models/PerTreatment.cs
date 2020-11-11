@@ -1,16 +1,16 @@
 ﻿namespace SloCovidServer.Models
 {
-    public class PerTreatment
+    public record PerTreatment
     {
-        public int? InHospital { get; }
-        public int? InHospitalToDate { get; }
-        public int? InICU { get; }
-        public int? Critical { get; }
-        public int? DeceasedToDate { get; }
-        public int? Deceased { get; }
-        public int? OutOfHospitalToDate { get; }
-        public int? OutOfHospital { get; }
-        public int? RecoveredToDate { get; }
+        public int? InHospital { get; init; }
+        public int? InHospitalToDate { get; init; }
+        public int? InICU { get; init; }
+        public int? Critical { get; init; }
+        public int? DeceasedToDate { get; init; }
+        public int? Deceased { get; init; }
+        public int? OutOfHospitalToDate { get; init; }
+        public int? OutOfHospital { get; init; }
+        public int? RecoveredToDate { get; init; }
         public PerTreatment(int? inHospital, int? inHospitalToDate, int? inICU, int? critical, int? deceasedToDate, int? deceased, int? outOfHospitalToDate,
             int? outOfHospital, int? recoveredToDate)
         {

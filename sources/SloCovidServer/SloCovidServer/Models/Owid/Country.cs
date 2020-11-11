@@ -1,27 +1,26 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace SloCovidServer.Models.Owid
 {
-    public class Country
+    public record Country
     {
-        public string Continent { get; }
-        public string Location { get; }
-        public float? Population { get; }
-        public float? PopulationDensity { get; }
-        public float? MedianAge {  get; }
-        public float? Aged65Older { get; }
-        public float? Aged70Older { get; }
-        public float? CardiovascDeathRate { get; }
-        public float? HandwashingFacilities { get; }
-        public float? HospitalBedsPerThousand { get; }
-        public float? GdpPerCapita { get; }
-        public float? DiabetesPrevalence { get; }
-        public float? LifeExpectancy { get; }
-        public float? HumanDevelopmentIndex { get; }
-        public ImmutableArray<CountryData> Data { get; }
-        public Country(string continent, string location, float? population, float? populationDensity, float? medianAge, float? aged65Older, 
-            float? aged70Older, float? cardiovascDeathRate, float? handwashingFacilities, float? hospitalBedsPerThousand, 
+        public string Continent { get; init; }
+        public string Location { get; init; }
+        public float? Population { get; init; }
+        public float? PopulationDensity { get; init; }
+        public float? MedianAge { get; init; }
+        public float? Aged65Older { get; init; }
+        public float? Aged70Older { get; init; }
+        public float? CardiovascDeathRate { get; init; }
+        public float? HandwashingFacilities { get; init; }
+        public float? HospitalBedsPerThousand { get; init; }
+        public float? GdpPerCapita { get; init; }
+        public float? DiabetesPrevalence { get; init; }
+        public float? LifeExpectancy { get; init; }
+        public float? HumanDevelopmentIndex { get; init; }
+        public ImmutableArray<CountryData> Data { get; init; }
+        public Country(string continent, string location, float? population, float? populationDensity, float? medianAge, float? aged65Older,
+            float? aged70Older, float? cardiovascDeathRate, float? handwashingFacilities, float? hospitalBedsPerThousand,
             float? gdpPerCapita, float? diabetesPrevalence, float? lifeExpectancy, float? humanDevelopmentIndex, ImmutableArray<CountryData> data)
         {
             Continent = continent;

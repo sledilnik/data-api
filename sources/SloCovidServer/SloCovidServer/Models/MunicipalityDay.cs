@@ -2,12 +2,12 @@
 
 namespace SloCovidServer.Models
 {
-    public class MunicipalityDay : IModelDate
+    public record MunicipalityDay : IModelDate
     {
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
-        public ImmutableDictionary<string, ImmutableDictionary<string, MunicipalityDayData>> Regions { get; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
+        public ImmutableDictionary<string, ImmutableDictionary<string, MunicipalityDayData>> Regions { get; init; }
         public MunicipalityDay(int year, int month, int day, ImmutableDictionary<string, ImmutableDictionary<string, MunicipalityDayData>> regions)
         {
             Year = year;
@@ -17,11 +17,11 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class MunicipalityDayData
+    public record MunicipalityDayData
     {
-        public int? ActiveCases { get; }
-        public int? ConfirmedToDate { get; }
-        public int? DeceasedToDate { get; }
+        public int? ActiveCases { get; init; }
+        public int? ConfirmedToDate { get; init; }
+        public int? DeceasedToDate { get; init; }
         public MunicipalityDayData(int? activeCases, int? confirmedToDate, int? deceasedToDate)
         {
             ActiveCases = activeCases;

@@ -397,6 +397,7 @@ namespace SloCovidServer.Services.Implemented
         }
 
         // filters data based on date
+        // TODO improve performance
         public ImmutableArray<TData> FilterData<TData>(ImmutableArray<TData> data, DataFilter filter)
         {
             if (typeof(IModelDate).IsAssignableFrom(typeof(TData)))
@@ -436,7 +437,8 @@ namespace SloCovidServer.Services.Implemented
         /// <remarks>
         /// In cache is always all data though filtered is returned.
         /// </remarks>
-        async Task<(ImmutableArray<TData>? Data, string raw, string ETag, long? Timestamp)> GetAsync<TData>(string callerEtag, string url,
+        // TODO wait asynchronously on refresh if busy
+        Task<(ImmutableArray<TData>? Data, string raw, string ETag, long? Timestamp)> GetAsync<TData>(string callerEtag, string url,
                 EndpointCache<ImmutableArray<TData>> sync, DataFilter filter, CancellationToken ct)
                 where TData : class
         {
@@ -454,13 +456,13 @@ namespace SloCovidServer.Services.Implemented
                 if (!String.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                 {
                     logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
-                    return (null, current.Raw, current.ETag, current.Timestamp);
+                    return Task.FromResult(new ValueTuple<ImmutableArray<TData>?, string, string, long?>(null, current.Raw, current.ETag, current.Timestamp));
                 }
                 else
                 {
                     logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
                     var filteredData = FilterData(current.Data, filter);
-                    return (filteredData, current.Raw, current.ETag, current.Timestamp);
+                    return Task.FromResult(new ValueTuple<ImmutableArray<TData>?, string, string, long?>(filteredData, current.Raw, current.ETag, current.Timestamp));
                 }
 
                 // throw new Exception($"Failed fetching data: {response.ReasonPhrase}");

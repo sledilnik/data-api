@@ -2,13 +2,13 @@
 
 namespace SloCovidServer.Models
 {
-    public class HospitalsDay : IModelDate
+    public record HospitalsDay : IModelDate
     {
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
-        public HospitalDay Overall { get; }
-        public ImmutableDictionary<string, HospitalDay> PerHospital { get; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
+        public HospitalDay Overall { get; init; }
+        public ImmutableDictionary<string, HospitalDay> PerHospital { get; init; }
         public HospitalsDay(int year, int month, int day, HospitalDay overall, ImmutableDictionary<string, HospitalDay> perHospital)
         {
             Year = year;
@@ -19,12 +19,12 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class HospitalDay
+    public record HospitalDay
     {
-        public HospitalBedDay Beds { get; }
-        public HospitalICUDay ICU { get; }
-        public HospitalVentDay Vents { get; }
-        public HospitalCareDay Care { get; }
+        public HospitalBedDay Beds { get; init; }
+        public HospitalICUDay ICU { get; init; }
+        public HospitalVentDay Vents { get; init; }
+        public HospitalCareDay Care { get; init; }
         public HospitalDay(HospitalBedDay beds, HospitalICUDay iCU, HospitalVentDay vents, HospitalCareDay care)
         {
             Beds = beds;
@@ -34,13 +34,13 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class HospitalBedDay
-    { 
-        public int? Total { get; }
-        public int? Max { get; }
-        public int? Occupied { get; }
-        public int? Free { get; }
-        public int? MaxFree { get; }
+    public record HospitalBedDay
+    {
+        public int? Total { get; init; }
+        public int? Max { get; init; }
+        public int? Occupied { get; init; }
+        public int? Free { get; init; }
+        public int? MaxFree { get; init; }
         public HospitalBedDay(int? total, int? max, int? occupied, int? free, int? maxFree)
         {
             Total = total;
@@ -50,12 +50,12 @@ namespace SloCovidServer.Models
             MaxFree = maxFree;
         }
     }
-    public class HospitalICUDay
+    public record HospitalICUDay
     {
-        public int? Total { get; }
-        public int? Max { get; }
-        public int? Occupied { get; }
-        public int? Free { get; }
+        public int? Total { get; init; }
+        public int? Max { get; init; }
+        public int? Occupied { get; init; }
+        public int? Free { get; init; }
         public HospitalICUDay(int? total, int? max, int? occupied, int? free)
         {
             Total = total;
@@ -65,12 +65,12 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class HospitalVentDay
+    public record HospitalVentDay
     {
-        public int? Total { get; }
-        public int? Max { get; }
-        public int? Occupied { get; }
-        public int? Free { get; }
+        public int? Total { get; init; }
+        public int? Max { get; init; }
+        public int? Occupied { get; init; }
+        public int? Free { get; init; }
         public HospitalVentDay(int? total, int? max, int? occupied, int? free)
         {
             Total = total;
@@ -80,12 +80,12 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class HospitalCareDay
+    public record HospitalCareDay
     {
-        public int? Total { get; }
-        public int? Max { get; }
-        public int? Occupied { get; }
-        public int? Free { get; }
+        public int? Total { get; init; }
+        public int? Max { get; init; }
+        public int? Occupied { get; init; }
+        public int? Free { get; init; }
         public HospitalCareDay(int? total, int? max, int? occupied, int? free)
         {
             Total = total;

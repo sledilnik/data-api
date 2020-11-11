@@ -1,14 +1,14 @@
 ﻿namespace SloCovidServer.Models
 {
-    public class RetirementHome
+    public record RetirementHome
     {
-        public string Id { get; }
-        public string Name { get; }
-        public string Region { get; }
-        public string Type { get; }
-        public int? Occupants { get; }
-        public int? Employees { get; }
-        public string Url { get; }
+        public string Id { get; init; }
+        public string Name { get; init; }
+        public string Region { get; init; }
+        public string Type { get; init; }
+        public int? Occupants { get; init; }
+        public int? Employees { get; init; }
+        public string Url { get; init; }
         public RetirementHome(string id, string name, string region, string type, int? occupants, int? employees, string url)
         {
             Id = id;

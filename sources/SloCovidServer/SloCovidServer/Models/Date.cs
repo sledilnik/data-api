@@ -3,11 +3,11 @@
     /// <summary>
     /// Represents REST date
     /// </summary>
-    public class Date
+    public record Date
     {
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
         public Date(int year, int month, int day)
         {
             Year = year;

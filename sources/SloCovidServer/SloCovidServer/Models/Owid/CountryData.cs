@@ -2,23 +2,23 @@
 
 namespace SloCovidServer.Models.Owid
 {
-    public class CountryData
+    public record CountryData
     {
-        public DateTime Date { get; }
-        public float? TotalCases { get; }
-        public float? NewCases { get; }
-        public float? NewDeathsSmoothed { get; }
-        public float? TotalDeaths { get; }
-        public float? NewDeaths { get; }
-        public float? NewCasesSmoothed { get; }
-        public float? TotalCasesPerMillion { get; }
-        public float? NewCasesPerMillion { get; }
-        public float? NewCasesSmoothedPerMillion { get; }
-        public float? TotalDeathsPerMillion { get; }
-        public float? NewDeathsPerMillion { get; }
-        public float? NewDeathsSmoothedPerMillion { get; }
-        public CountryData(DateTime date, float? totalCases, float? newCases, float? newDeathsSmoothed, float? totalDeaths, 
-            float? newDeaths, float? newCasesSmoothed, float? totalCasesPerMillion, float? newCasesPerMillion, 
+        public DateTime Date { get; init; }
+        public float? TotalCases { get; init; }
+        public float? NewCases { get; init; }
+        public float? NewDeathsSmoothed { get; init; }
+        public float? TotalDeaths { get; init; }
+        public float? NewDeaths { get; init; }
+        public float? NewCasesSmoothed { get; init; }
+        public float? TotalCasesPerMillion { get; init; }
+        public float? NewCasesPerMillion { get; init; }
+        public float? NewCasesSmoothedPerMillion { get; init; }
+        public float? TotalDeathsPerMillion { get; init; }
+        public float? NewDeathsPerMillion { get; init; }
+        public float? NewDeathsSmoothedPerMillion { get; init; }
+        public CountryData(DateTime date, float? totalCases, float? newCases, float? newDeathsSmoothed, float? totalDeaths,
+            float? newDeaths, float? newCasesSmoothed, float? totalCasesPerMillion, float? newCasesPerMillion,
             float? newCasesSmoothedPerMillion, float? totalDeathsPerMillion, float? newDeathsPerMillion, float? newDeathsSmoothedPerMillion)
         {
             Date = date;

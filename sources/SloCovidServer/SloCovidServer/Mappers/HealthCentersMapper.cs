@@ -61,33 +61,17 @@ namespace SloCovidServer.Mappers
             return result.ToImmutableArray();
         }
 
-        HealthCentersDayItem UpdateItem(HealthCentersDayItem source, string key, int? value)
-        {
-            switch (key)
+        HealthCentersDayItem UpdateItem(HealthCentersDayItem source, string key, int? value) =>
+            key switch
             {
-                case "examinations.medical_emergency":
-                    source = source.Clone(examinations: source.Examinations.Clone(medicalEmergency: value));
-                    break;
-                case "examinations.suspected_covid":
-                    source = source.Clone(examinations: source.Examinations.Clone(suspectedCovid: value));
-                    break;
-                case "phone_triage.suspected_covid":
-                    source = source.Clone(phoneTriage: source.PhoneTriage.Clone(suspectedCovid: value));
-                    break;
-                case "tests.performed":
-                    source = source.Clone(tests: source.Tests.Clone(performed: value));
-                    break;
-                case "tests.positive":
-                    source = source.Clone(tests: source.Tests.Clone(positive: value));
-                    break;
-                case "sent_to.hospital":
-                    source = source.Clone(sentTo: source.SentTo.Clone(hospital: value));
-                    break;
-                case "sent_to.self_isolation":
-                    source = source.Clone(sentTo: source.SentTo.Clone(selfIsolation: value));
-                    break;
-            }
-            return source;
-        }
+                "examinations.medical_emergency" => source = source with { Examinations = source.Examinations with { MedicalEmergency = value } },
+                "examinations.suspected_covid" => source with { Examinations = source.Examinations with { SuspectedCovid = value } },
+                "phone_triage.suspected_covid" => source with { PhoneTriage = source.PhoneTriage with { SuspectedCovid = value } },
+                "tests.performed" => source with { Tests = source.Tests with { Performed = value } },
+                "tests.positive" => source with { Tests = source.Tests with { Positive = value } },
+                "sent_to.hospital" => source with { SentTo = source.SentTo with { Hospital = value } },
+                "sent_to.self_isolation" => source with { SentTo = source.SentTo with { SelfIsolation = value } },
+                _ => source,
+            };
     }
 }

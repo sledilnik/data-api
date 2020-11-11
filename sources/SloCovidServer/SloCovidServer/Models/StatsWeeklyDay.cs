@@ -2,20 +2,20 @@
 
 namespace SloCovidServer.Models
 {
-    public class StatsWeeklyDay: IModelDate
+    public record StatsWeeklyDay : IModelDate
     {
-        public string Week { get; }
-        public int Year { get; }
-        public int Month { get; }
-        public int Day { get; }
-        public Date To { get; }
-        public int? Confirmed { get; }
-        public int? Investigated { get; }
-        public int? Healthcare { get; }
-        public StatsWeeklySentTo SentTo { get; }
-        public ImmutableDictionary<string, int?> Source { get; }
-        public ImmutableDictionary<string, int?> From { get; }
-        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, int? healthcare, StatsWeeklySentTo sentTo, ImmutableDictionary<string, int?> source, 
+        public string Week { get; init; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
+        public Date To { get; init; }
+        public int? Confirmed { get; init; }
+        public int? Investigated { get; init; }
+        public int? Healthcare { get; init; }
+        public StatsWeeklySentTo SentTo { get; init; }
+        public ImmutableDictionary<string, int?> Source { get; init; }
+        public ImmutableDictionary<string, int?> From { get; init; }
+        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, int? healthcare, StatsWeeklySentTo sentTo, ImmutableDictionary<string, int?> source,
             ImmutableDictionary<string, int?> from)
         {
             Week = week;
@@ -32,9 +32,9 @@ namespace SloCovidServer.Models
         }
     }
 
-    public class StatsWeeklySentTo
+    public record StatsWeeklySentTo
     {
-        public int? Quarantine { get; }
+        public int? Quarantine { get; init; }
         public StatsWeeklySentTo(int? quarantine)
         {
             Quarantine = quarantine;

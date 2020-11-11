@@ -1,21 +1,21 @@
 ﻿namespace SloCovidServer.Models
 {
-    public class PerRegion
+    public record PerRegion
     {
-        public int? LJSum { get; }
-        public int? CESum { get; }
-        public int? NMSum { get; }
-        public int? MBSum { get; }
-        public int? KRSum { get; }
-        public int? SGSum { get; }
-        public int? POSum { get; }
-        public int? MSSum { get; }
-        public int? KPSum { get; }
-        public int? NGSum { get; }
-        public int? KKSum { get; }
-        public int? ForeignSum { get; }
-        public int? UnknownSum { get; }
-        public PerRegion(int? lJSum, int? cESum, int? nMSum, int? mBSum, int? kRSum, int? sGSum, int? pOSum, int? mSSum, int? kPSum, 
+        public int? LJSum { get; init; }
+        public int? CESum { get; init; }
+        public int? NMSum { get; init; }
+        public int? MBSum { get; init; }
+        public int? KRSum { get; init; }
+        public int? SGSum { get; init; }
+        public int? POSum { get; init; }
+        public int? MSSum { get; init; }
+        public int? KPSum { get; init; }
+        public int? NGSum { get; init; }
+        public int? KKSum { get; init; }
+        public int? ForeignSum { get; init; }
+        public int? UnknownSum { get; init; }
+        public PerRegion(int? lJSum, int? cESum, int? nMSum, int? mBSum, int? kRSum, int? sGSum, int? pOSum, int? mSSum, int? kPSum,
             int? nGSum, int? kKSum, int? foreignSum, int? unknownSum)
         {
             LJSum = lJSum;

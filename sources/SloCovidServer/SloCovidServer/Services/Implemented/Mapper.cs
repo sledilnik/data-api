@@ -602,7 +602,7 @@ namespace SloCovidServer.Services.Implemented
     }
 
     [DebuggerDisplay("{Key,nq}")]
-    public class AgeBucketMeta
+    public record AgeBucketMeta
     {
         public string Key { get; }
         public string TargetName { get; }
