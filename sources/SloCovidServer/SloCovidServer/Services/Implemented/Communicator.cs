@@ -6,6 +6,7 @@ using Polly.Extensions.Http;
 using Prometheus;
 using SloCovidServer.Mappers;
 using SloCovidServer.Models;
+using SloCovidServer.Serializers;
 using SloCovidServer.Services.Abstract;
 using System;
 using System.Collections.Concurrent;
@@ -83,8 +84,10 @@ namespace SloCovidServer.Services.Implemented
                 ContractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new SnakeCaseNamingStrategy()
-                }
+                },
             };
+            owidSerializer.Converters.Add(new CountryDataJsonSerializer());
+            owidSerializer.Converters.Add(new CountryJsonSerializer());
         }
         public Communicator(ILogger<Communicator> logger, Mapper mapper, ISlackService slackService)
         {
@@ -131,22 +134,23 @@ namespace SloCovidServer.Services.Implemented
         {
             logger.LogInformation($"Refreshing GH cache");
             var sw = Stopwatch.StartNew();
-            var stats = this.RefreshEndpointCache($"{root}/stats.csv", this.statsCache, mapper.GetStatsFromRaw);
-            var regions = this.RefreshEndpointCache($"{root}/regions.csv", this.regionCache, mapper.GetRegionsFromRaw);
-            var patients = this.RefreshEndpointCache($"{root}/patients.csv", this.patientsCache, mapper.GetPatientsFromRaw);
-            var hospitals = this.RefreshEndpointCache($"{root}/hospitals.csv", this.hospitalsCache, mapper.GetHospitalsFromRaw);
-            var hospitalsList = this.RefreshEndpointCache($"{root}/dict-hospitals.csv", this.hospitalsListCache, mapper.GetHospitalsListFromRaw);
-            var municipalitiesList = this.RefreshEndpointCache($"{root}/dict-municipality.csv", this.municipalitiesListCache, mapper.GetMunicipalitiesListFromRaw);
-            var retirementHomesList = this.RefreshEndpointCache($"{root}/dict-retirement_homes.csv", this.retirementHomesListCache, mapper.GetRetirementHomesListFromRaw);
-            var retirementHomes = this.RefreshEndpointCache($"{root}/retirement_homes.csv", this.retirementHomesCache, mapper.GetRetirementHomesFromRaw);
-            var deceasedPerRegionsDay = this.RefreshEndpointCache($"{root}/deceased-regions.csv", this.deceasedPerRegionsDayCache, new DeceasedPerRegionsMapper().GetDeceasedPerRegionsDayFromRaw);
-            var municipalityDay = this.RefreshEndpointCache($"{root}/municipality.csv", this.municipalityDayCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
-            var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
-            var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
+            //var stats = this.RefreshEndpointCache($"{root}/stats.csv", this.statsCache, mapper.GetStatsFromRaw);
+            //var regions = this.RefreshEndpointCache($"{root}/regions.csv", this.regionCache, mapper.GetRegionsFromRaw);
+            //var patients = this.RefreshEndpointCache($"{root}/patients.csv", this.patientsCache, mapper.GetPatientsFromRaw);
+            //var hospitals = this.RefreshEndpointCache($"{root}/hospitals.csv", this.hospitalsCache, mapper.GetHospitalsFromRaw);
+            //var hospitalsList = this.RefreshEndpointCache($"{root}/dict-hospitals.csv", this.hospitalsListCache, mapper.GetHospitalsListFromRaw);
+            //var municipalitiesList = this.RefreshEndpointCache($"{root}/dict-municipality.csv", this.municipalitiesListCache, mapper.GetMunicipalitiesListFromRaw);
+            //var retirementHomesList = this.RefreshEndpointCache($"{root}/dict-retirement_homes.csv", this.retirementHomesListCache, mapper.GetRetirementHomesListFromRaw);
+            //var retirementHomes = this.RefreshEndpointCache($"{root}/retirement_homes.csv", this.retirementHomesCache, mapper.GetRetirementHomesFromRaw);
+            //var deceasedPerRegionsDay = this.RefreshEndpointCache($"{root}/deceased-regions.csv", this.deceasedPerRegionsDayCache, new DeceasedPerRegionsMapper().GetDeceasedPerRegionsDayFromRaw);
+            //var municipalityDay = this.RefreshEndpointCache($"{root}/municipality.csv", this.municipalityDayCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
+            //var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
+            //var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
             var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
 
-            await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
-                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries);
+            //await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
+            //    retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries);
+            await owidCountries;
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
