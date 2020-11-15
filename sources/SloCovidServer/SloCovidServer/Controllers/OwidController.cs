@@ -40,6 +40,10 @@ namespace SloCovidServer.Controllers
                     {
                         result.Add(column, dataValue);
                     }
+                    else
+                    {
+                        result.Add(column, null);
+                    }
                 }
                 return result.ToImmutableDictionary();
             }

@@ -115,12 +115,12 @@ namespace SloCovidServer.Formatters
             await streamWriter.FlushAsync();
         }
         async Task OutputCountries(ImmutableDictionary<string, object>[] countries, StreamWriter streamWriter)
-        {
+        { 
             if (countries?.Length == 0)
             {
                 return;
             }
-            var keys = countries[0].Keys;
+            var keys = countries[0].Keys.ToImmutableArray();
             if (_options.UseSingleLineHeaderInCsv)
             {
                 await streamWriter.WriteLineAsync(string.Join(_options.CsvDelimiter, keys));
@@ -130,7 +130,9 @@ namespace SloCovidServer.Formatters
                 await streamWriter.WriteLineAsync(
                     string.Join(
                         _options.CsvDelimiter,
-                        keys.Select(k => Convert.ToString(country[k], CultureInfo.InvariantCulture))));
+                        keys.Select(k => Convert.ToString(country[k], CultureInfo.InvariantCulture))
+                    )
+                );
             }
         }
 
