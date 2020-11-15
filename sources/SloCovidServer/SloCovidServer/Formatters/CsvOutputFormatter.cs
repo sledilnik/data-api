@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Newtonsoft.Json;
+using SloCovidServer.Models.Owid;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
@@ -98,7 +102,42 @@ namespace SloCovidServer.Formatters
             {
                 await streamWriter.WriteLineAsync($"sep ={_options.CsvDelimiter}");
             }
+            // TODO this is quick hack to convert countries (dictionary) to CSV
+            if (context.Object is ImmutableDictionary<string, object>[] countries)
+            {
+                await OutputCountries(countries, streamWriter);
+            }
+            else
+            {
+                await OutputGeneric(context, itemType, streamWriter);
+            }
 
+            await streamWriter.FlushAsync();
+        }
+        async Task OutputCountries(ImmutableDictionary<string, object>[] countries, StreamWriter streamWriter)
+        { 
+            if (countries?.Length == 0)
+            {
+                return;
+            }
+            var keys = countries[0].Keys.ToImmutableArray();
+            if (_options.UseSingleLineHeaderInCsv)
+            {
+                await streamWriter.WriteLineAsync(string.Join(_options.CsvDelimiter, keys));
+            }
+            foreach (var country in countries)
+            {
+                await streamWriter.WriteLineAsync(
+                    string.Join(
+                        _options.CsvDelimiter,
+                        keys.Select(k => Convert.ToString(country[k], CultureInfo.InvariantCulture))
+                    )
+                );
+            }
+        }
+
+        private async Task OutputGeneric(OutputFormatterWriteContext context, Type itemType, StreamWriter streamWriter)
+        {
             if (_options.UseSingleLineHeaderInCsv)
             {
                 var values = useJsonAttributes
@@ -167,8 +206,6 @@ namespace SloCovidServer.Formatters
 
                 await streamWriter.WriteLineAsync(valueLine.Remove(valueLine.Length - _options.CsvDelimiter.Length));
             }
-
-            await streamWriter.FlushAsync();
         }
     }
 }

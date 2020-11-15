@@ -10,7 +10,7 @@ Only GET method is supported, no parameters are available. If necessary filterin
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
 
 Current Docker container for this project is available at [covid19sledilnik/data-api-server](https://hub.docker.com/repository/docker/covid19sledilnik/data-api-server).
-(Docker container has beeno moved on 21.9.2020)
+(Docker container has been moved on 21.9.2020)
 
 Response compression is supported, Etag/If-None-Match as well.
 
@@ -19,6 +19,10 @@ Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.8.1
+
+* Adds columns parameter to owid to allow selection of arbitrary columns. Columns isoCode and date are always present regardles of columns parameter.
 
 ## 1.8.0
 

@@ -6,6 +6,7 @@ using Polly.Extensions.Http;
 using Prometheus;
 using SloCovidServer.Mappers;
 using SloCovidServer.Models;
+using SloCovidServer.Serializers;
 using SloCovidServer.Services.Abstract;
 using System;
 using System.Collections.Concurrent;
@@ -83,8 +84,10 @@ namespace SloCovidServer.Services.Implemented
                 ContractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new SnakeCaseNamingStrategy()
-                }
+                },
             };
+            owidSerializer.Converters.Add(new CountryDataJsonSerializer());
+            owidSerializer.Converters.Add(new CountryJsonSerializer());
         }
         public Communicator(ILogger<Communicator> logger, Mapper mapper, ISlackService slackService)
         {
