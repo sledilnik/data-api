@@ -1,4 +1,4 @@
-const { github } = require('@actions/github');
+const github = require('@actions/github');
 const { request } = require("@octokit/request");
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
