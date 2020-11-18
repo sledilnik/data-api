@@ -6,6 +6,8 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const environment = 'stage'
 
 async function main() {
+  console.log("env", JSON.stringify(process.env))
+  console.log("github", JSON.stringify(github))
   try {
     // See https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#create-a-deployment
     const { data } = await request("POST /repos/:owner/:repo/deployments", {
