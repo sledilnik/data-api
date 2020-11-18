@@ -12,5 +12,6 @@ const { data } = await octokit.request("POST /repos/:owner/:repo/deployments", {
   owner,
   repo,
   ref: github.context.ref,
+  environment,
 });
-console.log("Issue created: %s", data.html_url);
+console.log("Deployment created: %s", data);
