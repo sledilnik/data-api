@@ -1,0 +1,54 @@
+name: Build and deploy (stagging)
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  RELEASE_NAME: data-api
+  CHART_VALUES_FILE: .helm/values.stage.yml
+  DEPLOY_NAMESPACE: sledilnik-stage
+  DEPLOY_ENV: stagging
+  DEPLOY_URL: https://stage.api.sledilnik.org
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      
+      - name: Build and push docker container image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ./sources/SloCovidServer
+          file: ./sources/SloCovidServer/Dockerfile
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/data-api:latest
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: "!contains(github.event.head_commit.message, 'NODEPLOY')"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Deploy
+        uses: sledilnik/action-helm-deploy@master
+        with:
+          chartName: sledilnik/data-api
+          chartVersion: '0.1.11'
+          kubeconfig: '${{ secrets.KUBECONFIG }}'   
