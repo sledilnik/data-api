@@ -24,11 +24,15 @@ jobs:
 
       - name: Set environment (tagged build)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        run: echo "IMAGE_TAG=${{steps.tag.outputs.tag}}" >> $GITHUB_ENV
+        run: |
+          echo "IMAGE_TAG=${{steps.tag.outputs.tag}}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=api-prod" >> $GITHUB_ENV
 
       - name: Set environment (master build)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
-        run: echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+        run: |
+          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+          echo "RELEASE_NAME=api-stage" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -48,3 +52,21 @@ jobs:
           file: ./sources/SloCovidServer/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/data-api:${{ env.IMAGE_TAG}}
+
+      - name: Create deployment
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/:repository/deployments
+          repository: ${{ github.repository }}
+          required_contexts: "[]"
+          environment: "staging"
+          ref: ${{ github.head_ref }}
+          payload: |
+            {
+              namespace: "default",
+              chartName: "data-api",
+              chartVersion: "0.1.1",
+              releaseName: "${{ env.RELEASE_NAME }}"
+            }
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
