@@ -1,7 +1,6 @@
 const { github } = require('@actions/github');
 const { request } = require("@octokit/request");
 
-const octokit = new Octokit();
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
 const environment = 'stage'
