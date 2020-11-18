@@ -2,7 +2,7 @@ const github = require('@actions/github');
 const core = require('@actions/core');
 const { request } = require("@octokit/request");
 
-const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+// const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const environment = 'stage'
 
 async function main() {
@@ -11,8 +11,8 @@ async function main() {
   try {
     // See https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#create-a-deployment
     const { data } = await request("POST /repos/:owner/:repo/deployments", {
-      owner,
-      repo,
+      owner: github.repository.owner.name,
+      repo: github.repository.name,
       ref: github.context.ref,
       environment,
     });
