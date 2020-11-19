@@ -58,7 +58,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const relaseName = process.env['RELEASE_NAME']
+            const releaseName = process.env['RELEASE_NAME']
             github.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
