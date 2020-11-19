@@ -29,6 +29,7 @@ jobs:
           echo "RELEASE_NAME=api-prod" >> $GITHUB_ENV
           echo "INGRESS_RULE=Host(\`api.sledilnik.org\`)" >> $GITHUB_ENV
           echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+          echo "DEPLOY_URL=https://api.sledilnik.org" >> $GITHUB_ENV
 
       - name: Set environment (master build)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
@@ -37,6 +38,7 @@ jobs:
           echo "RELEASE_NAME=api-stage" >> $GITHUB_ENV
           echo "INGRESS_RULE=Host(\`api-stage.sledilnik.org\`)" >> $GITHUB_ENV
           echo "DEPLOY_ENV=staging" >> $GITHUB_ENV
+          echo "DEPLOY_URL=https://api-stage.sledilnik.org" >> $GITHUB_ENV
 
       - name: Set environment (PR build)
         if: github.event_name == 'pull_request'
@@ -45,6 +47,7 @@ jobs:
           echo "RELEASE_NAME=api-pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           echo "INGRESS_RULE=Host(\`pr-${{ github.event.pull_request.number }}.api.sledilnik.org\`)" >> $GITHUB_ENV
           echo "DEPLOY_ENV=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "DEPLOY_URL=https://pr-${{ github.event.pull_request.number }}.api.sledilnik.org" >> $GITHUB_ENV
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
@@ -76,12 +79,14 @@ jobs:
             const ingressRule = process.env['INGRESS_RULE']
             const imageTag = process.env['IMAGE_TAG']
             const environment = process.env['DEPLOY_ENV']
+            const deploymentUrl = process.env['DEPLOY_URL']
 
             const payload = {
                 namespace: 'default',
                 chartName: 'data-api',
                 chartVersion: '0.1.1',
                 releaseName: releaseName,
+                deploymentUrl,
                 chartValues: {
                   'image.tag': imageTag,
                   'ingressroute.rule': ingressRule
