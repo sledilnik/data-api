@@ -62,6 +62,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: context.payload.ref,
+              required_contexts: [],
             });
 
       # - name: Create deployment
