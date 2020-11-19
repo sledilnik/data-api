@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           echo "RELEASE_NAME=api-stage" >> $GITHUB_ENV
-          echo "INGRESS_RULE='Host(`api-stage.sledilnik.org`)'" >> $GITHUB_ENV
+          echo "INGRESS_RULE=Host(\`api-stage.sledilnik.org\`) || Host(\`api-stage.rtfm.si\`)" >> $GITHUB_ENV
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
