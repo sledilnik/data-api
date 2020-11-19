@@ -84,6 +84,7 @@ jobs:
                   'image.tag': imageTag,
                   'ingressroute.rule': ingressRule
                 }
+              }
 
             github.repos.createDeployment({
               owner: context.repo.owner,
@@ -91,6 +92,5 @@ jobs:
               ref: context.payload.ref,
               required_contexts: [],
               environment,
-              payload
-              }
+              payload,
             });
