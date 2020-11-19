@@ -39,37 +39,39 @@ jobs:
           echo "DEPLOY_ENV=staging" >> $GITHUB_ENV
 
       - name: Set environment (PR build)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
+        if: github.event_name == 'pull_request'
         run: |
           echo "IMAGE_TAG=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           echo "RELEASE_NAME=api-pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           echo "INGRESS_RULE=Host(\`pr-${{ github.event.pull_request.number }}.api.sledilnik.org\`)" >> $GITHUB_ENV
           echo "DEPLOY_ENV=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1 
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1 
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.GHCR_TOKEN }}
       
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./sources/SloCovidServer/
-          file: ./sources/SloCovidServer/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/data-api:${{ env.IMAGE_TAG}}
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ./sources/SloCovidServer/
+      #     file: ./sources/SloCovidServer/Dockerfile
+      #     push: true
+      #     tags: ghcr.io/${{ github.repository_owner }}/data-api:${{ env.IMAGE_TAG}}
 
-      - name: Deploy2
+      - name: Deploy
+        if: github.event_name != 'pull_request' || (github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'deploy-preview'))
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+
             const releaseName = process.env['RELEASE_NAME']
             const ingressRule = process.env['INGRESS_RULE']
             const imageTag = process.env['IMAGE_TAG']
