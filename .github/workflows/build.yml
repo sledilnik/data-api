@@ -27,12 +27,14 @@ jobs:
         run: |
           echo "IMAGE_TAG=${{steps.tag.outputs.tag}}" >> $GITHUB_ENV
           echo "RELEASE_NAME=api-prod" >> $GITHUB_ENV
+          echo "INGRESS_RULE='Host(`api.sledilnik.org`)'" >> $GITHUB_ENV
 
       - name: Set environment (master build)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
         run: |
           echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           echo "RELEASE_NAME=api-stage" >> $GITHUB_ENV
+          echo "INGRESS_RULE='Host(`api-stage.sledilnik.org`)'" >> $GITHUB_ENV
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
@@ -59,6 +61,9 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const releaseName = process.env['RELEASE_NAME']
+            const ingressRule = process.env['INGRESS_RULE']
+            const imageTag = process.env['IMAGE_TAG']
+
             github.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -69,7 +74,10 @@ jobs:
                 chartName: 'data-api',
                 chartVersion: '0.1.1',
                 releaseName: releaseName,
-                chartValues: {}
+                chartValues: {
+                  'image.tag': imageTag,
+                  'ingressroute.rule': ingressRule
+                }
               }
             });
 
