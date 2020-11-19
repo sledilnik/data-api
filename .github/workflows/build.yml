@@ -58,6 +58,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const relaseName = process.env['RELEASE_NAME']
             github.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -67,7 +68,7 @@ jobs:
                 namespace: 'default',
                 chartName: 'data-api',
                 chartVersion: '0.1.1',
-                releaseName: 'stage-api',
+                releaseName: releaseName,
                 chartValues: {}
               }
             });
