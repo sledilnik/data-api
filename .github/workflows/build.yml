@@ -63,6 +63,13 @@ jobs:
               repo: context.repo.repo,
               ref: context.payload.ref,
               required_contexts: [],
+              payload: {
+                namespace: 'default',
+                chartName: 'data-api',
+                chartVersion: '0.1.1',
+                releaseName: 'stage-api',
+                chartValues: {}
+              }
             });
 
       # - name: Create deployment
