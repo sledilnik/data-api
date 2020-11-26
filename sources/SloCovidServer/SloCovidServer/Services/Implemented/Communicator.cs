@@ -72,6 +72,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<HealthCentersDay> healthCentersDayCache;
         readonly ArrayEndpointCache<StatsWeeklyDay> statsWeeklyDayCache;
         readonly DictionaryEndpointCache<string, Models.Owid.Country> owidCountriesCache;
+        readonly ArrayEndpointCache<MonthlyDeathsSlovenia> monthlyDeatsSloveniaCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -108,6 +109,7 @@ namespace SloCovidServer.Services.Implemented
             healthCentersDayCache = new ArrayEndpointCache<HealthCentersDay>();
             statsWeeklyDayCache = new ArrayEndpointCache<StatsWeeklyDay>();
             owidCountriesCache = new DictionaryEndpointCache<string, Models.Owid.Country>();
+            monthlyDeatsSloveniaCache = new ArrayEndpointCache<MonthlyDeathsSlovenia>();
             errors = new ConcurrentDictionary<string, object>();
         }
 
@@ -147,9 +149,10 @@ namespace SloCovidServer.Services.Implemented
             var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
             var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
             var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
+            var monthlyDeathsSlovenia = this.RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeatsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
 
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
-                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries);
+                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia);
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
@@ -215,7 +218,11 @@ namespace SloCovidServer.Services.Implemented
         {
             return GetFormCache(callerEtag, owidCountriesCache);
         }
-
+        public Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetMonthlyDeathsSloveniaAsync(string callerEtag, 
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/monthly_deaths_slovenia.csv", monthlyDeatsSloveniaCache, filter, ct);
+        }
         public class RegionsPivotCacheData
         {
             public ETagCacheItem<ImmutableArray<Municipality>> Municipalities { get; }

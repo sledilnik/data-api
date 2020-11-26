@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,11 +16,13 @@ namespace SloCovidServer
 {
     public class Startup
     {
-        const string SchemaVersion = "19";
+        const string SchemaVersion = "20";
         const string CorsPolicy = "Any";
-        public Startup(IConfiguration configuration)
+        readonly IWebHostEnvironment env;
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -67,7 +70,28 @@ namespace SloCovidServer
                 };
             });
             // don't include null value properties in JSON content to limit content payload
-            services.AddMvc()
+            services.AddMvc(options =>
+                {
+                    if (!env.IsDevelopment())
+                    {
+                        options.CacheProfiles.Add(nameof(CacheProfiles.Default60),
+                           new CacheProfile()
+                           {
+                               VaryByQueryKeys = new[] { "*" },
+                               VaryByHeader = "Accept",
+                               Duration = 60
+                           });
+                    }
+                    else
+                    {
+                        // no cache for development
+                        options.CacheProfiles.Add(nameof(CacheProfiles.Default60),
+                            new CacheProfile()
+                            {
+                                NoStore = true,
+                            });
+                    }
+                })
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.IgnoreNullValues = true;
@@ -77,7 +101,7 @@ namespace SloCovidServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISlackService slackService, ICommunicator communicator)
+        public void Configure(IApplicationBuilder app, ISlackService slackService, ICommunicator communicator)
         {
             if (env.IsDevelopment())
             {
