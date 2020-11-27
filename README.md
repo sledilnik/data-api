@@ -5,7 +5,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
 [deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities),
 [health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid),
-[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly_deaths_slovenia) and [lab_tests](https://api.sledilnik.org/api/lab_tests).
+[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia) and [lab-tests](https://api.sledilnik.org/api/lab-tests).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
@@ -23,7 +23,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.8.3
 
-* Adds lab_tests.csv to API as /api/lab_tests endpoint
+* Adds lab_tests.csv to API as /api/lab-tests endpoint
 * Schema version is 21
 
 ## 1.8.2
