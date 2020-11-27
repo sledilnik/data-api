@@ -3,8 +3,9 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [regions](https://api.sledilnik.org/api/regions), [patients](https://api.sledilnik.org/api/patients), 
 [hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list), 
 [municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
-[deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities) and 
-[health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid), [monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly_deaths_slovenia).
+[deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities),
+[health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid),
+[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly_deaths_slovenia) and [lab_tests](https://api.sledilnik.org/api/lab_tests).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
@@ -20,9 +21,14 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.8.3
+
+* Adds lab_tests.csv to API as /api/lab_tests endpoint
+* Schema version is 21
+
 ## 1.8.2
 
-* Adds monthly_deaths_slovenia.csv to API as /api/monthly_deaths_slovenia
+* Adds monthly_deaths_slovenia.csv to API as /api/monthly_deaths_slovenia endpoint
 * Schema version is 20
 
 ## 1.8.1

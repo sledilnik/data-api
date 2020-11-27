@@ -24,5 +24,6 @@ namespace SloCovidServer.Services.Abstract
         (ImmutableDictionary<string, Models.Owid.Country> Data, string raw, string eTag) GetOwidCountries(string callerEtag);
         Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetMonthlyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<LabTestDay>? Data, string raw, string ETag, long? Timestamp)> GetLabTestsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
     }
 }

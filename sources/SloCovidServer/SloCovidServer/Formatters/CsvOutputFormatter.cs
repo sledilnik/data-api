@@ -107,6 +107,10 @@ namespace SloCovidServer.Formatters
             {
                 await OutputCountries(countries, streamWriter);
             }
+            else if (context.Object is string text)
+            {
+                await streamWriter.WriteAsync(text);
+            }
             else
             {
                 await OutputGeneric(context, itemType, streamWriter);

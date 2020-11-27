@@ -128,6 +128,7 @@ namespace SloCovidServer.Models
 
     public record ToDateToday
     {
+        public static ToDateToday Empty { get; } = new ToDateToday(null, null);
         public int? Today { get; init; }
         public int? ToDate { get; init; }
         public ToDateToday(int? today, int? toDate)
