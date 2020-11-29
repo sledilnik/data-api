@@ -21,6 +21,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.8.4
+
+* Fixes bug in lab-tests
+* Updates NSwag
+
 ## 1.8.3
 
 * Adds lab_tests.csv to API as /api/lab-tests endpoint

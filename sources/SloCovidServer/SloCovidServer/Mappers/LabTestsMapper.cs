@@ -22,26 +22,27 @@ namespace SloCovidServer.Mappers
                     var hospitals = new Dictionary<string, LabTestData>();
                     var labs = new Dictionary<string, LabTestData>();
                     LabTestData total = LabTestData.Empty;
-                    foreach (var pair in header.Where(p => p.Key != "date"))
+                    foreach (var column in header.Where(p => p.Key != "date"))
                     {
-                        switch (pair.Key)
+                        int? value = GetInt(fields[column.Value]);
+                        switch (column.Key)
                         {
                             case "tests.performed":
-                                total = total with { Performed = total.Performed with { Today = pair.Value } };
+                                total = total with { Performed = total.Performed with { Today = value } };
                                 break;
                             case "tests.performed.todate":
-                                total = total with { Performed = total.Performed with { ToDate = pair.Value } };
+                                total = total with { Performed = total.Performed with { ToDate = value } };
                                 break;
                             case "tests.positive":
-                                total = total with { Positive = total.Positive with { Today = pair.Value } };
+                                total = total with { Positive = total.Positive with { Today = value } };
                                 break;
                             case "tests.positive.todate":
-                                total = total with { Positive = total.Positive with { ToDate = pair.Value } };
+                                total = total with { Positive = total.Positive with { ToDate = value } };
                                 break;
                             default:
                                 Dictionary<string, LabTestData> target;
                                 int hospitalIndex;
-                                if (pair.Key.StartsWith ("tests.lab."))
+                                if (column.Key.StartsWith ("tests.lab."))
                                 {
                                     hospitalIndex = 2;
                                     target = labs;
@@ -51,7 +52,7 @@ namespace SloCovidServer.Mappers
                                     hospitalIndex = 1;
                                     target = hospitals;
                                 }
-                                string[] parts = pair.Key.Split('.');
+                                string[] parts = column.Key.Split('.');
                                 string hospital = parts[hospitalIndex];
                                 if (!target.TryGetValue(hospital, out var labTestData))
                                 {
@@ -59,10 +60,10 @@ namespace SloCovidServer.Mappers
                                 }
                                 labTestData = (parts[hospitalIndex+1], parts.Length > hospitalIndex + 2 ? parts[hospitalIndex + 2] : null) switch
                                 {
-                                    ("performed", null) => labTestData with { Performed = labTestData.Performed with { Today = pair.Value } },
-                                    ("performed", "todate") => labTestData with { Performed = labTestData.Performed with { ToDate = pair.Value } },
-                                    ("positive", null) => labTestData with { Positive = labTestData.Positive with { Today = pair.Value } },
-                                    ("positive", "todate") => labTestData with { Positive = labTestData.Positive with { ToDate = pair.Value } },
+                                    ("performed", null) => labTestData with { Performed = labTestData.Performed with { Today = value } },
+                                    ("performed", "todate") => labTestData with { Performed = labTestData.Performed with { ToDate = value } },
+                                    ("positive", null) => labTestData with { Positive = labTestData.Positive with { Today = value } },
+                                    ("positive", "todate") => labTestData with { Positive = labTestData.Positive with { ToDate = value } },
                                     _ => null,
                                 };
                                 target[hospital] = labTestData;
