@@ -5,7 +5,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
 [deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities),
 [health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid),
-[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia) and [lab-tests](https://api.sledilnik.org/api/lab-tests).
+[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia), [lab-tests](https://api.sledilnik.org/api/lab-tests) and [daily-deaths-slovenia](https://api.sledilnik.org/api/daily-deaths-slovenia).
 Only GET method is supported, no parameters are available. If necessary filtering parameters will be added eventually.
 
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
@@ -20,6 +20,11 @@ Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.8.5
+
+* Adds daily_deaths_slovenia.csv to API as /api/daily-deaths-slovenia endpoint
+* Schema version is 22
 
 ## 1.8.4
 

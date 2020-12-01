@@ -25,5 +25,7 @@ namespace SloCovidServer.Services.Abstract
         Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetMonthlyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<LabTestDay>? Data, string raw, string ETag, long? Timestamp)> GetLabTestsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<DailyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetDailyDeathsSloveniaAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct);
     }
 }
