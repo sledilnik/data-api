@@ -75,6 +75,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<MonthlyDeathsSlovenia> monthlyDeathsSloveniaCache;
         readonly ArrayEndpointCache<LabTestDay> labTestsCache;
         readonly ArrayEndpointCache<DailyDeathsSlovenia> dailyDeathsSloveniaCache;
+        readonly ArrayEndpointCache<AgeDailyDeathsSloveniaDay> ageDailyDeathsSloveniaCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -114,6 +115,7 @@ namespace SloCovidServer.Services.Implemented
             monthlyDeathsSloveniaCache = new ArrayEndpointCache<MonthlyDeathsSlovenia>();
             labTestsCache = new ArrayEndpointCache<LabTestDay>();
             dailyDeathsSloveniaCache = new ArrayEndpointCache<DailyDeathsSlovenia>();
+            ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
             errors = new ConcurrentDictionary<string, object>();
         }
 
@@ -156,10 +158,10 @@ namespace SloCovidServer.Services.Implemented
             var monthlyDeathsSlovenia = this.RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
             var labTests = this.RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
+            var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
-            //await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
-            //    retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia);
-            await labTests;
+            await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
+                retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia, ageDeathsDeathSloveniaDay);
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
@@ -239,6 +241,11 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, filter, ct);
+        }
+        public Task<(ImmutableArray<AgeDailyDeathsSloveniaDay>? Data, string raw, string ETag, long? Timestamp)> GetAgeDailyDeathsSloveniaAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, filter, ct);
         }
         public class RegionsPivotCacheData
         {

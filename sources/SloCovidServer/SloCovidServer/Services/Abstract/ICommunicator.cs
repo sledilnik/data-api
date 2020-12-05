@@ -1,5 +1,4 @@
 ﻿using SloCovidServer.Models;
-using SloCovidServer.Services.Implemented;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +25,8 @@ namespace SloCovidServer.Services.Abstract
             DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<LabTestDay>? Data, string raw, string ETag, long? Timestamp)> GetLabTestsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<DailyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetDailyDeathsSloveniaAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<AgeDailyDeathsSloveniaDay>? Data, string raw, string ETag, long? Timestamp)> GetAgeDailyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
     }
 }
