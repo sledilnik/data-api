@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/sources/SloCovidServer/SloCovidServer/bin/Debug/netcoreapp3.1/SloCovidServer.dll",
+            "program": "${workspaceFolder}/sources/SloCovidServer/SloCovidServer/bin/Debug/net5.0/SloCovidServer.dll",
             "args": [],
             "cwd": "${workspaceFolder}/sources/SloCovidServer/SloCovidServer",
             "stopAtEntry": false,
