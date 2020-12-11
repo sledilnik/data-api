@@ -277,7 +277,7 @@ namespace SloCovidServer.Services.Implemented
                 long.TryParse(tsStr, out ts);
                 return ts;
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
                 // ignore annoying 404 errors
                 return null;
