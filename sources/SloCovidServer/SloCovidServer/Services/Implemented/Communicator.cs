@@ -81,6 +81,8 @@ namespace SloCovidServer.Services.Implemented
         /// </summary>
         readonly ConcurrentDictionary<string, object> errors;
         readonly static JsonSerializer owidSerializer;
+        /// Contains summary data calculated from Stats
+        SummaryCache summaryCache;
         static Communicator()
         {
             owidSerializer = new JsonSerializer
@@ -118,7 +120,14 @@ namespace SloCovidServer.Services.Implemented
             ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
             errors = new ConcurrentDictionary<string, object>();
         }
-
+        public Models.Summary Summary
+        {
+            get
+            {
+                var currentSummaryCache = Interlocked.CompareExchange(ref summaryCache, null, null);
+                return currentSummaryCache?.Value;
+            }
+        } 
         public async Task StartCacheRefresherAsync(CancellationToken ct)
         {
             logger.LogInformation($"Initializing cache refresher");
@@ -160,10 +169,27 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
+            await Task.WhenAll(stats, patients);
+            var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask);
+            
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
+        }
+        /// Calculates summary
+        async Task UpdateStatsAsync(CancellationToken ct)
+        {
+            if (!string.Equals(summaryCache.StatsETag, statsCache.Cache.ETag, StringComparison.Ordinal)
+            || !string.Equals(summaryCache.PatientsETag, patientsCache.Cache.ETag, StringComparison.Ordinal))
+            {
+                await Task.Run(() =>
+                {
+                    var summary = new Models.Summary(default, default, default, default, default, default);
+                    Interlocked.Exchange(ref summaryCache,
+                        new SummaryCache(statsCache.Cache.ETag, patientsCache.Cache.ETag, summary));
+                });
+            }
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {

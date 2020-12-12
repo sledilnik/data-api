@@ -97,4 +97,6 @@ namespace SloCovidServer.Services.Implemented
         public DictionaryEndpointCache() : this(new DictionaryETagCacheItem<TKey, TValue>())
         { }
     }
+
+    public record SummaryCache(string StatsETag, string PatientsETag, Models.Summary Value);
 }
