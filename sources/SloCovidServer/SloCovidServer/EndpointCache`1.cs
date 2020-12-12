@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using SloCovidServer.Models;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -97,6 +98,4 @@ namespace SloCovidServer.Services.Implemented
         public DictionaryEndpointCache() : this(new DictionaryETagCacheItem<TKey, TValue>())
         { }
     }
-
-    public record SummaryCache(string StatsETag, string PatientsETag, Models.Summary Value);
 }
