@@ -16,7 +16,7 @@ namespace SloCovidServer.Test.Mappers
             {
                 var items = ImmutableArray<TestSummaryItem>.Empty;
 
-                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual, Is.Null);
             }
@@ -27,7 +27,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(new TestSummaryItem(2020, 12, 30))
                     .Add(new TestSummaryItem(2020, 12, 31));
 
-                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual, Is.Null);
             }
@@ -38,7 +38,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(new TestSummaryItem(2020, 12, 17))
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual.Value.Item, Is.SameAs(items[1]));
                 Assert.That(actual.Value.Index, Is.EqualTo(1));
@@ -51,7 +51,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(new TestSummaryItem(2020, 12, 18))
                     .Add(new TestSummaryItem(2020, 12, 19));
 
-                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastItemOnDate(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual.Value.Item, Is.SameAs(items[1]));
                 Assert.That(actual.Value.Index, Is.EqualTo(1));
@@ -65,7 +65,7 @@ namespace SloCovidServer.Test.Mappers
             {
                 var items = ImmutableArray<TestSummaryItem>.Empty;
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual, Is.Null);
             }
@@ -75,7 +75,7 @@ namespace SloCovidServer.Test.Mappers
                 var items = ImmutableArray<TestSummaryItem>.Empty
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual.Value.Previous, Is.Null);
             }
@@ -86,7 +86,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(new TestSummaryItem(2020, 12, 17))
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(new DateTime(2020, 12, 18), items, i => true);
 
                 Assert.That(actual.Value.Previous, Is.SameAs(items[0]));
             }
@@ -95,7 +95,7 @@ namespace SloCovidServer.Test.Mappers
             {
                 var items = ImmutableArray<TestSummaryItem>.Empty;
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(null, items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(null, items, i => true);
 
                 Assert.That(actual, Is.Null);
             }
@@ -105,7 +105,7 @@ namespace SloCovidServer.Test.Mappers
                 var items = ImmutableArray<TestSummaryItem>.Empty
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(null, items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(null, items, i => true);
 
                 Assert.That(actual.Value.Previous, Is.Null);
             }
@@ -115,7 +115,7 @@ namespace SloCovidServer.Test.Mappers
                 var items = ImmutableArray<TestSummaryItem>.Empty
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(null, items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(null, items, i => true);
 
                 Assert.That(actual.Value.Last, Is.SameAs(items[0]));
             }
@@ -126,7 +126,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(new TestSummaryItem(2020, 12, 17))
                     .Add(new TestSummaryItem(2020, 12, 18));
 
-                var actual = SummaryMapper.GetLastAndPreviousItem(null, items);
+                var actual = SummaryMapper.GetLastAndPreviousItem(null, items, i => true);
 
                 Assert.That(actual.Value.Previous, Is.SameAs(items[0]));
             }
@@ -138,6 +138,7 @@ namespace SloCovidServer.Test.Mappers
             [TestCase(4, null, ExpectedResult = null)]
             [TestCase(null, 2, ExpectedResult = null)]
             [TestCase(4, 2, ExpectedResult = 2f)]
+            [TestCase(5, 2, ExpectedResult = 2.5f)]
             public float? GiveValus_ReturnsExpectedResult(int? last, int? previous)
             {
                 return SummaryMapper.CalculateDifference(last, previous);
@@ -171,7 +172,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(5))
                     .Add(CreateSimplifiedStats(6));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[6], stats[5], 6), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
                 Assert.That(actual.Today, Is.EqualTo(3));
             }
@@ -185,7 +186,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(3))
                     .Add(CreateSimplifiedStats(4));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[4], stats[3], 4), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
                 Assert.That(actual.Today, Is.EqualTo(2));
             }
@@ -199,7 +200,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(3))
                     .Add(CreateSimplifiedStats(4));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[4], stats[3], 4), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
                 Assert.That(actual.DiffPercentage, Is.Null);
             }
@@ -215,7 +216,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(5))
                     .Add(CreateSimplifiedStats(6));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[4], stats[3], 4), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
                 Assert.That(actual.DiffPercentage, Is.Null);
             }
@@ -232,7 +233,7 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(6))
                     .Add(CreateSimplifiedStats(7));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[7], stats[6], 7), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
                 Assert.That(actual.DiffPercentage, Is.EqualTo(4/3f));
             }
@@ -240,7 +241,7 @@ namespace SloCovidServer.Test.Mappers
             public void WhenMoreThan7ValuesExist_AverageCalculatesProperValues()
             {
                 var stats = ImmutableArray<StatsDaily>.Empty
-                    .Add(CreateSimplifiedStats(0))
+                    .Add(CreateSimplifiedStats(8))
                     .Add(CreateSimplifiedStats(1))
                     .Add(CreateSimplifiedStats(2))
                     .Add(CreateSimplifiedStats(3))
@@ -249,9 +250,9 @@ namespace SloCovidServer.Test.Mappers
                     .Add(CreateSimplifiedStats(6))
                     .Add(CreateSimplifiedStats(7));
 
-                var actual = SummaryMapper.GetCasesAvg7Days((stats[6], stats[5], 6), stats);
+                var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
-                Assert.That(actual.Today, Is.EqualTo(3));
+                Assert.That(actual.Today, Is.EqualTo(4));
             }
         }
     }

@@ -9,12 +9,18 @@ namespace SloCovidServer.Mappers
     {
         public static Summary CreateSummary(DateTime? toDate, ImmutableArray<StatsDaily> stats, ImmutableArray<PatientsDay> patients)
         {
-            var lastStats = GetLastAndPreviousItem(toDate, stats);
-            var lastPatient = GetLastAndPreviousItem(toDate, patients);
-
-            var casesToDate = GetCasesToDate(lastStats);
-            var casesActive = GetCasesActive(lastStats);
-            var hospitalizedCurrent = lastPatient.HasValue ?
+            var casesToDate = GetCasesToDate(toDate, stats);
+            var casesActive = GetCasesActive(toDate, stats);
+            var hospitalizedCurrent = GetHospitalizedCurrent(toDate, patients);
+            var icuCurrent = GetIcuCurrent(toDate, patients);
+            var deceasedToDay = GetDeceasedToDay(toDate, patients);
+            var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
+            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay);
+        }
+        internal static HospitalizedCurrent GetHospitalizedCurrent(DateTime? toDate, ImmutableArray<PatientsDay> patients)
+        {
+            var lastPatient = GetLastAndPreviousItem(toDate, patients, p => p.Total?.InHospital?.Today != null);
+            return lastPatient.HasValue ?
                 new HospitalizedCurrent(
                     lastPatient.Value.Last.Total?.InHospital?.Today,
                     lastPatient.Value.Last.Total?.InHospital?.In,
@@ -23,25 +29,23 @@ namespace SloCovidServer.Mappers
                     CalculateDifference(lastPatient.Value.Last.Total?.InHospital?.Today, lastPatient.Value.Previous?.Total?.InHospital?.Today),
                     lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                 : null;
-            var icuCurrent = GetIcuCurrent(lastStats, lastPatient);
-            var deceasedToDay = GetDeceasedToDay(lastPatient);
-            var casesAvg7Days = GetCasesAvg7Days(lastStats, stats);
-            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay);
         }
-
-        internal static DeceasedToDate GetDeceasedToDay((PatientsDay Last, PatientsDay Previous, int IndexOfLast)? lastPatient)
+        internal static DeceasedToDate GetDeceasedToDay(DateTime? toDate, ImmutableArray<PatientsDay> patients)
         {
+            var lastPatient = GetLastAndPreviousItem(toDate, patients, p => p.Total?.Deceased?.ToDate != null);
             return lastPatient.HasValue ?
                             new DeceasedToDate(
                                 lastPatient.Value.Last.Total?.Deceased?.ToDate,
+                                lastPatient.Value.Last.Total?.Deceased?.Today,
                                 CalculateDifference(lastPatient.Value.Last.Total?.Deceased?.ToDate, lastPatient.Value.Previous?.Total?.Deceased?.ToDate),
                                 lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                             : null;
         }
 
-        internal static ICUCurrent GetIcuCurrent((StatsDaily Last, StatsDaily Previous, int IndexOfLast)? lastStats, (PatientsDay Last, PatientsDay Previous, int IndexOfLast)? lastPatient)
+        internal static ICUCurrent GetIcuCurrent(DateTime? toDate, ImmutableArray<PatientsDay> patients)
         {
-            return lastStats.HasValue ?
+            var lastPatient = GetLastAndPreviousItem(toDate, patients, p => p.Total?.ICU?.Today != null);
+            return lastPatient.HasValue ?
                             new ICUCurrent(
                                 lastPatient.Value.Last.Total?.ICU?.Today,
                                 lastPatient.Value.Last.Total?.ICU?.In,
@@ -52,21 +56,31 @@ namespace SloCovidServer.Mappers
                             : null;
         }
 
-        internal static CasesActive GetCasesActive((StatsDaily Last, StatsDaily Previous, int IndexOfLast)? lastStats)
+        internal static CasesActive GetCasesActive(DateTime? toDate, ImmutableArray<StatsDaily> stats)
         {
-            return lastStats.HasValue ?
-                            new CasesActive(
-                                lastStats.Value.Last.Cases?.ActiveToDate,
-                                lastStats.Value.Last.Cases?.ConfirmedToday,
-                                0,
-                                lastStats.Value.Last.StatePerTreatment?.Deceased,
-                                CalculateDifference(lastStats.Value.Last.Cases?.ActiveToDate, lastStats.Value.Previous?.Cases?.ActiveToDate),
-                                lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day)
-                            : null;
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Cases?.Active != null);
+            if (lastStats.HasValue)
+            {
+                int currentActive = lastStats.Value.Last.Cases.Active.Value;
+                int? previousActive = lastStats.Value.Previous?.Cases?.Active;
+                return new CasesActive(
+                                    currentActive,
+                                    lastStats.Value.Last.Cases?.ConfirmedToday,
+                                    previousActive != null ? currentActive - previousActive.Value: null,
+                                    // TODO check deceased
+                                    lastStats.Value.Last.StatePerTreatment?.Deceased,
+                                    CalculateDifference(currentActive, previousActive),
+                                    lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        internal static CasesToDateSummary GetCasesToDate((StatsDaily Last, StatsDaily Previous, int IndexOfLast)? lastStats)
+        internal static CasesToDateSummary GetCasesToDate(DateTime? toDate, ImmutableArray<StatsDaily> stats)
         {
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Cases?.ConfirmedToDate != null);
             return lastStats.HasValue ?
                             new CasesToDateSummary(
                                 lastStats.Value.Last.Cases?.ConfirmedToDate,
@@ -75,8 +89,9 @@ namespace SloCovidServer.Mappers
                                 lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day)
                             : null;
         }
-        internal static CasesAvg7Days GetCasesAvg7Days((StatsDaily Last, StatsDaily Previous, int IndexOfLast)? lastStats, ImmutableArray<StatsDaily> stats)
+        internal static CasesAvg7Days GetCasesAvg7Days(DateTime? toDate, ImmutableArray<StatsDaily> stats)
         {
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Cases?.ConfirmedToday != null);
             if (lastStats.HasValue)
             {
                 int firstItemIndex = Math.Max(0, lastStats.Value.IndexOfLast - 6);
@@ -102,16 +117,16 @@ namespace SloCovidServer.Mappers
         {
             if (lastValue.HasValue && previousValue.HasValue && previousValue != 0)
             {
-                return lastValue.Value / previousValue.Value;
+                return lastValue.Value / (float)previousValue.Value;
             }
             return null;
         }
-        internal static (T Last, T Previous, int IndexOfLast)? GetLastAndPreviousItem<T>(DateTime? toDate, ImmutableArray<T> items)
+        internal static (T Last, T Previous, int IndexOfLast)? GetLastAndPreviousItem<T>(DateTime? toDate, ImmutableArray<T> items, Func<T, bool> isValid)
             where T : IModelDate
         {
             if (toDate.HasValue)
             {
-                var lastStatPair = GetLastItemOnDate(toDate.Value, items);
+                var lastStatPair = GetLastItemOnDate(toDate.Value, items, isValid);
                 if (lastStatPair.HasValue)
                 {
                     return (
@@ -126,18 +141,20 @@ namespace SloCovidServer.Mappers
             }
             else
             {
-                if (items.Length > 0)
+                for (int i=items.Length-1; i >= 0; i--)
                 {
-                    return (
-                        items.Last(),
-                        items.Length > 1 ? items[^2] : default,
-                        items.Length - 1
-                    );
+                    var item = items[i];
+                    if (isValid(item))
+                    {
+                        // TODO should it return previous or first valid previous item?
+                        return (
+                            item,
+                            i > 0 ? items[i-1] : default,
+                            i
+                        );
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
         }
         /// <summary>
@@ -147,13 +164,13 @@ namespace SloCovidServer.Mappers
         /// <param name="date"></param>
         /// <param name="items"></param>
         /// <returns></returns>
-        internal static (T Item, int Index)? GetLastItemOnDate<T>(DateTime date, ImmutableArray<T> items)
+        internal static (T Item, int Index)? GetLastItemOnDate<T>(DateTime date, ImmutableArray<T> items, Func<T, bool> isValid)
             where T: IModelDate
         {
             for (int i = items.Length - 1; i >= 0; i--)
             {
                 var item = items[i];
-                if (new DateTime(item.Year, item.Month, item.Day) <= date)
+                if (isValid(item) && new DateTime(item.Year, item.Month, item.Day) <= date)
                 {
                     return (item, i);
                 }

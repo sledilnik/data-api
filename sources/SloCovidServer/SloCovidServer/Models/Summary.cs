@@ -24,6 +24,6 @@ namespace SloCovidServer.Models
         : SummaryBase(DiffPercentage, Year, Month, Day);
     public record ICUCurrent(int? Total, int? In, int? Out, int? Deceased, float? DiffPercentage, int Year, int Month, int Day)
         : SummaryBase(DiffPercentage, Year, Month, Day);
-    public record DeceasedToDate(int? Total, float? DiffPercentage, int Year, int Month, int Day)
+    public record DeceasedToDate(int? Total, int? Deceased, float? DiffPercentage, int Year, int Month, int Day)
         : SummaryBase(DiffPercentage, Year, Month, Day);
 }
