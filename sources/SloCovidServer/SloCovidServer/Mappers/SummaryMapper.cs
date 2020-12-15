@@ -63,12 +63,14 @@ namespace SloCovidServer.Mappers
             {
                 int currentActive = lastStats.Value.Last.Cases.Active.Value;
                 int? previousActive = lastStats.Value.Previous?.Cases?.Active;
+                int? today = lastStats.Value.Last.Cases?.ConfirmedToday;
+                int? deceased = lastStats.Value.Last.StatePerTreatment?.Deceased;
+                bool canCalculateOut = previousActive is not null && today is not null && deceased is not null;
                 return new CasesActive(
                                     currentActive,
-                                    lastStats.Value.Last.Cases?.ConfirmedToday,
-                                    previousActive != null ? currentActive - previousActive.Value: null,
-                                    // TODO check deceased
-                                    lastStats.Value.Last.StatePerTreatment?.Deceased,
+                                    today,
+                                    canCalculateOut ? today - (currentActive - previousActive.Value) - deceased.Value : null,
+                                    deceased,
                                     CalculateDifference(currentActive, previousActive),
                                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
