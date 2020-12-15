@@ -129,3 +129,4 @@ Artwork
 /tools/**
 !/tools/packages.config
 .cr/
+/docker

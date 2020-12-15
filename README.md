@@ -273,6 +273,20 @@ services:
       - SloCovidServer_Slack_Secret=XXX
 ```
 
+## EF Core
+
+For development purposes connection string should be placed in SloCovid19 project's user secrets, sample:
+
+`dotnet user-secrets set ConnectionStrings.data-api "Host=localhost;Database=postgres;Username=postgres;Password=XXX" --project SloCovidServer˙`
+
+Scaffolding the base using this command from VS' NuGet console:
+
+`Scaffold-DbContext Name=ConnectionString:DataApi Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -Force -Context DataContext`
+
+For scaffolding outside Visual Studio use `dotnet ef dbcontext scaffold ...`
+
+For more info see [EF Core Existing Database](https://www.entityframeworktutorial.net/efcore/create-model-for-existing-database-in-ef-core.aspx).
+
 ## About
 
 Repository maintainer: [Miha Markič](https://twitter.com/MihaMarkic), [Righthand](https://blog.rthand.com/)

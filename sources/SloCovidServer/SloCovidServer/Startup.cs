@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prometheus;
+using SloCovidServer.DB.Models;
 using SloCovidServer.Formatters;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
@@ -35,6 +37,8 @@ namespace SloCovidServer
             services.AddSingleton<Mapper>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<ISlackService, SlackService>();
+            services.AddDbContext<DataContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DataApi"))); //  "Name=ConnectionStrings.DataApi"
 
             services.AddCors(options =>
             {
