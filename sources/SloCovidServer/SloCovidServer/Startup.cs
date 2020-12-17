@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Prometheus;
 using SloCovidServer.DB.Models;
 using SloCovidServer.Formatters;
+using SloCovidServer.Handlers;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
 using System.Net.Http;
@@ -38,8 +40,9 @@ namespace SloCovidServer
             services.AddSingleton<HttpClient>();
             services.AddSingleton<ISlackService, SlackService>();
             services.AddDbContext<DataContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DataApi"))); //  "Name=ConnectionStrings.DataApi"
-
+                options.UseNpgsql(Configuration.GetConnectionString("DataApi")));
+            services.AddAuthentication("BasicAuthentication").
+                AddScheme<AuthenticationSchemeOptions, BasicAuthenticationForModelsHandler>("BasicAuthentication", null);
             services.AddCors(options =>
             {
                 options.AddPolicy(CorsPolicy, builder =>
@@ -117,6 +120,7 @@ namespace SloCovidServer
             app.UseResponseCompression();
             app.UseResponseCaching();
 
+            app.UseAuthentication();
             app.UseAuthorization();
             app.Use(async (context, next) =>
             {
