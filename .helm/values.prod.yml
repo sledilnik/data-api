@@ -4,9 +4,6 @@ ingressroute:
   rule: Host(`api.sledilnik.org`)
   certResolver: letsencrypt
 
-# this will be env variables in container
-configmap:
-  data: []
-    # TESTVAR: foo
-
 fullnameOverride: data-api
+
+existingSecret: data-api
