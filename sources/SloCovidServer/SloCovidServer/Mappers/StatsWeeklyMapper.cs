@@ -16,6 +16,7 @@ namespace SloCovidServer.Mappers
             int weekConfirmedIndex = header["week.confirmed"];
             int weekInvestigatedIndex = header["week.investigated"];
             int weekHealthcareIndex = header["week.healthcare"];
+            int weekRhOccupantIndex = header["week.rhoccupant"];
             int weekSentToQuarantineIndex = header["week.sent_to.quarantine"];
             var result = new List<StatsWeeklyDay>();
             foreach (string line in IterateLines(lines))
@@ -26,21 +27,28 @@ namespace SloCovidServer.Mappers
                 var sentTo = new StatsWeeklySentTo(GetInt(fields[weekSentToQuarantineIndex]));
                 var source = ImmutableDictionary<string, int?>.Empty;
                 var from = ImmutableDictionary<string, int?>.Empty;
+                var loc = ImmutableDictionary<string, int?>.Empty;
                 foreach (var pair in header)
                 {
                     string[] parts = pair.Key.Split('.');
                     switch (parts.Length)
                     {
                         case 3:
-                            if (string.Equals(parts[1], "src", System.StringComparison.Ordinal))
+                            int? value;
+                            switch (parts[1])
                             {
-                                int? value = GetInt(fields[pair.Value]);
-                                source = source.Add(parts[2], value);
-                            }
-                            else if (string.Equals(parts[1], "from", System.StringComparison.Ordinal))
-                            {
-                                int? value = GetInt(fields[pair.Value]);
-                                from = from.Add(parts[2], value);
+                                case "src":
+                                    value = GetInt(fields[pair.Value]);
+                                    source = source.Add(parts[2], value);
+                                    break;
+                                case "from":
+                                    value = GetInt(fields[pair.Value]);
+                                    from = from.Add(parts[2], value);
+                                    break;
+                                case "loc":
+                                    value = GetInt(fields[pair.Value]);
+                                    loc = loc.Add(parts[2], value);
+                                    break;
                             }
                             break;
                     }
@@ -54,9 +62,11 @@ namespace SloCovidServer.Mappers
                 GetInt(fields[weekConfirmedIndex]),
                 GetInt(fields[weekInvestigatedIndex]),
                 GetInt(fields[weekHealthcareIndex]),
+                GetInt(fields[weekRhOccupantIndex]),
                 sentTo: sentTo,
                 source,
-                from
+                from,
+                loc
             ));
             }
             return result.ToImmutableArray();
