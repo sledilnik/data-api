@@ -19,10 +19,10 @@ namespace SloCovidServer.Models
         public StatsWeeklySentTo SentTo { get; init; }
         public ImmutableDictionary<string, int?> Source { get; init; }
         public ImmutableDictionary<string, int?> From { get; init; }
-        public ImmutableDictionary<string, int?> Loc { get; init; }
+        public ImmutableDictionary<string, int?> Locations { get; init; }
         public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, int? healthcare, int? rhOccupant,
             StatsWeeklySentTo sentTo, 
-            ImmutableDictionary<string, int?> source,ImmutableDictionary<string, int?> from, ImmutableDictionary<string, int?> loc)
+            ImmutableDictionary<string, int?> source,ImmutableDictionary<string, int?> from, ImmutableDictionary<string, int?> locations)
         {
             Week = week;
             Year = year;
@@ -36,7 +36,7 @@ namespace SloCovidServer.Models
             SentTo = sentTo;
             Source = source;
             From = from;
-            Loc = loc;
+            Locations = locations;
         }
     }
 
