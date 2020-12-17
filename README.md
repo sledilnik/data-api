@@ -21,6 +21,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.8.7
+
+* Updates stats-weekly with rhoccupant (rh-occupant) and loc (locations)
+* Schema version 24
+
 ## 1.8.6
 
 * Adds age_daily_deaths_slovenia.csv to API as /api/age-daily-deaths-slovenia endpoint
