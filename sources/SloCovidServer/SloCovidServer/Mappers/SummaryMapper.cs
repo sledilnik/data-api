@@ -138,7 +138,7 @@ namespace SloCovidServer.Mappers
                 return new CasesAvg7Days(
                     lastDayAvg,
                     Sublabel: true,
-                    previousDayAvg.HasValue && previousDayAvg.Value != 0 ? lastDayAvg / previousDayAvg.Value: null,
+                    CalculateDifference(lastDayAvg, previousDayAvg),
                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
             else
@@ -146,7 +146,7 @@ namespace SloCovidServer.Mappers
                 return null;
             }
         }
-        internal static float? CalculateDifference(int? lastValue, int? previousValue)
+        internal static float? CalculateDifference(float? lastValue, float? previousValue)
         {
             if (lastValue.HasValue && previousValue.HasValue && previousValue != 0)
             {

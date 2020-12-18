@@ -236,7 +236,7 @@ namespace SloCovidServer.Test.Mappers
 
                 var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
-                Assert.That(actual.DiffPercentage, Is.EqualTo(4/3f));
+                Assert.That(actual.DiffPercentage, Is.EqualTo(33.3f));
             }
             [Test]
             public void WhenMoreThan7ValuesExist_AverageCalculatesProperValues()
