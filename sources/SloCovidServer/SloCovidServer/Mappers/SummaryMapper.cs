@@ -29,7 +29,7 @@ namespace SloCovidServer.Mappers
                     performedToday,
                     new TestsTodaySubValues(
                         positiveToday,
-                        positiveToday > 0 ? positiveToday.Value / (float)performedToday: null
+                        positiveToday > 0 ? (float)Math.Round(positiveToday.Value / (float)performedToday * 100, 1): null
                     ),
                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day
                 );
