@@ -20,10 +20,10 @@ namespace SloCovidServer.Controllers
         public ActionResult<Summary> Get(DateTime? toDate)
         {
             // supports only json for now
-            if (!IsJsonRequested && !IsAnyRequested)
-            {
-                return StatusCode((int)HttpStatusCode.NotAcceptable);
-            }
+            //if (!IsJsonRequested && !IsAnyRequested)
+            //{
+            //    return StatusCode((int)HttpStatusCode.NotAcceptable);
+            //}
             var result = communicator.GetSummary(RequestETag, toDate);
             if (result.Summary is null && result.ETag is not null)
             {
