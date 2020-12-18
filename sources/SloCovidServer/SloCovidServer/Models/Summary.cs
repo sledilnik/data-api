@@ -13,7 +13,7 @@ namespace SloCovidServer.Models
     /// <summary>
     /// Base class for summary items
     /// </summary>
-    public abstract record SummaryBase(float? DiffPercentage, int Year, int Month, int Date);
+    public abstract record SummaryBase(float? DiffPercentage, int Year, int Month, int Day);
     public record CasesToDateSummary(int? Number, int? In, float? DiffPercentage, int Year, int Month, int Day)
         : SummaryBase(DiffPercentage, Year, Month, Day);
     public record CasesActive(int? Total, int? In, int? Out, float? DiffPercentage, int Year, int Month, int Day)
