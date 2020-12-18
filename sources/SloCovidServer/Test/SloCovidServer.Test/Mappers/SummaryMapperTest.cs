@@ -134,11 +134,12 @@ namespace SloCovidServer.Test.Mappers
         [TestFixture]
         public class CalculateDifference: SummaryMapperTest
         {
-            [TestCase(null, null, ExpectedResult = null)]
-            [TestCase(4, null, ExpectedResult = null)]
-            [TestCase(null, 2, ExpectedResult = null)]
-            [TestCase(4, 2, ExpectedResult = 2f)]
-            [TestCase(5, 2, ExpectedResult = 2.5f)]
+            //[TestCase(null, null, ExpectedResult = null)]
+            //[TestCase(4, null, ExpectedResult = null)]
+            //[TestCase(null, 2, ExpectedResult = null)]
+            //[TestCase(4, 2, ExpectedResult = 100f)]
+            //[TestCase(5, 2, ExpectedResult = 150f)]
+            [TestCase(11144, 10000, ExpectedResult = 11.4f)]
             public float? GiveValus_ReturnsExpectedResult(int? last, int? previous)
             {
                 return SummaryMapper.CalculateDifference(last, previous);

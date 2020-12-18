@@ -150,7 +150,7 @@ namespace SloCovidServer.Mappers
         {
             if (lastValue.HasValue && previousValue.HasValue && previousValue != 0)
             {
-                return lastValue.Value / (float)previousValue.Value;
+                return (float)Math.Round((lastValue.Value / (double)previousValue.Value - 1) * 100, 1);
             }
             return null;
         }
