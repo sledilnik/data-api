@@ -15,7 +15,29 @@ namespace SloCovidServer.Mappers
             var icuCurrent = GetIcuCurrent(toDate, patients);
             var deceasedToDay = GetDeceasedToDay(toDate, patients);
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
-            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay);
+            var testsToday = GetTestsToday(toDate, stats);
+            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday);
+        }
+        internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<StatsDaily> stats)
+        {
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Tests?.Performed?.Today is not null);
+            if (lastStats.HasValue)
+            {
+                int performedToday = lastStats.Value.Last.Tests.Performed.Today.Value;
+                int? positiveToday = lastStats.Value.Last.Tests.Positive.Today;
+                return new TestsToday(
+                    performedToday,
+                    new TestsTodaySubValues(
+                        positiveToday,
+                        positiveToday > 0 ? positiveToday.Value / (float)performedToday: null
+                    ),
+                    lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day
+                );
+            }
+            else
+            {
+                return null;
+            }
         }
         internal static HospitalizedCurrent GetHospitalizedCurrent(DateTime? toDate, ImmutableArray<PatientsDay> patients)
         {
@@ -23,9 +45,11 @@ namespace SloCovidServer.Mappers
             return lastPatient.HasValue ?
                 new HospitalizedCurrent(
                     lastPatient.Value.Last.Total?.InHospital?.Today,
-                    lastPatient.Value.Last.Total?.InHospital?.In,
+                    new HospitalizedCurrentSubValues(
+                        lastPatient.Value.Last.Total?.InHospital?.In,
                     lastPatient.Value.Last.Total?.InHospital?.Out,
-                    lastPatient.Value.Last.Total?.Deceased?.Hospital?.Today,
+                    lastPatient.Value.Last.Total?.Deceased?.Hospital?.Today
+                    ),
                     CalculateDifference(lastPatient.Value.Last.Total?.InHospital?.Today, lastPatient.Value.Previous?.Total?.InHospital?.Today),
                     lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                 : null;
@@ -36,26 +60,28 @@ namespace SloCovidServer.Mappers
             return lastPatient.HasValue ?
                             new DeceasedToDate(
                                 lastPatient.Value.Last.Total?.Deceased?.ToDate,
-                                lastPatient.Value.Last.Total?.Deceased?.Today,
+                                new DeceasedToDateSubValues(
+                                    lastPatient.Value.Last.Total?.Deceased?.Today
+                                ),
                                 CalculateDifference(lastPatient.Value.Last.Total?.Deceased?.ToDate, lastPatient.Value.Previous?.Total?.Deceased?.ToDate),
                                 lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                             : null;
         }
-
         internal static ICUCurrent GetIcuCurrent(DateTime? toDate, ImmutableArray<PatientsDay> patients)
         {
             var lastPatient = GetLastAndPreviousItem(toDate, patients, p => p.Total?.ICU?.Today != null);
             return lastPatient.HasValue ?
                             new ICUCurrent(
                                 lastPatient.Value.Last.Total?.ICU?.Today,
-                                lastPatient.Value.Last.Total?.ICU?.In,
-                                lastPatient.Value.Last.Total?.ICU?.Out,
-                                lastPatient.Value.Last.Total?.Deceased?.Hospital?.Icu?.Today,
+                                new ICUCurrentSubValues(
+                                    lastPatient.Value.Last.Total?.ICU?.In,
+                                    lastPatient.Value.Last.Total?.ICU?.Out,
+                                    lastPatient.Value.Last.Total?.Deceased?.Hospital?.Icu?.Today
+                                ),
                                 CalculateDifference(lastPatient.Value.Last.Total?.ICU?.Today, lastPatient.Value.Previous?.Total?.ICU?.Today),
                                 lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                             : null;
         }
-
         internal static CasesActive GetCasesActive(DateTime? toDate, ImmutableArray<StatsDaily> stats)
         {
             var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Cases?.Active != null);
@@ -70,8 +96,10 @@ namespace SloCovidServer.Mappers
                 bool canCalculateOut = previousClosed is not null && currentClosed is not null;
                 return new CasesActive(
                                     currentActive,
-                                    today,
-                                    canCalculateOut ? currentClosed - previousClosed : null,
+                                    new CasesActiveSubValues(
+                                        today,
+                                        canCalculateOut ? currentClosed - previousClosed : null
+                                    ),
                                     CalculateDifference(currentActive, previousActive),
                                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
@@ -87,7 +115,9 @@ namespace SloCovidServer.Mappers
             return lastStats.HasValue ?
                             new CasesToDateSummary(
                                 lastStats.Value.Last.Cases?.ConfirmedToDate,
-                                lastStats.Value.Last.Cases?.ConfirmedToday,
+                                new CasesToDateSummarySubValues(
+                                    lastStats.Value.Last.Cases?.ConfirmedToday
+                                ),
                                 CalculateDifference(lastStats.Value.Last.Cases?.ConfirmedToDate, lastStats.Value.Previous?.Cases?.ConfirmedToDate),
                                 lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day)
                             : null;

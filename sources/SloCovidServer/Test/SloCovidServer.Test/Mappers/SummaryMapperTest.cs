@@ -174,7 +174,7 @@ namespace SloCovidServer.Test.Mappers
 
                 var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
-                Assert.That(actual.Today, Is.EqualTo(3));
+                Assert.That(actual.Value, Is.EqualTo(3));
             }
             [Test]
             public void WhenAllLessThan5ValuesExist_ReturnsAverage()
@@ -188,7 +188,7 @@ namespace SloCovidServer.Test.Mappers
 
                 var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
-                Assert.That(actual.Today, Is.EqualTo(2));
+                Assert.That(actual.Value, Is.EqualTo(2));
             }
             [Test]
             public void WhenAllLessThan5ValuesExist_DiffIsNull()
@@ -252,7 +252,7 @@ namespace SloCovidServer.Test.Mappers
 
                 var actual = SummaryMapper.GetCasesAvg7Days(toDate: default, stats);
 
-                Assert.That(actual.Today, Is.EqualTo(4));
+                Assert.That(actual.Value, Is.EqualTo(4));
             }
         }
     }
