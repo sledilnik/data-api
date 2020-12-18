@@ -81,6 +81,8 @@ namespace SloCovidServer.Services.Implemented
         /// </summary>
         readonly ConcurrentDictionary<string, object> errors;
         readonly static JsonSerializer owidSerializer;
+        /// Contains summary data calculated for the most recent date
+        SummaryCache summaryCache;
         static Communicator()
         {
             owidSerializer = new JsonSerializer
@@ -116,9 +118,10 @@ namespace SloCovidServer.Services.Implemented
             labTestsCache = new ArrayEndpointCache<LabTestDay>();
             dailyDeathsSloveniaCache = new ArrayEndpointCache<DailyDeathsSlovenia>();
             ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
+            summaryCache = new SummaryCache(default, default, default, default, default);
             errors = new ConcurrentDictionary<string, object>();
         }
-
+        SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
         public async Task StartCacheRefresherAsync(CancellationToken ct)
         {
             logger.LogInformation($"Initializing cache refresher");
@@ -160,10 +163,27 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
+            await Task.WhenAll(stats, patients);
+            var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask);
+            
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
+        }
+        /// Calculates summary for the most recent date
+        async Task UpdateStatsAsync(CancellationToken ct)
+        {
+            if (!string.Equals(summaryCache.StatsETag, statsCache.Cache.ETag, StringComparison.Ordinal)
+            || !string.Equals(summaryCache.PatientsETag, patientsCache.Cache.ETag, StringComparison.Ordinal))
+            {
+                await Task.Run(() =>
+                {
+                    var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, patientsCache.Cache.Data);
+                    Interlocked.Exchange(ref summaryCache,
+                        new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, summary));
+                });
+            }
         }
         public Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct)
         {
@@ -247,6 +267,25 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, filter, ct);
+        }
+        public (Models.Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate)
+        {
+            var cache = SummaryCache;
+            if (string.Equals(callerEtag, cache.ETag, StringComparison.Ordinal))
+            {
+                return (null, cache.ETag);
+            }
+            else
+            {
+                if (toDate.HasValue)
+                {
+                    return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.Patients), cache.ETag);
+                }
+                else
+                {
+                    return (cache.Value, cache.ETag);
+                }
+            }
         }
         public class RegionsPivotCacheData
         {

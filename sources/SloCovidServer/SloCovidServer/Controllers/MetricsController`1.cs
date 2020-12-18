@@ -94,12 +94,15 @@ namespace SloCovidServer.Controllers
                     {
                         RequestMissedCache.WithLabels(endpointName).Inc();
                     }
-                    if (Request.Headers[HeaderNames.Accept].Contains("text/csv") || Request.Query["format"].Contains("csv")) {
+                    if (IsCsvRequested)
+                    {
                         return Ok(result.Raw);
-                    } else {
+                    }
+                    else
+                    {
                         return Ok(result.Data);
                     }
-                    
+
                 }
                 else
                 {
@@ -118,5 +121,17 @@ namespace SloCovidServer.Controllers
             }
         }
 
+        protected bool IsCsvRequested
+        {
+            get => Request.Headers[HeaderNames.Accept].Contains("text/csv") || Request.Query["format"].Contains("csv");
+        }
+        protected bool IsJsonRequested
+        {
+            get => Request.Headers[HeaderNames.Accept].Contains("application/json") || Request.Query["format"].Contains("json");
+        }
+        protected bool IsAnyRequested
+        {
+            get => Request.Headers[HeaderNames.Accept].Contains("*/*");
+        }
     }
 }

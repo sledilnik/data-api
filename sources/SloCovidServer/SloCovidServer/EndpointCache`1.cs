@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using SloCovidServer.Models;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
