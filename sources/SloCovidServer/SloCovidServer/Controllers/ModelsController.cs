@@ -8,6 +8,7 @@ using SloCovidServer.Handlers;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SloCovidServer.Controllers
@@ -42,13 +43,21 @@ namespace SloCovidServer.Controllers
             {
                 try
                 {
-                    var prediction = await GetModelPredictionAsync(data);
-                    prediction.ModelId = modelIdentity.ModelId;
+                    var prediction = await GetModelPredictionAsync(modelIdentity.ModelId, data);
+                    if (!prediction.IsNew)
+                    {
+                        // delete old data first
+                        var toDelete = new ModelsPredictiondatum
+                        {
+                            Prediction = prediction.Model,
+                        };
+                        dataContext.ModelsPredictiondata.Remove(toDelete);
+                    }
                     using (var transaction = await dataContext.Database.BeginTransactionAsync())
                     {
-                        dataContext.ModelsPredictions.Add(prediction);
+                        dataContext.ModelsPredictions.Add(prediction.Model);
                         await dataContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
+                        //await transaction.CommitAsync();
                     }
                     return Ok();
                 }
@@ -63,7 +72,7 @@ namespace SloCovidServer.Controllers
             }
         }
 
-        async Task<ModelsPrediction> GetModelPredictionAsync(PostData data)
+        async Task<(ModelsPrediction Model, bool IsNew)> GetModelPredictionAsync(Guid modelId, PostData data, CancellationToken ct = default)
         {
             ModelsPredictionintervaltype intervalType = null;
             if (!string.IsNullOrEmpty(data.IntervalType))
@@ -77,14 +86,27 @@ namespace SloCovidServer.Controllers
                 intervalWidth = await dataContext.ModelsPredictionintervalwidths.Where(iw => iw.Width == data.IntervalWidth).SingleOrDefaultAsync()
                     ?? throw new Exception($"Invalid interval width {data.IntervalWidth}");
             }
-            return new ModelsPrediction
+            var scenario = await dataContext.ModelsScenarios.Where(m => m.Name == data.Scenario).SingleOrDefaultAsync(ct)
+                    ?? throw new Exception($"Invalid scenario {data.Scenario}");
+            var model = await dataContext.ModelsPredictions.Where(m => 
+                m.ModelId == modelId 
+                && m.Date == data.Date && m.Scenario == scenario && m.IntervalType == intervalType)
+                .SingleOrDefaultAsync(ct);
+            bool isNew = model is null;
+            if (isNew)
             {
-                Date = data.Date.Date,
-                Scenario = await dataContext.ModelsScenarios.Where(m => m.Name == data.Scenario).SingleOrDefaultAsync()
-                    ?? throw new Exception($"Invalid scenario {data.Scenario}"),
-                IntervalType = intervalType,
-                IntervalWidth = intervalWidth
-            };
+                model = new ModelsPrediction
+                {
+                    ModelId = modelId,
+                    Date = data.Date.Date,
+                    Scenario = scenario,
+                    IntervalType = intervalType,
+                    Created = DateTime.Now,
+                };
+            }
+            model.Updated = DateTime.Now;
+            model.IntervalWidth = intervalWidth;
+            return (model, isNew);
         }
     }
 }
