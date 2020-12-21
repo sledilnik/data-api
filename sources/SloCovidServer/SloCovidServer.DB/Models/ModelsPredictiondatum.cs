@@ -8,7 +8,6 @@ namespace SloCovidServer.DB.Models
     public partial class ModelsPredictiondatum
     {
         public int Id { get; set; }
-        public int Date { get; set; }
         public int Icu { get; set; }
         public int? IcuLowerBound { get; set; }
         public int? IcuUpperBound { get; set; }
@@ -22,6 +21,7 @@ namespace SloCovidServer.DB.Models
         public int? DeceasedToDateLowerBound { get; set; }
         public int? DeceasedToDateUpperBound { get; set; }
         public int PredictionId { get; set; }
+        public DateTime Date { get; set; }
 
         public virtual ModelsPrediction Prediction { get; set; }
     }

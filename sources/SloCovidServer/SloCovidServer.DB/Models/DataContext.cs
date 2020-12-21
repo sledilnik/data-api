@@ -561,7 +561,9 @@ namespace SloCovidServer.DB.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Date).HasColumnName("date");
+                entity.Property(e => e.Date)
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("date");
 
                 entity.Property(e => e.Deceased).HasColumnName("deceased");
 

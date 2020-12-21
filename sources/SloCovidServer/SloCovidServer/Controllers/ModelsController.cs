@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SloCovidServer.DB.Models;
 using SloCovidServer.Handlers;
+using SloCovidServer.Mappers;
 using System;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,9 +24,10 @@ namespace SloCovidServer.Controllers
             public string Scenario { get; init; }
             public string IntervalType { get; init; }
             public int? IntervalWidth { get; init; }
+            public IFormFile Data { get; init; }
         }
         readonly DataContext dataContext;
-        public ModelsController(ILogger<ModelsController> logger, DataContext dataContext): base(logger, communicator: default)
+        public ModelsController(ILogger<ModelsController> logger, DataContext dataContext) : base(logger, communicator: default)
         {
             this.dataContext = dataContext;
         }
@@ -43,21 +45,35 @@ namespace SloCovidServer.Controllers
             {
                 try
                 {
-                    var prediction = await GetModelPredictionAsync(modelIdentity.ModelId, data);
-                    if (!prediction.IsNew)
+                    if (data.Data is null)
                     {
-                        // delete old data first
-                        var toDelete = new ModelsPredictiondatum
+                        return StatusCode(StatusCodes.Status406NotAcceptable, "Missing data file");
+                    }
+                    var prediction = await GetModelPredictionAsync(modelIdentity.ModelId, data);
+                    var modelsMapper = new ModelsMapper();
+                    ImmutableArray<ModelsPredictiondatum> items;
+                    using (var dataStream = data.Data.OpenReadStream())
+                    {
+                        items = await modelsMapper.MapFromRawAsync(dataStream);
+                        foreach (var item in items)
                         {
-                            Prediction = prediction.Model,
-                        };
-                        dataContext.ModelsPredictiondata.Remove(toDelete);
+                            prediction.Model.ModelsPredictiondata.Add(item);
+                        }
                     }
                     using (var transaction = await dataContext.Database.BeginTransactionAsync())
                     {
-                        dataContext.ModelsPredictions.Add(prediction.Model);
+                        if (!prediction.IsNew)
+                        {
+                            // delete old data first
+                            int result = await dataContext.Database.ExecuteSqlRawAsync("DELETE FROM models_predictiondata WHERE prediction_id={0}", prediction.Model.Id);
+                            logger.LogInformation($"Deleted {result} models_predictiondata child items for prediction update");
+                        }
+                        else
+                        {
+                            dataContext.ModelsPredictions.Add(prediction.Model);
+                        }
                         await dataContext.SaveChangesAsync();
-                        //await transaction.CommitAsync();
+                        await transaction.CommitAsync();
                     }
                     return Ok();
                 }
@@ -88,8 +104,8 @@ namespace SloCovidServer.Controllers
             }
             var scenario = await dataContext.ModelsScenarios.Where(m => m.Name == data.Scenario).SingleOrDefaultAsync(ct)
                     ?? throw new Exception($"Invalid scenario {data.Scenario}");
-            var model = await dataContext.ModelsPredictions.Where(m => 
-                m.ModelId == modelId 
+            var model = await dataContext.ModelsPredictions.Where(m =>
+                m.ModelId == modelId
                 && m.Date == data.Date && m.Scenario == scenario && m.IntervalType == intervalType)
                 .SingleOrDefaultAsync(ct);
             bool isNew = model is null;

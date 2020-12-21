@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SloCovidServer.Mappers
 {
@@ -112,7 +113,8 @@ namespace SloCovidServer.Mappers
                 day: ParseInt(parts[2])
             );
         }
-
+        internal DateTime AsUtcDateTime(Models.Date date) => new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
         int ParseInt(string text) => int.Parse(text.Replace(".", ""), CultureInfo.InvariantCulture);
+        internal string CamelCase(string text) => text?.Length > 0 ? char.ToLower(text[0]) + text.Substring(1) : text;
     }
 }

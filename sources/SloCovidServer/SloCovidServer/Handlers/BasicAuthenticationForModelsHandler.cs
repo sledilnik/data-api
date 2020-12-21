@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SloCovidServer.Handlers
 {
-    public class BasicAuthenticationForModelsHandler: AuthenticationHandler<AuthenticationSchemeOptions>
+    public class BasicAuthenticationForModelsHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         readonly DataContext dataContext;
         internal readonly ref struct Credentials
@@ -113,10 +113,10 @@ namespace SloCovidServer.Handlers
     /// <summary>
     /// Transports parsed Model.Id as Guid along claims
     /// </summary>
-    public class ModelClaimsIdentity: ClaimsIdentity
+    public class ModelClaimsIdentity : ClaimsIdentity
     {
         public Guid ModelId { get; }
-        public ModelClaimsIdentity(Claim[] claims, string schemaName, Guid modelId): base(claims, schemaName)
+        public ModelClaimsIdentity(Claim[] claims, string schemaName, Guid modelId) : base(claims, schemaName)
         {
             ModelId = modelId;
         }
