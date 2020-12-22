@@ -151,7 +151,7 @@ namespace SloCovidServer.Test.Mappers
             StatsDaily CreateSimplifiedStats(int? confirmedToday) => new StatsDaily(default, default, default, default, default, default, default, default, default,
                 default, default, default, 
                 new Cases(confirmedToday, default, default, default,default, default, default, default), 
-                default, default, default, default);
+                default, default, default, default, default);
             [Test]
             public void WhenNoValues_ReturnsNull()
             {

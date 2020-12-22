@@ -400,6 +400,10 @@ namespace SloCovidServer.Services.Implemented
                 );
                 deceasedPerAge = deceasedPerAge.Add(perAge);
             }
+            var deceasedPerType = new PerPersonType(
+                GetInt("deceased.rhoccupant.todate", header, fields),
+                GetInt("deceased.other.todate", header, fields)
+            );
             var date = GetDate(fields[header["date"]]);
             var result = new StatsDaily(
                 GetInt("day", header, fields) ?? 0,
@@ -447,7 +451,8 @@ namespace SloCovidServer.Services.Implemented
                 perTreatment,
                 perRegion,
                 perAgeSum,
-                deceasedPerAge
+                deceasedPerAge,
+                deceasedPerType
             );
             return result;
         }
