@@ -49,5 +49,5 @@ jobs:
         uses: sledilnik/action-helm-deploy@master
         with:
           chartName: sledilnik/data-api
-          chartVersion: '1.0.1'
+          chartVersion: '1.0.2'
           kubeconfig: '${{ secrets.KUBECONFIG }}'        
