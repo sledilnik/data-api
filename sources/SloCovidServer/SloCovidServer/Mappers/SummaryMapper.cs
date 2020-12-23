@@ -42,11 +42,13 @@ namespace SloCovidServer.Mappers
         }
         internal static TestsTodayHAT GetTestsTodayHAT(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
-            var lastStats = GetLastAndPreviousItem(toDate, labTests, s => s.Data["HAGT"].Performed?.Today is not null);
+           const string Hagt = "hagt";
+            var lastStats = GetLastAndPreviousItem(toDate, labTests, s => s.Data[Hagt]?.Performed?.Today is not null);
             if (lastStats.HasValue)
             {
-                int performedToday = lastStats.Value.Last.Data["HAGT"].Performed.Today.Value;
-                int? positiveToday = lastStats.Value.Last.Data["HAGT"].Positive.Today;
+                var hagtData = lastStats.Value.Last.Data[Hagt];
+                int performedToday = hagtData.Performed.Today.Value;
+                int? positiveToday = hagtData.Positive.Today;
                 return new TestsTodayHAT(
                     performedToday,
                     new TestsTodaySubValues(
