@@ -7,7 +7,7 @@ namespace SloCovidServer.Mappers
 {
     public static class SummaryMapper
     {
-        public static Summary CreateSummary(DateTime? toDate, ImmutableArray<StatsDaily> stats, ImmutableArray<PatientsDay> patients)
+        public static Summary CreateSummary(DateTime? toDate, ImmutableArray<StatsDaily> stats, ImmutableArray<PatientsDay> patients, ImmutableArray<LabTestDay> labTests)
         {
             var casesToDate = GetCasesToDate(toDate, stats);
             var casesActive = GetCasesActive(toDate, stats);
@@ -15,16 +15,16 @@ namespace SloCovidServer.Mappers
             var icuCurrent = GetIcuCurrent(toDate, patients);
             var deceasedToDay = GetDeceasedToDay(toDate, patients);
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
-            var testsToday = GetTestsToday(toDate, stats);
+            var testsToday = GetTestsToday(toDate, labTests);
             return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday);
         }
-        internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<StatsDaily> stats)
+        internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
-            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Tests?.Performed?.Today is not null);
+            var lastStats = GetLastAndPreviousItem(toDate, labTests, s => s.Total?.Performed?.Today is not null);
             if (lastStats.HasValue)
             {
-                int performedToday = lastStats.Value.Last.Tests.Performed.Today.Value;
-                int? positiveToday = lastStats.Value.Last.Tests.Positive.Today;
+                int performedToday = lastStats.Value.Last.Total.Performed.Today.Value;
+                int? positiveToday = lastStats.Value.Last.Total.Positive.Today;
                 return new TestsToday(
                     performedToday,
                     new TestsTodaySubValues(
