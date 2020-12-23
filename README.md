@@ -21,6 +21,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.8
+
+* Summary: add TestsTodayHAT
+* Schema version 27
+
 ## 1.9.7
 
 * Updates stats with deceased RH occupant

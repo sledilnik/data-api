@@ -118,7 +118,7 @@ namespace SloCovidServer.Services.Implemented
             labTestsCache = new ArrayEndpointCache<LabTestDay>();
             dailyDeathsSloveniaCache = new ArrayEndpointCache<DailyDeathsSlovenia>();
             ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
-            summaryCache = new SummaryCache(default, default, default, default, default);
+            summaryCache = new SummaryCache(default, default, default, default, default, default, default);
             errors = new ConcurrentDictionary<string, object>();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
@@ -163,7 +163,7 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
-            await Task.WhenAll(stats, patients);
+            await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
@@ -175,13 +175,14 @@ namespace SloCovidServer.Services.Implemented
         async Task UpdateStatsAsync(CancellationToken ct)
         {
             if (!string.Equals(summaryCache.StatsETag, statsCache.Cache.ETag, StringComparison.Ordinal)
-            || !string.Equals(summaryCache.PatientsETag, patientsCache.Cache.ETag, StringComparison.Ordinal))
+            || !string.Equals(summaryCache.PatientsETag, patientsCache.Cache.ETag, StringComparison.Ordinal)
+            || !string.Equals(summaryCache.LabTestsETag, labTestsCache.Cache.ETag, StringComparison.Ordinal))
             {
                 await Task.Run(() =>
                 {
-                    var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, patientsCache.Cache.Data);
+                    var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, patientsCache.Cache.Data, labTestsCache.Cache.Data);
                     Interlocked.Exchange(ref summaryCache,
-                        new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, summary));
+                        new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, labTestsCache.Cache.ETag, labTestsCache.Cache.Data,summary));
                 });
             }
         }
@@ -279,7 +280,7 @@ namespace SloCovidServer.Services.Implemented
             {
                 if (toDate.HasValue)
                 {
-                    return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.Patients), cache.ETag);
+                    return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.Patients, cache.LabTests), cache.ETag);
                 }
                 else
                 {

@@ -10,7 +10,8 @@ namespace SloCovidServer.Models
         HospitalizedCurrent HospitalizedCurrent,
         ICUCurrent ICUCurrent,
         DeceasedToDate DeceasedToDate,
-        TestsToday TestsToday);
+        TestsToday TestsToday,
+        TestsTodayHAT TestsTodayHAT);
     /// <summary>
     /// Base class for summary items
     /// </summary>
@@ -28,4 +29,5 @@ namespace SloCovidServer.Models
     public record DeceasedToDate(int? Value, DeceasedToDateSubValues SubValues, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record TestsTodaySubValues(int? Positive, float? Percent);
     public record TestsToday(int? Value, TestsTodaySubValues SubValues, int Year, int Month, int Day);
+    public record TestsTodayHAT(int? Value, TestsTodaySubValues SubValues, int Year, int Month, int Day);
 }
