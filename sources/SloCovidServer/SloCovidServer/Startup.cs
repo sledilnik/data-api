@@ -7,12 +7,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Npgsql;
 using Prometheus;
 using SloCovidServer.DB.Models;
 using SloCovidServer.Formatters;
 using SloCovidServer.Handlers;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
+using System;
 using System.Net.Http;
 using System.Threading;
 
@@ -39,8 +42,37 @@ namespace SloCovidServer
             services.AddSingleton<Mapper>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<ISlackService, SlackService>();
-            services.AddDbContext<DataContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DataApi")));
+            services.AddDbContext<DataContext>((sp, options) =>
+            {
+                var logger = sp.GetService<ILogger<Startup>>();
+                string connectionString = Configuration.GetConnectionString("DataApi");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    string host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? throw new Exception($"Missing DATABASE_HOST");
+                    if (!int.TryParse(Environment.GetEnvironmentVariable("DATABASE_PORT"), out int port))
+                    {
+                         throw new Exception($"Missing DATABASE_PORT");
+                    }
+                    string name = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? throw new Exception($"Missing DATABASE_NAME");
+                    string user = Environment.GetEnvironmentVariable("DATABASE_USER") ?? throw new Exception($"Missing DATABASE_USER");
+                    string password = Environment.GetEnvironmentVariable("DATABASE_PASS") ?? throw new Exception($"Missing DATABASE_PASS");
+                    var builder = new NpgsqlConnectionStringBuilder
+                    {
+                        Host = host,
+                        Port = port,
+                        Database = name,
+                        Username = user,
+                        Password = password,
+                    };
+                    logger.LogInformation($"Connection to database at {host}:{port} with name {name} as user {user}");
+                    connectionString = builder.ToString();
+                }
+                else
+                {
+                    logger.LogInformation("Connection to database is using given connection string from configuration");
+                }
+                options.UseNpgsql(connectionString);
+            });
             services.AddAuthentication("BasicAuthentication").
                 AddScheme<AuthenticationSchemeOptions, BasicAuthenticationForModelsHandler>("BasicAuthentication", null);
             services.AddCors(options =>
