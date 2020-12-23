@@ -163,7 +163,7 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
-            await Task.WhenAll(stats, patients);
+            await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, regions, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, deceasedPerRegionsDay, municipalityDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
