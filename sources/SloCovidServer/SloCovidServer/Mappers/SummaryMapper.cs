@@ -16,7 +16,8 @@ namespace SloCovidServer.Mappers
             var deceasedToDay = GetDeceasedToDay(toDate, patients);
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
             var testsToday = GetTestsToday(toDate, labTests);
-            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday);
+            var testsTodayHAT = GetTestsTodayHAT(toDate, labTests);
+            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
         }
         internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
@@ -26,6 +27,27 @@ namespace SloCovidServer.Mappers
                 int performedToday = lastStats.Value.Last.Total.Performed.Today.Value;
                 int? positiveToday = lastStats.Value.Last.Total.Positive.Today;
                 return new TestsToday(
+                    performedToday,
+                    new TestsTodaySubValues(
+                        positiveToday,
+                        positiveToday > 0 ? (float)Math.Round(positiveToday.Value / (float)performedToday * 100, 1): null
+                    ),
+                    lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day
+                );
+            }
+            else
+            {
+                return null;
+            }
+        }
+        internal static TestsTodayHAT GetTestsTodayHAT(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
+        {
+            var lastStats = GetLastAndPreviousItem(toDate, labTests, s => s.Data["HAGT"].Performed?.Today is not null);
+            if (lastStats.HasValue)
+            {
+                int performedToday = lastStats.Value.Last.Data["HAGT"].Performed.Today.Value;
+                int? positiveToday = lastStats.Value.Last.Data["HAGT"].Positive.Today;
+                return new TestsTodayHAT(
                     performedToday,
                     new TestsTodaySubValues(
                         positiveToday,
