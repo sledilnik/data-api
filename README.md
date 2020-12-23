@@ -21,6 +21,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.9
+
+* Preloads cache before starting API
+
 ## 1.9.8
 
 * Summary: add TestsTodayHAT

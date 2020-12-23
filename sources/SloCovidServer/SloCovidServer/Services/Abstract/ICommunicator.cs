@@ -8,6 +8,7 @@ namespace SloCovidServer.Services.Abstract
 {
     public interface ICommunicator
     {
+        Task InitialCacheRefreshAsync(CancellationToken ct);
         Task StartCacheRefresherAsync(CancellationToken ct);
         Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<RegionsDay>? Data, string raw, string ETag, long? Timestamp)> GetRegionsAsync(string callerEtag, DataFilter filter, CancellationToken ct);

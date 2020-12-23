@@ -122,9 +122,36 @@ namespace SloCovidServer.Services.Implemented
             errors = new ConcurrentDictionary<string, object>();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
+        public async Task InitialCacheRefreshAsync(CancellationToken ct)
+        {
+            logger.LogInformation("Refreshing cache before starting");
+            Stopwatch sw = Stopwatch.StartNew();
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    await RefreshCache(ct);
+                    logger.LogInformation($"Cache is refreshed in {sw.Elapsed}");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed refreshing cache");
+                }
+            }
+        }
         public async Task StartCacheRefresherAsync(CancellationToken ct)
         {
-            logger.LogInformation($"Initializing cache refresher");
+            logger.LogInformation("Initializing cache refresher - initial wait for 60s");
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(60), ct);
+            }
+            catch (OperationCanceledException)
+            {
+                logger.LogInformation("Initializing cache refresher - initial wait cancelled");
+            }
+            logger.LogInformation("Initializing cache refresher");
             while (!ct.IsCancellationRequested)
             {
                 try
@@ -135,10 +162,14 @@ namespace SloCovidServer.Services.Implemented
                 }
                 catch (OperationCanceledException)
                 {
-                    logger.LogInformation($"Cache refresher cancelled");
+                    logger.LogInformation("Cache refresher cancelled");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Cache refresher experienced a failure");
                 }
             }
-            logger.LogInformation($"Cache refresher stopped");
+            logger.LogInformation("Cache refresher stopped");
         }
 
         public async Task RefreshCache(CancellationToken ct)

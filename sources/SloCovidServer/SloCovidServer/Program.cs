@@ -4,16 +4,21 @@ using Microsoft.Extensions.Hosting;
 using SloCovidServer.Services.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 
 namespace SloCovidServer
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
             var communicator = host.Services.GetService<ICommunicator>();
             var cts = new CancellationTokenSource();
+            await communicator.InitialCacheRefreshAsync(cts.Token);
             var refresher = communicator.StartCacheRefresherAsync(cts.Token);
             host.Run();
             cts.Cancel();
