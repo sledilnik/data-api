@@ -8,7 +8,7 @@ on:
 env:
   RELEASE_NAME: data-api-models
   CHART_VALUES_FILE: .helm/values.models.yml
-  DEPLOY_NAMESPACE: sledilnik-stage
+  DEPLOY_NAMESPACE: sledilnik-pr
   DEPLOY_ENV: models
   DEPLOY_URL: https://api-models.sledilnik.org
   IMAGE_TAG: models
