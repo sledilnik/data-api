@@ -1,4 +1,4 @@
-name: Build and deploy (stagging)
+name: Build and deploy (models)
 
 on:
   push:
