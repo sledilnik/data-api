@@ -9,4 +9,6 @@ configmap:
   data: []
     # TESTVAR: testvar
 
+existingSecret: data-api
+
 fullnameOverride: data-api-models
