@@ -21,6 +21,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.10
+
+* Replaces `age_daily_deaths_slovenia.csv` source with `daily_deaths_slovenia_by_age.csv`
+
 ## 1.9.9
 
 * Preloads cache before starting API

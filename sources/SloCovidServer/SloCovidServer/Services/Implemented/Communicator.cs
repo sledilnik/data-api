@@ -192,7 +192,7 @@ namespace SloCovidServer.Services.Implemented
             var monthlyDeathsSlovenia = this.RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
             var labTests = this.RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
             var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
-            var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
+            var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
