@@ -16,11 +16,12 @@ namespace SloCovidServer.Models
         public int? Healthcare { get; init; }
         [JsonPropertyName("rh-occupant")]
         public int? RhOccupant { get; init; }
+        public int? VaccinationAdministered { get; init; }
         public StatsWeeklySentTo SentTo { get; init; }
         public ImmutableDictionary<string, int?> Source { get; init; }
         public ImmutableDictionary<string, int?> From { get; init; }
         public ImmutableDictionary<string, int?> Locations { get; init; }
-        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, int? healthcare, int? rhOccupant,
+        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, int? healthcare, int? rhOccupant, int? vaccinationAdministered,
             StatsWeeklySentTo sentTo, 
             ImmutableDictionary<string, int?> source,ImmutableDictionary<string, int?> from, ImmutableDictionary<string, int?> locations)
         {
@@ -33,6 +34,7 @@ namespace SloCovidServer.Models
             Investigated = investigated;
             Healthcare = healthcare;
             RhOccupant = rhOccupant;
+            VaccinationAdministered = vaccinationAdministered;
             SentTo = sentTo;
             Source = source;
             From = from;
