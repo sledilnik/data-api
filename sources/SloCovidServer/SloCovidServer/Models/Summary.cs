@@ -4,6 +4,7 @@ namespace SloCovidServer.Models
     /// Total summary
     /// </summary>
     public record Summary(
+        VaccinationSummary VaccinationSummary,
         CasesToDateSummary CasesToDateSummary,
         CasesActive CasesActive,
         CasesAvg7Days CasesAvg7Days,
@@ -16,6 +17,7 @@ namespace SloCovidServer.Models
     /// Base class for summary items
     /// </summary>
     public abstract record SummaryBase(float? DiffPercentage, int Year, int Month, int Day);
+    public record VaccinationSummary(int? Value, bool Sublabel, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record CasesToDateSummarySubValues(int? In);
     public record CasesToDateSummary(int? Value, CasesToDateSummarySubValues SubValues, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record CasesActiveSubValues(int? In, int? Out);

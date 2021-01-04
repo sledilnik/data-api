@@ -7,8 +7,9 @@ namespace SloCovidServer.Mappers
 {
     public static class SummaryMapper
     {
-        public static Summary CreateSummary(DateTime? toDate, ImmutableArray<StatsDaily> stats, ImmutableArray<PatientsDay> patients, ImmutableArray<LabTestDay> labTests)
+        public static Summary CreateSummary(DateTime? toDate, ImmutableArray<StatsDaily> stats, ImmutableArray<StatsWeeklyDay> weeklyStats, ImmutableArray<PatientsDay> patients, ImmutableArray<LabTestDay> labTests)
         {
+            var vaccinationToDate = GetVaccinationToDate(toDate, weeklyStats);
             var casesToDate = GetCasesToDate(toDate, stats);
             var casesActive = GetCasesActive(toDate, stats);
             var hospitalizedCurrent = GetHospitalizedCurrent(toDate, patients);
@@ -17,7 +18,7 @@ namespace SloCovidServer.Mappers
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
             var testsToday = GetTestsToday(toDate, labTests);
             var testsTodayHAT = GetTestsTodayHAT(toDate, labTests);
-            return new Summary(casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
+            return new Summary(vaccinationToDate, casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
         }
         internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
@@ -170,6 +171,26 @@ namespace SloCovidServer.Mappers
                 return null;
             }
         }
+        internal static VaccinationSummary GetVaccinationToDate(DateTime? toDate, ImmutableArray<StatsWeeklyDay> weeklyStats)
+        {
+            var lastStats = GetLastAndPreviousItem(toDate, weeklyStats, s => s.VaccinationAdministered != null);
+            if (lastStats.HasValue)
+            {
+                int? lastVaccinated = lastStats.Value.Last.VaccinationAdministered;
+                int? prevVaccinated = lastStats.Value.Previous.VaccinationAdministered;
+
+                return new VaccinationSummary(
+                    lastVaccinated, // TODO: need to calculate total
+                    Sublabel: true,
+                    CalculateDifference(lastVaccinated, prevVaccinated),
+                    lastStats.Value.Last.To.Year, lastStats.Value.Last.To.Month, lastStats.Value.Last.To.Day);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         internal static float? CalculateDifference(float? lastValue, float? previousValue)
         {
             if (lastValue.HasValue && previousValue.HasValue && previousValue != 0)

@@ -21,6 +21,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.11
+
+* Add simple VaccinationSummary to summary 
+* Updates stats-weekly with vaccination.administered 
+* Schema version 28
+
 ## 1.9.10
 
 * Replaces `age_daily_deaths_slovenia.csv` source with `daily_deaths_slovenia_by_age.csv`
