@@ -452,7 +452,13 @@ namespace SloCovidServer.Services.Implemented
                 perRegion,
                 perAgeSum,
                 deceasedPerAge,
-                deceasedPerType
+                deceasedPerType,
+                new Vaccination(
+                    administered: new ToDateToday(
+                        GetInt("vaccination.administered", header, fields),
+                        GetInt("vaccination.administered.todate", header, fields)
+                    )
+                )
             );
             return result;
         }
@@ -546,7 +552,6 @@ namespace SloCovidServer.Services.Implemented
                     GetInt($"state{location}.deceased.care.todate", header, fields, isMandatory: false)
                 );
         }
-
 
         StateDeceased GetStateDeceased(ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
