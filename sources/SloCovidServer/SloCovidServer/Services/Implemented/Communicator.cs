@@ -118,7 +118,7 @@ namespace SloCovidServer.Services.Implemented
             labTestsCache = new ArrayEndpointCache<LabTestDay>();
             dailyDeathsSloveniaCache = new ArrayEndpointCache<DailyDeathsSlovenia>();
             ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
-            summaryCache = new SummaryCache(default, default, default, default, default, default, default, default, default);
+            summaryCache = new SummaryCache(default, default, default, default, default, default, default);
             errors = new ConcurrentDictionary<string, object>();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
@@ -206,15 +206,14 @@ namespace SloCovidServer.Services.Implemented
         async Task UpdateStatsAsync(CancellationToken ct)
         {
             if (!string.Equals(summaryCache.StatsETag, statsCache.Cache.ETag, StringComparison.Ordinal)
-            || !string.Equals(summaryCache.WeeklyStatsETag, statsWeeklyDayCache.Cache.ETag, StringComparison.Ordinal)
             || !string.Equals(summaryCache.PatientsETag, patientsCache.Cache.ETag, StringComparison.Ordinal)
             || !string.Equals(summaryCache.LabTestsETag, labTestsCache.Cache.ETag, StringComparison.Ordinal))
             {
                 await Task.Run(() =>
                 {
-                    var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, statsWeeklyDayCache.Cache.Data, patientsCache.Cache.Data, labTestsCache.Cache.Data);
+                    var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, patientsCache.Cache.Data, labTestsCache.Cache.Data);
                     Interlocked.Exchange(ref summaryCache,
-                        new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, statsWeeklyDayCache.Cache.ETag, statsWeeklyDayCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, labTestsCache.Cache.ETag, labTestsCache.Cache.Data,summary));
+                        new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, labTestsCache.Cache.ETag, labTestsCache.Cache.Data,summary));
                 });
             }
         }
@@ -312,7 +311,7 @@ namespace SloCovidServer.Services.Implemented
             {
                 if (toDate.HasValue)
                 {
-                    return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.WeeklyStats, cache.Patients, cache.LabTests), cache.ETag);
+                    return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.Patients, cache.LabTests), cache.ETag);
                 }
                 else
                 {
