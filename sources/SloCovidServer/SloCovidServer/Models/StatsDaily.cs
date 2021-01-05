@@ -58,11 +58,11 @@ namespace SloCovidServer.Models
 
     public record Tests
     {
-        public CommonTests Performed { get; init; }
-        public CommonTests Positive { get; init; }
+        public TodayToDate Performed { get; init; }
+        public TodayToDate Positive { get; init; }
         public RegularTests Regular { get; init; }
         public RegularTests NSApr20 { get; init; }
-        public Tests(CommonTests performed, CommonTests positive, RegularTests regular, RegularTests nSApr20)
+        public Tests(TodayToDate performed, TodayToDate positive, RegularTests regular, RegularTests nSApr20)
         {
             Performed = performed;
             Positive = positive;
@@ -73,26 +73,14 @@ namespace SloCovidServer.Models
 
     public record RegularTests
     {
-        public CommonTests Performed { get; init; }
-        public CommonTests Positive { get; init; }
-        public RegularTests(CommonTests performed, CommonTests positive)
+        public TodayToDate Performed { get; init; }
+        public TodayToDate Positive { get; init; }
+        public RegularTests(TodayToDate performed, TodayToDate positive)
         {
             Performed = performed;
             Positive = positive;
         }
     }
-
-    public record CommonTests
-    {
-        public int? ToDate { get; init; }
-        public int? Today { get; init; }
-        public CommonTests(int? toDate, int? today)
-        {
-            ToDate = toDate;
-            Today = today;
-        }
-    }
-
     public record Cases
     {
         public int? ConfirmedToday { get; init; }

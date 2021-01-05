@@ -416,32 +416,32 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("tests.positive.todate", header, fields),
                 GetInt("tests.positive", header, fields),
                 new Tests(
-                    performed: new CommonTests(
-                        GetInt("tests.performed.todate", header, fields),
-                        GetInt("tests.performed", header, fields)
+                    performed: new TodayToDate(
+                        GetInt("tests.performed", header, fields),
+                        GetInt("tests.performed.todate", header, fields)
                     ),
-                    positive: new CommonTests(
-                        GetInt("tests.positive.todate", header, fields),
-                        GetInt("tests.positive", header, fields)
+                    positive: new TodayToDate(
+                        GetInt("tests.positive", header, fields),
+                        GetInt("tests.positive.todate", header, fields)
                     ),
                     regular: new RegularTests(
-                        performed: new CommonTests(
-                            GetInt("tests.regular.performed.todate", header, fields),
-                            GetInt("tests.regular.performed", header, fields)
+                        performed: new TodayToDate(
+                            GetInt("tests.regular.performed", header, fields),
+                            GetInt("tests.regular.performed.todate", header, fields)
                         ),
-                        positive: new CommonTests(
-                            GetInt("tests.regular.positive.todate", header, fields),
-                            GetInt("tests.regular.positive", header, fields)
+                        positive: new TodayToDate(
+                            GetInt("tests.regular.positive", header, fields),
+                            GetInt("tests.regular.positive.todate", header, fields)
                         )
                     ),
                     nSApr20: new RegularTests(
-                        performed: new CommonTests(
-                            GetInt("tests.ns-apr20.performed.todate", header, fields),
-                            GetInt("tests.ns-apr20.performed", header, fields)
+                        performed: new TodayToDate(
+                            GetInt("tests.ns-apr20.performed", header, fields),
+                            GetInt("tests.ns-apr20.performed.todate", header, fields)
                         ),
-                        positive: new CommonTests(
-                            GetInt("tests.ns-apr20.positive.todate", header, fields),
-                            GetInt("tests.ns-apr20.positive", header, fields)
+                        positive: new TodayToDate(
+                            GetInt("tests.ns-apr20.positive", header, fields),
+                            GetInt("tests.ns-apr20.positive.todate", header, fields)
                         )
                     )
                 ),
