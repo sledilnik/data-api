@@ -454,7 +454,7 @@ namespace SloCovidServer.Services.Implemented
                 deceasedPerAge,
                 deceasedPerType,
                 new Vaccination(
-                    administered: new ToDateToday(
+                    administered: new TodayToDate(
                         GetInt("vaccination.administered", header, fields),
                         GetInt("vaccination.administered.todate", header, fields)
                     )
@@ -537,17 +537,17 @@ namespace SloCovidServer.Services.Implemented
             return new HospitalDeceased(
                 GetInt($"state{location}.deceased", header, fields, isMandatory: false),
                 GetInt($"state{location}.deceased.todate", header, fields, isMandatory: false),
-                new ToDateToday(
+                new TodayToDate(
                     GetInt($"state{location}.deceased.icu", header, fields, isMandatory: false),
                     GetInt($"state{location}.deceased.icu.todate", header, fields, isMandatory: false)
                 )
             );
         }
 
-        ToDateToday GetDeceasedCare(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
+        TodayToDate GetDeceasedCare(string facility, ImmutableDictionary<string, int> header, IImmutableList<string> fields)
         {
             string location = !string.IsNullOrEmpty(facility) ? $".{facility}": "";
-            return new ToDateToday(
+            return new TodayToDate(
                     GetInt($"state{location}.deceased.care", header, fields, isMandatory: false),
                     GetInt($"state{location}.deceased.care.todate", header, fields, isMandatory: false)
                 );
@@ -561,16 +561,16 @@ namespace SloCovidServer.Services.Implemented
                 new StateDeceased.HospitalStats(
                     GetInt(fields[header[$"state.deceased.hospital"]]),
                     GetInt(fields[header[$"state.deceased.hospital.todate"]]),
-                    icu: new ToDateToday(
+                    icu: new TodayToDate(
                         GetInt(fields[header[$"state.deceased.hospital.icu"]]),
                         GetInt(fields[header[$"state.deceased.hospital.icu.todate"]])
                         )
                     ),
-                care: new ToDateToday(
+                care: new TodayToDate(
                         GetInt(fields[header[$"state.deceased.care"]]),
                         GetInt(fields[header[$"state.deceased.care.todate"]])
                 ),
-                home: new ToDateToday(
+                home: new TodayToDate(
                         GetInt(fields[header[$"state.deceased.home"]]),
                         GetInt(fields[header[$"state.deceased.home.todate"]])
                 )

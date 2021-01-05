@@ -24,7 +24,7 @@ namespace SloCovidServer.Models
     public record GeneralUnit : BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; init; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, ToDateToday deceasedCare,
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, TodayToDate deceasedCare,
             OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
@@ -32,7 +32,7 @@ namespace SloCovidServer.Models
     }
     public record Unit : BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, ToDateToday deceasedCare)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
             : base(inHospital, iCU, critical, deceased, care, deceasedCare)
         {
         }
@@ -45,8 +45,8 @@ namespace SloCovidServer.Models
         public HospitalMovement Critical { get; init; }
         public TDeceased Deceased { get; init; }
         public HospitalMovement Care { get; init; }
-        public ToDateToday DeceasedCare { get; init; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, ToDateToday deceasedCare)
+        public TodayToDate DeceasedCare { get; init; }
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
         {
             InHospital = inHospital;
             ICU = iCU;
@@ -99,18 +99,18 @@ namespace SloCovidServer.Models
 
     public record StateDeceased : Deceased
     {
-        public record HospitalStats : ToDateToday
+        public record HospitalStats : TodayToDate
         {
-            public ToDateToday Icu { get; init; }
-            public HospitalStats(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
+            public TodayToDate Icu { get; init; }
+            public HospitalStats(int? today, int? toDate, TodayToDate icu) : base(today, toDate)
             {
                 Icu = icu;
             }
         }
         public HospitalStats Hospital { get; init; }
-        public ToDateToday Care { get; init; }
-        public ToDateToday Home { get; init; }
-        public StateDeceased(int? today, int? toDate, HospitalStats hospital, ToDateToday care, ToDateToday home) : base(today, toDate)
+        public TodayToDate Care { get; init; }
+        public TodayToDate Home { get; init; }
+        public StateDeceased(int? today, int? toDate, HospitalStats hospital, TodayToDate care, TodayToDate home) : base(today, toDate)
         {
             Hospital = hospital;
             Care = care;
@@ -119,19 +119,19 @@ namespace SloCovidServer.Models
     }
     public record HospitalDeceased : Deceased
     {
-        public ToDateToday Icu { get; init; }
-        public HospitalDeceased(int? today, int? toDate, ToDateToday icu) : base(today, toDate)
+        public TodayToDate Icu { get; init; }
+        public HospitalDeceased(int? today, int? toDate, TodayToDate icu) : base(today, toDate)
         {
             Icu = icu;
         }
     }
 
-    public record ToDateToday
+    public record TodayToDate
     {
-        public static ToDateToday Empty { get; } = new ToDateToday(null, null);
+        public static TodayToDate Empty { get; } = new TodayToDate(null, null);
         public int? Today { get; init; }
         public int? ToDate { get; init; }
-        public ToDateToday(int? today, int? toDate)
+        public TodayToDate(int? today, int? toDate)
         {
             ToDate = toDate;
             Today = today;
