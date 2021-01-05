@@ -178,16 +178,28 @@ namespace SloCovidServer.Mappers
             {
                 int? lastVaccinated = lastStats.Value.Last.Vaccination.Administered.ToDate;
                 int? prevVaccinated = lastStats.Value.Previous.Vaccination.Administered.ToDate;
+                int? today = lastStats.Value.Last.Vaccination.Administered.Today;
+                float? percentVaccinated = CalculatePopulationPercent(lastVaccinated);
 
                 return new VaccinationSummary(
-                    lastVaccinated, // TODO: need to calculate total
-                    CalculateDifference(lastVaccinated, prevVaccinated),
+                    lastVaccinated,
+                    new VaccinationSummarySubValues(today, percentVaccinated),
+                    default, 
                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
             else
             {
                 return null;
             }
+        }
+
+        internal static float? CalculatePopulationPercent(float? value)
+        {
+            if (value.HasValue)
+            {
+                return (float)Math.Round((value.Value / (double)2095861) * 100, 3);
+            }
+            return null;
         }
 
         internal static float? CalculateDifference(float? lastValue, float? previousValue)

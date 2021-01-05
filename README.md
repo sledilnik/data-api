@@ -21,6 +21,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.12
+
+* Switch VaccinationSummary to daily numbers 
+* Updates stats with vaccination.administered 
+* Schema version 29
+
 ## 1.9.11
 
 * Add simple VaccinationSummary to summary 
