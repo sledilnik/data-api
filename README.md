@@ -21,6 +21,15 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.13
+
+* stats: remove obsolete recovered field
+* weekly-stats: remove vaccination field (now only in daily) 
+* municipalities: switch to municipality-cases.csv
+* regions: switch to municipality-confirmed.csv (obsolete)
+* deceased-regions: switch to municipality-deceased.csv (obsolete)
+* Schema version 30
+
 ## 1.9.12
 
 * Switch VaccinationSummary to daily numbers 

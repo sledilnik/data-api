@@ -364,8 +364,7 @@ namespace SloCovidServer.Services.Implemented
                 deceasedToDate,
                 deceased,
                 outOfHospitalToDate,
-                outOfHospital,
-                GetInt("state.recovered.todate", header, fields)
+                outOfHospital
             );
             var perRegion = ImmutableDictionary<string, int?>.Empty;
             foreach (var pair in header)

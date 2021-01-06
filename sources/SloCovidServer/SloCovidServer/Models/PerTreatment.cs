@@ -10,9 +10,8 @@
         public int? Deceased { get; init; }
         public int? OutOfHospitalToDate { get; init; }
         public int? OutOfHospital { get; init; }
-        public int? RecoveredToDate { get; init; }
         public PerTreatment(int? inHospital, int? inHospitalToDate, int? inICU, int? critical, int? deceasedToDate, int? deceased, int? outOfHospitalToDate,
-            int? outOfHospital, int? recoveredToDate)
+            int? outOfHospital)
         {
             InHospital = inHospital;
             InHospitalToDate = inHospitalToDate;
@@ -22,7 +21,6 @@
             Deceased = deceased;
             OutOfHospitalToDate = outOfHospitalToDate;
             OutOfHospital = outOfHospital;
-            RecoveredToDate = recoveredToDate;
         }
     }
 }
