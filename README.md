@@ -3,9 +3,13 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [regions](https://api.sledilnik.org/api/regions), [patients](https://api.sledilnik.org/api/patients), 
 [hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list), 
 [municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
-[deceased-regions](https://api.sledilnik.org/api/deceased-regions), [municipalities](https://api.sledilnik.org/api/municipalities),
+[municipalities](https://api.sledilnik.org/api/municipalities),
 [health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid),
-[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia), [lab-tests](https://api.sledilnik.org/api/lab-tests), [daily-deaths-slovenia](https://api.sledilnik.org/api/daily-deaths-slovenia), [age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia) and [summary](https://api.sledilnik.org/api/summary).
+[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia), 
+[lab-tests](https://api.sledilnik.org/api/lab-tests), 
+[daily-deaths-slovenia](https://api.sledilnik.org/api/daily-deaths-slovenia), 
+[age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia) and
+[summary](https://api.sledilnik.org/api/summary).
 Only GET method is supported, most of endpoints support parameters `from` and `to` (both dates).
 
 A running instance is available at https://api.sledilnik.org/api/ endpoint.
@@ -20,6 +24,13 @@ Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.9.14
+
+* Schema version 31
+* Removed `api/deceased-regions`
+* `/api/region-cases` endpoint not uses `region-cases.csv` as source
+* `/api/municipalities` endpoint not uses `municipalities-cases.csv` as source
 
 ## 1.9.13
 
