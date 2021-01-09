@@ -456,6 +456,10 @@ namespace SloCovidServer.Services.Implemented
                     administered: new TodayToDate(
                         GetInt("vaccination.administered", header, fields),
                         GetInt("vaccination.administered.todate", header, fields)
+                    ),
+                    delivered: new TodayToDate(
+                        null,
+                        GetInt("vaccination.delivered.todate", header, fields)
                     )
                 )
             );

@@ -142,9 +142,11 @@ namespace SloCovidServer.Models
     public record Vaccination
     {                
         public TodayToDate Administered { get; init; }
-        public Vaccination(TodayToDate administered)
+        public TodayToDate Delivered { get; init; }
+        public Vaccination(TodayToDate administered, TodayToDate delivered)
         {
             Administered = administered;
+            Delivered = delivered;
         }
     }
 }

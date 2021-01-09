@@ -25,6 +25,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.15
+
+* Schema version 32
+* Add vaccination.delivered to `/api/stats`
+
 ## 1.9.14
 
 * Schema version 31
