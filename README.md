@@ -25,6 +25,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.16
+
+* Schema version 33
+* Add patients.niv to `/api/patients`
+
 ## 1.9.15
 
 * Schema version 32

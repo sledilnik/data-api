@@ -24,16 +24,16 @@ namespace SloCovidServer.Models
     public record GeneralUnit : BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; init; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, TodayToDate deceasedCare,
-            OutOfHospital outOfHospital) : base(inHospital, iCU, critical, deceased, care, deceasedCare)
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, TodayToDate deceasedCare,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, niv, critical, deceased, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
         }
     }
     public record Unit : BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
-            : base(inHospital, iCU, critical, deceased, care, deceasedCare)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
+            : base(inHospital, iCU, niv, critical, deceased, care, deceasedCare)
         {
         }
     }
@@ -42,14 +42,16 @@ namespace SloCovidServer.Models
     {
         public HospitalMovement InHospital { get; init; }
         public HospitalMovement ICU { get; init; }
+        public HospitalMovement NIV { get; init; }
         public HospitalMovement Critical { get; init; }
         public TDeceased Deceased { get; init; }
         public HospitalMovement Care { get; init; }
         public TodayToDate DeceasedCare { get; init; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement critical, TDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, TDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
         {
             InHospital = inHospital;
             ICU = iCU;
+            NIV = niv;
             Critical = critical;
             Deceased = deceased;
 

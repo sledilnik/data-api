@@ -487,6 +487,7 @@ namespace SloCovidServer.Services.Implemented
             var generalUnit = new GeneralUnit(
                 inHospital: GetHospitalMovement(facility: null, "in_hospital", header, fields),
                 GetHospitalMovement(facility: null, "icu", header, fields),
+                GetHospitalMovement(facility: null, "niv", header, fields),
                 GetHospitalMovement(facility: null, "critical", header, fields),
                 GetStateDeceased(header, fields),
                 GetHospitalMovement(facility: null, "care", header, fields),
@@ -499,6 +500,7 @@ namespace SloCovidServer.Services.Implemented
                 var unit = new Unit(
                     inHospital: GetHospitalMovement(facility, "in_hospital", header, fields),
                     GetHospitalMovement(facility, "icu", header, fields),
+                    GetHospitalMovement(facility, "niv", header, fields),
                     GetHospitalMovement(facility, "critical", header, fields),
                     GetDeceased(facility, header, fields),
                     GetHospitalMovement(facility, "care", header, fields),
