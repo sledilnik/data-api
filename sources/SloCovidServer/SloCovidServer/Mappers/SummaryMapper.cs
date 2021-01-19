@@ -197,7 +197,7 @@ namespace SloCovidServer.Mappers
         {
             if (value.HasValue)
             {
-                return (float)Math.Round((value.Value / (double)2095861) * 100, 3);
+                return (float)Math.Round((value.Value / (double)2100126) * 100, 3);
             }
             return null;
         }
