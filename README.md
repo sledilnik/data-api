@@ -25,6 +25,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.17
+
+* Schema version 34
+* Update Slovenia population to SURS H2/2020
+* Add healthcare male/female to `/api/stats-weekly`
+
 ## 1.9.16
 
 * Schema version 33
