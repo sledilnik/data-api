@@ -177,9 +177,9 @@ namespace SloCovidServer.Services.Implemented
                            select g;
             foreach (var g in groupped)
             {
-                int totalIndex = 0;
-                int employeeIndex = 0;
-                int occupantIndex = 0;
+                int? totalIndex = null;
+                int? employeeIndex = null;
+                int? occupantIndex = null;
                 foreach (var value in g)
                 {
                     switch (value.Type)
@@ -206,9 +206,9 @@ namespace SloCovidServer.Services.Implemented
             var date = GetDate(fields[dateIndex]);
             var homes = meta.Select(m => 
                 new RetirementHomeDay(m.Id,
-                    GetInt(fields[m.TotalIndex]),
-                    GetInt(fields[m.EmployeeIndex]),
-                    GetInt(fields[m.OccupantIndex])
+                    m.TotalIndex.HasValue ? GetInt(fields[m.TotalIndex.Value]): null,
+                    m.EmployeeIndex.HasValue ? GetInt(fields[m.EmployeeIndex.Value]): null,
+                    m.OccupantIndex.HasValue ? GetInt(fields[m.OccupantIndex.Value]): null
                 )
             )
             .ToImmutableArray();
@@ -651,10 +651,10 @@ namespace SloCovidServer.Services.Implemented
     public readonly struct RetirementHomeMeta
     {
         public string Id { get; }
-        public int TotalIndex { get; }
-        public int EmployeeIndex { get; }
-        public int OccupantIndex { get; }
-        public RetirementHomeMeta(string id, int totalIndex, int employeeIndex, int occupantIndex)
+        public int? TotalIndex { get; }
+        public int? EmployeeIndex { get; }
+        public int? OccupantIndex { get; }
+        public RetirementHomeMeta(string id, int? totalIndex, int? employeeIndex, int? occupantIndex)
         {
             Id = id;
             TotalIndex = totalIndex;
