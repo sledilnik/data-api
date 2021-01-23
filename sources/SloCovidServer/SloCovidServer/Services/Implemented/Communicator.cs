@@ -174,7 +174,7 @@ namespace SloCovidServer.Services.Implemented
 
         public async Task RefreshCache(CancellationToken ct)
         {
-            logger.LogInformation($"Refreshing GH cache");
+            logger.LogDebug($"Refreshing GH cache");
             var sw = Stopwatch.StartNew();
             var stats = RefreshEndpointCache($"{root}/stats.csv", statsCache, mapper.GetStatsFromRaw);
             var patients = RefreshEndpointCache($"{root}/patients.csv", patientsCache, mapper.GetPatientsFromRaw);
@@ -200,7 +200,7 @@ namespace SloCovidServer.Services.Implemented
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
                 labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay);
             
-            logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
+            logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
         /// Calculates summary for the most recent date
         async Task UpdateStatsAsync(CancellationToken ct)
@@ -454,11 +454,13 @@ namespace SloCovidServer.Services.Implemented
                 }
                 else
                 {
+                    logger.LogError("Failed loading {url} because of status code {status_code}", url, response.StatusCode);
                     _ = ProcessErrorAsync(url, response.ReasonPhrase);
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Failed loading {url}", url);
                 _ = ProcessErrorAsync(url, ex.Message);
             }
         }
@@ -492,11 +494,13 @@ namespace SloCovidServer.Services.Implemented
                 }
                 else
                 {
+                    logger.LogError("Failed loading {url} because of status code {status_code}", url, response.StatusCode);
                     _ = ProcessErrorAsync(url, response.ReasonPhrase);
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Failed loading {url}", url);
                 _ = ProcessErrorAsync(url, ex.Message);
             }
         }
@@ -558,19 +562,15 @@ namespace SloCovidServer.Services.Implemented
 
                 ETagCacheItem<ImmutableArray<TData>> current = sync.CacheBlocking;
 
-                if (!String.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
+                if (!string.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
                 {
-                    logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
                     return Task.FromResult(new ValueTuple<ImmutableArray<TData>?, string, string, long?>(null, current.Raw, current.ETag, current.Timestamp));
                 }
                 else
                 {
-                    logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
                     var filteredData = FilterData(current.Data, filter);
                     return Task.FromResult(new ValueTuple<ImmutableArray<TData>?, string, string, long?>(filteredData, current.Raw, current.ETag, current.Timestamp));
                 }
-
-                // throw new Exception($"Failed fetching data: {response.ReasonPhrase}");
             }
             catch
             {
@@ -592,12 +592,10 @@ namespace SloCovidServer.Services.Implemented
 
             if (!string.IsNullOrEmpty(callerEtag) && string.Equals(current.ETag, callerEtag, StringComparison.Ordinal))
             {
-                logger.LogInformation($"Cache hit, client cache hit, {etagInfo}");
                 return (null, current.Raw, current.ETag);
             }
             else
             {
-                logger.LogInformation($"Cache hit, client cache refreshed, {etagInfo}");
                 return (current.Data, current.Raw, current.ETag);
             }
         }

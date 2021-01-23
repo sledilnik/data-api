@@ -27,6 +27,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.20
+
+* Reduces logging
+
 ## 1.9.19
 
 * Schema version 36
