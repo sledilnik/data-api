@@ -2,6 +2,5 @@
 
 namespace SloCovidServer.Models
 {
-    public record SewageDay(int Year, int Month, int Day, ImmutableDictionary<string, SewageCityDay> Cities) { }
-    public record SewageCityDay(ImmutableDictionary<string, float?> Measurements) { }
+    public record SewageDay(int Year, int Month, int Day, ImmutableDictionary<string, ImmutableDictionary<string, float?>> Plants) { }
 }

@@ -15,28 +15,35 @@ namespace SloCovidServer.Mappers
             foreach (string line in IterateLines(lines))
             {
                 var fields = ParseLine(line);
-                var cities = ImmutableDictionary<string, SewageCityDay>.Empty;
+                var plants = ImmutableDictionary<string, ImmutableDictionary<string, float?>>.Empty;
                 foreach (var pair in header)
                 {
                     string[] parts = pair.Key.Split('.');
                     if (parts.Length == 3)
                     {
-                        string cityName = parts[1];
-                        if (!cities.TryGetValue(cityName, out var city))
+                        float? value = GetFloat(fields[pair.Value]);
+                        string plantName = parts[1];
+                        if (value.HasValue)
                         {
-                            city = new SewageCityDay(ImmutableDictionary<string, float?>.Empty);
+                            if (!plants.TryGetValue(plantName, out var plant))
+                            {
+                                plant = ImmutableDictionary<string, float?>.Empty;
+                            }
+                            plant = plant.Add(parts[2], value);
+                            plants = plants.SetItem(plantName, plant);
                         }
-                        city = city with { Measurements = city.Measurements.Add(parts[2], GetFloat(fields[pair.Value])) };
-                        cities = cities.SetItem(cityName, city);
                     }
                 }
-                var date = GetDate(fields[dateIndex]);
-                result.Add(new SewageDay(
-                    date.Year,
-                    date.Month,
-                    date.Day,
-                    cities
-                ));
+                if (plants.Count > 0)
+                {
+                    var date = GetDate(fields[dateIndex]);
+                    result.Add(new SewageDay(
+                        date.Year,
+                        date.Month,
+                        date.Day,
+                        plants
+                    ));
+                }
             }
             return result.ToImmutableArray();
         }
