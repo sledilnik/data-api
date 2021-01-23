@@ -1,0 +1,26 @@
+version: '2.1'
+
+services:
+  db:
+    image: postgres:11
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=tubo
+    networks:
+      - internal
+  admin:
+    image: dpage/pgadmin4
+    ports:
+      - 80:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=miha@rthand.com
+      - PGADMIN_DEFAULT_PASSWORD=tubo
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+#  global:
+#    external: true

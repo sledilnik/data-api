@@ -102,6 +102,14 @@ namespace SloCovidServer.Mappers
             }
             return ParseInt(text);
         }
+        internal float? GetFloat(string text)
+        {
+            if (float.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float result))
+            {
+                return result;
+            }
+            return null;
+        }
 
         internal Models.Date GetDate(string text)
         {

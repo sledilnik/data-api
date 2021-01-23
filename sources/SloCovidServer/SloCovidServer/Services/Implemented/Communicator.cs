@@ -75,6 +75,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<LabTestDay> labTestsCache;
         readonly ArrayEndpointCache<DailyDeathsSlovenia> dailyDeathsSloveniaCache;
         readonly ArrayEndpointCache<AgeDailyDeathsSloveniaDay> ageDailyDeathsSloveniaCache;
+        readonly ArrayEndpointCache<SewageDay> sewageCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -100,24 +101,25 @@ namespace SloCovidServer.Services.Implemented
             this.logger = logger;
             this.mapper = mapper;
             this.slackService = slackService;
-            statsCache = new ArrayEndpointCache<StatsDaily>();
-            patientsCache = new ArrayEndpointCache<PatientsDay>();
-            hospitalsCache = new ArrayEndpointCache<HospitalsDay>();
-            hospitalsListCache = new ArrayEndpointCache<Hospital>();
-            municipalitiesListCache = new ArrayEndpointCache<Municipality>();
-            retirementHomesListCache = new ArrayEndpointCache<RetirementHome>();
-            retirementHomesCache = new ArrayEndpointCache<RetirementHomesDay>();
-            municipalityCache = new ArrayEndpointCache<MunicipalityDay>();
-            regionCasesCache = new ArrayEndpointCache<RegionCasesDay>();
-            healthCentersDayCache = new ArrayEndpointCache<HealthCentersDay>();
-            statsWeeklyDayCache = new ArrayEndpointCache<StatsWeeklyDay>();
-            owidCountriesCache = new DictionaryEndpointCache<string, Models.Owid.Country>();
-            monthlyDeathsSloveniaCache = new ArrayEndpointCache<MonthlyDeathsSlovenia>();
-            labTestsCache = new ArrayEndpointCache<LabTestDay>();
-            dailyDeathsSloveniaCache = new ArrayEndpointCache<DailyDeathsSlovenia>();
-            ageDailyDeathsSloveniaCache = new ArrayEndpointCache<AgeDailyDeathsSloveniaDay>();
+            statsCache = new ();
+            patientsCache = new ();
+            hospitalsCache = new ();
+            hospitalsListCache = new ();
+            municipalitiesListCache = new ();
+            retirementHomesListCache = new ();
+            retirementHomesCache = new ();
+            municipalityCache = new ();
+            regionCasesCache = new ();
+            healthCentersDayCache = new ();
+            statsWeeklyDayCache = new ();
+            owidCountriesCache = new ();
+            monthlyDeathsSloveniaCache = new ();
+            labTestsCache = new ();
+            dailyDeathsSloveniaCache = new ();
+            ageDailyDeathsSloveniaCache = new ();
+            sewageCache = new ();
             summaryCache = new SummaryCache(default, default, default, default, default, default, default);
-            errors = new ConcurrentDictionary<string, object>();
+            errors = new ();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
         public async Task InitialCacheRefreshAsync(CancellationToken ct)
@@ -174,28 +176,29 @@ namespace SloCovidServer.Services.Implemented
         {
             logger.LogInformation($"Refreshing GH cache");
             var sw = Stopwatch.StartNew();
-            var stats = this.RefreshEndpointCache($"{root}/stats.csv", this.statsCache, mapper.GetStatsFromRaw);
-            var patients = this.RefreshEndpointCache($"{root}/patients.csv", this.patientsCache, mapper.GetPatientsFromRaw);
-            var hospitals = this.RefreshEndpointCache($"{root}/hospitals.csv", this.hospitalsCache, mapper.GetHospitalsFromRaw);
-            var hospitalsList = this.RefreshEndpointCache($"{root}/dict-hospitals.csv", this.hospitalsListCache, mapper.GetHospitalsListFromRaw);
-            var municipalitiesList = this.RefreshEndpointCache($"{root}/dict-municipality.csv", this.municipalitiesListCache, mapper.GetMunicipalitiesListFromRaw);
-            var retirementHomesList = this.RefreshEndpointCache($"{root}/dict-retirement_homes.csv", this.retirementHomesListCache, mapper.GetRetirementHomesListFromRaw);
-            var retirementHomes = this.RefreshEndpointCache($"{root}/retirement_homes.csv", this.retirementHomesCache, mapper.GetRetirementHomesFromRaw);
-            var municipalityDay = this.RefreshEndpointCache($"{root}/municipality-cases.csv", this.municipalityCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
-            var regionCasesDay = this.RefreshEndpointCache($"{root}/region-cases.csv", this.regionCasesCache, new RegionCasesMapper().GetDayFromRaw);
-            var healthCentersDay = this.RefreshEndpointCache($"{root}/health_centers.csv", this.healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
-            var statsWeeklyDay = this.RefreshEndpointCache($"{root}/stats-weekly.csv", this.statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
+            var stats = RefreshEndpointCache($"{root}/stats.csv", statsCache, mapper.GetStatsFromRaw);
+            var patients = RefreshEndpointCache($"{root}/patients.csv", patientsCache, mapper.GetPatientsFromRaw);
+            var hospitals = RefreshEndpointCache($"{root}/hospitals.csv", hospitalsCache, mapper.GetHospitalsFromRaw);
+            var hospitalsList = RefreshEndpointCache($"{root}/dict-hospitals.csv", hospitalsListCache, mapper.GetHospitalsListFromRaw);
+            var municipalitiesList = RefreshEndpointCache($"{root}/dict-municipality.csv", municipalitiesListCache, mapper.GetMunicipalitiesListFromRaw);
+            var retirementHomesList = RefreshEndpointCache($"{root}/dict-retirement_homes.csv", retirementHomesListCache, mapper.GetRetirementHomesListFromRaw);
+            var retirementHomes = RefreshEndpointCache($"{root}/retirement_homes.csv", retirementHomesCache, mapper.GetRetirementHomesFromRaw);
+            var municipalityDay = RefreshEndpointCache($"{root}/municipality-cases.csv", municipalityCache, new MunicipalitiesMapper().GetMunicipalityDayFromRaw);
+            var regionCasesDay = RefreshEndpointCache($"{root}/region-cases.csv", regionCasesCache, new RegionCasesMapper().GetDayFromRaw);
+            var healthCentersDay = RefreshEndpointCache($"{root}/health_centers.csv", healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
+            var statsWeeklyDay = RefreshEndpointCache($"{root}/stats-weekly.csv", statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
             var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
-            var monthlyDeathsSlovenia = this.RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
-            var labTests = this.RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
-            var dailyDeathsSlovenia = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
-            var ageDeathsDeathSloveniaDay = this.RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
+            var monthlyDeathsSlovenia = RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
+            var labTests = RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
+            var dailyDeathsSlovenia = RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
+            var ageDeathsDeathSloveniaDay = RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
+            var sewageDay = RefreshEndpointCache($"{root}/sewage.csv", sewageCache, new SewageMapper().GetFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay);
             
             logger.LogInformation($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -290,6 +293,11 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, filter, ct);
+        }
+        public Task<(ImmutableArray<SewageDay>? Data, string raw, string ETag, long? Timestamp)> GetSewageAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/sewage.csv", sewageCache, filter, ct);
         }
         public (Models.Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate)
         {
