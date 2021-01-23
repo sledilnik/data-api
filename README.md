@@ -25,6 +25,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.18
+
+* Schema version 35
+* Add vaccination.administered2nd vaccination.used to `/api/stats`
+* Extend vaccinationSummary with 2nd dose in `/api/summary`
+
 ## 1.9.17
 
 * Schema version 34

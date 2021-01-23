@@ -454,8 +454,16 @@ namespace SloCovidServer.Services.Implemented
                 deceasedPerType,
                 new Vaccination(
                     administered: new TodayToDate(
-                        GetInt("vaccination.administered", header, fields),
+                        null,
                         GetInt("vaccination.administered.todate", header, fields)
+                    ),
+                    administered2nd: new TodayToDate(
+                        null,
+                        GetInt("vaccination.administered2nd.todate", header, fields)
+                    ),
+                    used: new TodayToDate(
+                        null,
+                        GetInt("vaccination.used.todate", header, fields)
                     ),
                     delivered: new TodayToDate(
                         null,
