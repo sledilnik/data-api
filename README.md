@@ -27,6 +27,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.9.21
+
+* Adds deceased.todate and deceased to stats endpoint
+* Schema version 37
+
 ## 1.9.20
 
 * Reduces logging

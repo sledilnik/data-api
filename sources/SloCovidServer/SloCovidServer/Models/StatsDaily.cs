@@ -27,12 +27,14 @@ namespace SloCovidServer.Models
         public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; init; }
         public PerPersonType DeceasedPerType { get; init; }
         public Vaccination Vaccination { get; init; }
+        public int? DeceasedToDate { get; init; }
+        public int? Deceased { get; init; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
             int? positiveTests, Tests tests,
             int? femaleToDate, int? maleToDate,
             Cases cases, PerTreatment statePerTreatment, ImmutableDictionary<string, int?> statePerRegion,
             ImmutableArray<PerAgeBucket> statePerAgeToDate, ImmutableArray<PerAgeBucket> deceasedPerAgeToDate,
-            PerPersonType deceasedPerType, Vaccination vaccination)
+            PerPersonType deceasedPerType, Vaccination vaccination, int? deceasedToDate, int? deceased)
         {
             DayFromStart = dayFromStart;
             Year = year;
@@ -53,6 +55,8 @@ namespace SloCovidServer.Models
             DeceasedPerAgeToDate = deceasedPerAgeToDate;
             DeceasedPerType = deceasedPerType;
             Vaccination = vaccination;
+            DeceasedToDate = deceasedToDate;
+            Deceased = deceased;
         }
     }
 

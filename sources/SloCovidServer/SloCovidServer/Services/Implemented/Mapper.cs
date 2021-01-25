@@ -37,7 +37,8 @@ namespace SloCovidServer.Services.Implemented
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
-                    var dailyData = GetDailyStatsFromRaw(header, line, previous?.StatePerTreatment.DeceasedToDate, previous?.StatePerTreatment.OutOfHospitalToDate);
+                    var dailyData = GetDailyStatsFromRaw(header, line, previous?.StatePerTreatment.DeceasedToDate, previous?.StatePerTreatment.OutOfHospitalToDate,
+                        previous?.DeceasedToDate);
                     result = result.Add(dailyData);
                     previous = dailyData;
                 }
@@ -336,13 +337,16 @@ namespace SloCovidServer.Services.Implemented
                 return null;
             }
         }
-        StatsDaily GetDailyStatsFromRaw(ImmutableDictionary<string, int> header, string line, int? previousDecasedToDate, int? previousOutOfHospitalToDate)
+        StatsDaily GetDailyStatsFromRaw(ImmutableDictionary<string, int> header, string line, int? previousStateDecasedToDate, int? previousOutOfHospitalToDate,
+            int? previousDecasedToDate)
         {
             var fields = ParseLine(line);
-            int? deceasedToDate = GetInt("state.deceased.todate", header, fields);
-            int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
+            int? stateDeceasedToDate = GetInt("state.deceased.todate", header, fields);
+            int? stateDeceased = GetDelta(stateDeceasedToDate, previousStateDecasedToDate);
             int? outOfHospitalToDate = GetInt("state.out_of_hospital.todate", header, fields);
             int? outOfHospital = GetDelta(outOfHospitalToDate, previousOutOfHospitalToDate);
+            int? deceasedToDate = GetInt("deceased.todate", header, fields);
+            int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
             var cases = new Cases(
                 GetInt("cases.confirmed", header, fields),
                 GetInt("cases.confirmed.todate", header, fields),
@@ -361,8 +365,8 @@ namespace SloCovidServer.Services.Implemented
                 GetInt("state.in_hospital.todate", header, fields),
                 GetInt("state.icu", header, fields),
                 GetInt("state.critical", header, fields),
-                deceasedToDate,
-                deceased,
+                stateDeceasedToDate,
+                stateDeceased,
                 outOfHospitalToDate,
                 outOfHospital
             );
@@ -469,7 +473,9 @@ namespace SloCovidServer.Services.Implemented
                         null,
                         GetInt("vaccination.delivered.todate", header, fields)
                     )
-                )
+                ),
+                deceasedToDate,
+                deceased
             );
             return result;
         }
