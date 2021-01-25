@@ -26,9 +26,9 @@ namespace SloCovidServer.Models
         public ImmutableArray<PerAgeBucket> StatePerAgeToDate { get; init; }
         public ImmutableArray<PerAgeBucket> DeceasedPerAgeToDate { get; init; }
         public PerPersonType DeceasedPerType { get; init; }
-        public Vaccination Vaccination { get; init; }
         public int? DeceasedToDate { get; init; }
         public int? Deceased { get; init; }
+        public Vaccination Vaccination { get; init; }
         public StatsDaily(int dayFromStart, int year, int month, int day, string phase, int? performedTestsToDate, int? performedTests, int? positiveTestsToDate,
             int? positiveTests, Tests tests,
             int? femaleToDate, int? maleToDate,
