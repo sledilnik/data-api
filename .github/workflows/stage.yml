@@ -10,7 +10,7 @@ env:
   CHART_VALUES_FILE: .helm/values.stage.yml
   DEPLOY_NAMESPACE: sledilnik-stage
   DEPLOY_ENV: stagging
-  DEPLOY_URL: https://stage.api.sledilnik.org
+  DEPLOY_URL: https://api-stage.sledilnik.org
 
 jobs:
   build:
