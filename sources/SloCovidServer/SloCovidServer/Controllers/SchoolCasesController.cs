@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SloCovidServer.Controllers
 {
     [ApiController]
-    [Route("api/school-cases")]
+    [Route("api/schools")]
     public class SchoolCasesController : MetricsController<SchoolCasesController>
     {
         public SchoolCasesController(ILogger<SchoolCasesController> logger, ICommunicator communicator)

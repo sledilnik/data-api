@@ -11,7 +11,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia),
 [summary](https://api.sledilnik.org/api/summary), 
 [sewage](https://api.sledilnik.org/api/sewage) and 
-[school-cases](https://api.sledilnik.org/api/school-cases).
+[schools](https://api.sledilnik.org/api/schools).
 
 Only GET method is supported, most of endpoints support parameters `from` and `to` (both dates).
 
@@ -30,7 +30,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.10.0
 
-* Adds `school-cases.csv` to API as `/api/school-cases` endpoint
+* Adds `schools-cases.csv` to API as `/api/schools` endpoint
 * Schema version 38
 
 ## 1.9.21
