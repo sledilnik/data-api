@@ -31,6 +31,8 @@ namespace SloCovidServer.Services.Abstract
             DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<SewageDay>? Data, string raw, string ETag, long? Timestamp)> GetSewageAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)> GetSchoolCasesAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct);
         (Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate);
     }
 }

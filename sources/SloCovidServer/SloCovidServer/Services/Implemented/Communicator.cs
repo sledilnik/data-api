@@ -76,6 +76,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<DailyDeathsSlovenia> dailyDeathsSloveniaCache;
         readonly ArrayEndpointCache<AgeDailyDeathsSloveniaDay> ageDailyDeathsSloveniaCache;
         readonly ArrayEndpointCache<SewageDay> sewageCache;
+        readonly ArrayEndpointCache<SchoolCasesDay> schoolCasesCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -101,25 +102,26 @@ namespace SloCovidServer.Services.Implemented
             this.logger = logger;
             this.mapper = mapper;
             this.slackService = slackService;
-            statsCache = new ();
-            patientsCache = new ();
-            hospitalsCache = new ();
-            hospitalsListCache = new ();
-            municipalitiesListCache = new ();
-            retirementHomesListCache = new ();
-            retirementHomesCache = new ();
-            municipalityCache = new ();
-            regionCasesCache = new ();
-            healthCentersDayCache = new ();
-            statsWeeklyDayCache = new ();
-            owidCountriesCache = new ();
-            monthlyDeathsSloveniaCache = new ();
-            labTestsCache = new ();
-            dailyDeathsSloveniaCache = new ();
-            ageDailyDeathsSloveniaCache = new ();
-            sewageCache = new ();
+            statsCache = new();
+            patientsCache = new();
+            hospitalsCache = new();
+            hospitalsListCache = new();
+            municipalitiesListCache = new();
+            retirementHomesListCache = new();
+            retirementHomesCache = new();
+            municipalityCache = new();
+            regionCasesCache = new();
+            healthCentersDayCache = new();
+            statsWeeklyDayCache = new();
+            owidCountriesCache = new();
+            monthlyDeathsSloveniaCache = new();
+            labTestsCache = new();
+            dailyDeathsSloveniaCache = new();
+            ageDailyDeathsSloveniaCache = new();
+            sewageCache = new();
+            schoolCasesCache = new();
             summaryCache = new SummaryCache(default, default, default, default, default, default, default);
-            errors = new ();
+            errors = new();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
         public async Task InitialCacheRefreshAsync(CancellationToken ct)
@@ -193,12 +195,13 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
             var sewageDay = RefreshEndpointCache($"{root}/sewage.csv", sewageCache, new SewageMapper().GetFromRaw);
+            var schoolCasesDay = RefreshEndpointCache($"{root}/schools-cases.csv", schoolCasesCache, new SchoolCasesMapper().GetFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay, schoolCasesDay);
             
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -298,6 +301,11 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/sewage.csv", sewageCache, filter, ct);
+        }
+        public Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)> GetSchoolCasesAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/schools-cases.csv", schoolCasesCache, filter, ct);
         }
         public (Models.Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate)
         {
