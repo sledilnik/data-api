@@ -28,6 +28,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.10.1
+
+* Adds today data for vaccination.administered 
+* Schema version 39
+
 ## 1.10.0
 
 * Adds `schools-cases.csv` to API as `/api/schools` endpoint
