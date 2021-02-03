@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/sources/SloCovidServer/Test/SloCovidServer.Test" # Location of package manifests
+    directory: "/sources/SloCovidServer" # Location of package manifests
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
