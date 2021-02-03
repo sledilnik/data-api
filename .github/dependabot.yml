@@ -9,13 +9,10 @@ updates:
     directory: "/sources/SloCovidServer/Test/SloCovidServer.Test" # Location of package manifests
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
 
-  - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/docker" # Location of package manifests
-    schedule:
-      interval: "monthly"
