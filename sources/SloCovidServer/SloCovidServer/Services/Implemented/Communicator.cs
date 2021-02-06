@@ -77,6 +77,8 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<AgeDailyDeathsSloveniaDay> ageDailyDeathsSloveniaCache;
         readonly ArrayEndpointCache<SewageDay> sewageCache;
         readonly ArrayEndpointCache<SchoolCasesDay> schoolCasesCache;
+        readonly ArrayEndpointCache<SchoolAbsenceDay> schoolAbsencesCache;
+        readonly ArrayEndpointCache<SchoolRegimeDay> schoolRegimesCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -84,6 +86,10 @@ namespace SloCovidServer.Services.Implemented
         readonly static JsonSerializer owidSerializer;
         /// Contains summary data calculated for the most recent date
         SummaryCache summaryCache;
+        /// <summary>
+        /// Contains data for schools statuses merge
+        /// </summary>
+        SchoolsStatusesCache schoolsStatusesCache;
         static Communicator()
         {
             owidSerializer = new JsonSerializer
@@ -120,10 +126,14 @@ namespace SloCovidServer.Services.Implemented
             ageDailyDeathsSloveniaCache = new();
             sewageCache = new();
             schoolCasesCache = new();
+            schoolAbsencesCache = new();
+            schoolRegimesCache = new();
             summaryCache = new SummaryCache(default, default, default, default, default, default, default);
+            schoolsStatusesCache = new SchoolsStatusesCache(default, default, default, default, default);
             errors = new();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
+        SchoolsStatusesCache SchoolsStatusesCache => Interlocked.CompareExchange(ref schoolsStatusesCache, null, null);
         public async Task InitialCacheRefreshAsync(CancellationToken ct)
         {
             logger.LogInformation("Refreshing cache before starting");
@@ -195,14 +205,19 @@ namespace SloCovidServer.Services.Implemented
             var dailyDeathsSlovenia = RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
             var sewageDay = RefreshEndpointCache($"{root}/sewage.csv", sewageCache, new SewageMapper().GetFromRaw);
-            var schoolCasesDay = RefreshEndpointCache($"{root}/schools-cases.csv", schoolCasesCache, new SchoolCasesMapper().GetFromRaw);
+            var schoolsMapper = new SchoolsMapper();
+            var schoolCasesDay = RefreshEndpointCache($"{root}/schools-cases.csv", schoolCasesCache, schoolsMapper.GetCasesFromRaw);
+            var schoolAbsences = RefreshEndpointCache($"{root}/schools-absences.csv", schoolAbsencesCache, schoolsMapper.GetAbsencesFromRaw);
+            var schoolRegimes = RefreshEndpointCache($"{root}/schools-regimes.csv", schoolRegimesCache, schoolsMapper.GetRegimesFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             var updateSummeryTask = UpdateStatsAsync(ct);
+            await Task.WhenAll(schoolAbsences, schoolRegimes);
+            var updateSchoolsStatusesTask = UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay, schoolCasesDay);
-            
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay, schoolCasesDay, updateSchoolsStatusesTask);
+
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
         /// Calculates summary for the most recent date
@@ -217,6 +232,19 @@ namespace SloCovidServer.Services.Implemented
                     var summary = SummaryMapper.CreateSummary(null, statsCache.Cache.Data, patientsCache.Cache.Data, labTestsCache.Cache.Data);
                     Interlocked.Exchange(ref summaryCache,
                         new SummaryCache(statsCache.Cache.ETag, statsCache.Cache.Data, patientsCache.Cache.ETag, patientsCache.Cache.Data, labTestsCache.Cache.ETag, labTestsCache.Cache.Data,summary));
+                });
+            }
+        }
+        async Task UpdateSchoolsStatusesAsync(CancellationToken ct)
+        {
+            if (!string.Equals(schoolsStatusesCache.SchoolAbsencesETag, schoolAbsencesCache.Cache.ETag, StringComparison.Ordinal)
+            || !string.Equals(schoolsStatusesCache.SchoolRegimesETag, schoolRegimesCache.Cache.ETag, StringComparison.Ordinal))
+            {
+                await Task.Run(() =>
+                {
+                    var summary = SchoolsMapper.CreateSchoolsStatusesSummary(schoolAbsencesCache.Cache.Data, schoolRegimesCache.Cache.Data);
+                    Interlocked.Exchange(ref schoolsStatusesCache,
+                        new SchoolsStatusesCache(schoolAbsencesCache.Cache.ETag, schoolRegimesCache.Cache.ETag, schoolAbsencesCache.Cache.Data, schoolRegimesCache.Cache.Data, summary));
                 });
             }
         }
@@ -319,6 +347,26 @@ namespace SloCovidServer.Services.Implemented
                 if (toDate.HasValue)
                 {
                     return (SummaryMapper.CreateSummary(toDate, cache.Stats, cache.Patients, cache.LabTests), cache.ETag);
+                }
+                else
+                {
+                    return (cache.Value, cache.ETag);
+                }
+            }
+        }
+        public (ImmutableDictionary<int, SchoolStatus> Summary, string ETag) GetSchoolsStatuses(string callerEtag, ImmutableArray<int> ids)
+        {
+            var cache = SchoolsStatusesCache;
+            if (string.Equals(callerEtag, cache.ETag, StringComparison.Ordinal))
+            {
+                return (null, cache.ETag);
+            }
+            else
+            {
+                if (!ids.IsDefaultOrEmpty)
+                {
+                    var data = cache.Value.Where(p => ids.Contains(p.Key)).ToImmutableDictionary();
+                    return (data, cache.ETag);
                 }
                 else
                 {

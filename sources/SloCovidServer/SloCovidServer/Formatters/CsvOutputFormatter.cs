@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Newtonsoft.Json;
-using SloCovidServer.Models.Owid;
 using System;
 using System.Collections;
 using System.Collections.Generic;
