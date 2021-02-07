@@ -11,8 +11,9 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia),
 [summary](https://api.sledilnik.org/api/summary), 
 [sewage](https://api.sledilnik.org/api/sewage),
-[schools](https://api.sledilnik.org/api/schools) and
-[school-status](https://api.sledilnik.org/api/school-status).
+[schools](https://api.sledilnik.org/api/schools), 
+[school-status](https://api.sledilnik.org/api/school-status) and 
+[vaccinations](https://api.sledilnik.org/api/vaccinations).
 
 Only GET method is supported, most of endpoints support parameters `from` and `to` (both dates).
 
@@ -28,6 +29,11 @@ Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.12.0
+
+* Adds `vaccination.csv` to API as `/api/vaccinations` endpoint
+* Schema version 41
 
 ## 1.11.1
 

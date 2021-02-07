@@ -33,6 +33,8 @@ namespace SloCovidServer.Services.Abstract
             DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)> GetSchoolCasesAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<VaccinationDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationsAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct);
         (Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate);
         (ImmutableDictionary<string, SchoolStatus> Summary, string ETag) GetSchoolsStatuses(string callerEtag, SchoolsStatusesFilter filter);
     }

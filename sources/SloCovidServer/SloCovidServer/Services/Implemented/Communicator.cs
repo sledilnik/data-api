@@ -80,6 +80,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<SchoolCasesDay> schoolCasesCache;
         readonly ArrayEndpointCache<SchoolAbsenceDay> schoolAbsencesCache;
         readonly ArrayEndpointCache<SchoolRegimeDay> schoolRegimesCache;
+        readonly ArrayEndpointCache<VaccinationDay> vaccinationsCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
@@ -129,6 +130,7 @@ namespace SloCovidServer.Services.Implemented
             schoolCasesCache = new();
             schoolAbsencesCache = new();
             schoolRegimesCache = new();
+            vaccinationsCache = new();
             summaryCache = new SummaryCache(default, default, default, default, default, default, default);
             schoolsStatusesCache = new SchoolsStatusesCache(default, default, default, default, default);
             errors = new();
@@ -210,6 +212,7 @@ namespace SloCovidServer.Services.Implemented
             var schoolCasesDay = RefreshEndpointCache($"{root}/schools-cases.csv", schoolCasesCache, schoolsMapper.GetCasesFromRaw);
             var schoolAbsences = RefreshEndpointCache($"{root}/schools-absences.csv", schoolAbsencesCache, schoolsMapper.GetAbsencesFromRaw);
             var schoolRegimes = RefreshEndpointCache($"{root}/schools-regimes.csv", schoolRegimesCache, schoolsMapper.GetRegimesFromRaw);
+            var vaccinations = RefreshEndpointCache($"{root}/vaccination.csv", vaccinationsCache, new VaccinationMapper().GetVaccinationsFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             await UpdateStatsAsync(ct);
@@ -217,7 +220,7 @@ namespace SloCovidServer.Services.Implemented
             await UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay, vaccinations);
 
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -335,6 +338,11 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/schools-cases.csv", schoolCasesCache, filter, ct);
+        }
+        public Task<(ImmutableArray<VaccinationDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationsAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/vaccination.csv", vaccinationsCache, filter, ct);
         }
         public (Models.Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate)
         {
