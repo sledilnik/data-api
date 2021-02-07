@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
@@ -211,12 +212,12 @@ namespace SloCovidServer.Services.Implemented
             var schoolRegimes = RefreshEndpointCache($"{root}/schools-regimes.csv", schoolRegimesCache, schoolsMapper.GetRegimesFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
-            var updateSummeryTask = UpdateStatsAsync(ct);
+            await UpdateStatsAsync(ct);
             await Task.WhenAll(schoolAbsences, schoolRegimes);
-            var updateSchoolsStatusesTask = UpdateSchoolsStatusesAsync(ct);
+            await UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, updateSummeryTask, sewageDay, schoolCasesDay, updateSchoolsStatusesTask);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay);
 
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -354,7 +355,7 @@ namespace SloCovidServer.Services.Implemented
                 }
             }
         }
-        public (ImmutableDictionary<int, SchoolStatus> Summary, string ETag) GetSchoolsStatuses(string callerEtag, ImmutableArray<int> ids)
+        public (ImmutableDictionary<string, SchoolStatus> Summary, string ETag) GetSchoolsStatuses(string callerEtag, SchoolsStatusesFilter filter)
         {
             var cache = SchoolsStatusesCache;
             if (string.Equals(callerEtag, cache.ETag, StringComparison.Ordinal))
@@ -363,9 +364,25 @@ namespace SloCovidServer.Services.Implemented
             }
             else
             {
-                if (!ids.IsDefaultOrEmpty)
+                if (!filter.IsEmpty)
                 {
-                    var data = cache.Value.Where(p => ids.Contains(p.Key)).ToImmutableDictionary();
+                    var data = cache.Value;
+                    if (!filter.Schools.IsDefaultOrEmpty)
+                    {
+                        data = data.Where(p => filter.Schools.Contains(p.Key)).ToImmutableDictionary();
+                    }
+                    if (filter.From.HasValue || filter.To.HasValue)
+                    {
+                        data = data.Select(p =>
+                        {
+                            return new KeyValuePair<string, SchoolStatus>(p.Key, 
+                                p.Value with { 
+                                    Absences = FilterData(p.Value.Absences, filter),
+                                    Regimes = FilterData(p.Value.Regimes, filter)
+                                }
+                            );
+                        }).ToImmutableDictionary();
+                    }
                     return (data, cache.ETag);
                 }
                 else

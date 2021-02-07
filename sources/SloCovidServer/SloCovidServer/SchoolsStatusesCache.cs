@@ -10,9 +10,9 @@ namespace SloCovidServer
         public ImmutableArray<SchoolAbsenceDay> Absences { get; }
         public ImmutableArray<SchoolRegimeDay> Regimes { get; }
         public string ETag { get; }
-        public ImmutableDictionary<int, SchoolStatus> Value { get; }
+        public ImmutableDictionary<string, SchoolStatus> Value { get; }
         public SchoolsStatusesCache(string schoolAbsencesETag, string schoolRegimesETag, ImmutableArray<SchoolAbsenceDay> absences, ImmutableArray<SchoolRegimeDay> regimes,
-            ImmutableDictionary<int, SchoolStatus> value)
+            ImmutableDictionary<string, SchoolStatus> value)
         {
             SchoolAbsencesETag = schoolAbsencesETag;
             SchoolRegimesETag = schoolRegimesETag;

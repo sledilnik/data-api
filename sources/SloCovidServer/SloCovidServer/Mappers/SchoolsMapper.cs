@@ -72,7 +72,7 @@ namespace SloCovidServer.Mappers
                     AbsentFrom: GetDate(fields[absentFromIndex]),
                     AbsentTo: GetDate(fields[absentToIndex]),
                     SchoolType: fields[schoolTypeIndex],
-                    School: GetInt(fields[schoolIndex]).Value,
+                    School: fields[schoolIndex],
                     PersonType: fields[personTypeIndex],
                     PersonClass: fields[personClassIndex],
                     Reason: fields[reasonIndex]
@@ -103,7 +103,7 @@ namespace SloCovidServer.Mappers
                     ChangedFrom: GetDate(fields[changedFromIndex]),
                     ChangedTo: GetDate(fields[changedToIndex]),
                     SchoolType: fields[schoolTypeIndex],
-                    School: GetInt(fields[schoolIndex]).Value,
+                    School: fields[schoolIndex],
                     PersonClass: fields[personClassIndex],
                     Attendees: GetInt(fields[attendeesIndex]),
                     Regime: fields[regimeIndex],
@@ -113,12 +113,12 @@ namespace SloCovidServer.Mappers
             }
             return result.ToImmutableArray();
         }
-        public static ImmutableDictionary<int, SchoolStatus> CreateSchoolsStatusesSummary(ImmutableArray<SchoolAbsenceDay> absences, ImmutableArray<SchoolRegimeDay> regimes)
+        public static ImmutableDictionary<string, SchoolStatus> CreateSchoolsStatusesSummary(ImmutableArray<SchoolAbsenceDay> absences, ImmutableArray<SchoolRegimeDay> regimes)
         {
             var groupedAbsences = absences.GroupBy(d => d.School, d => d).ToDictionary(g => g.Key, g => g.ToImmutableArray());
             var groupedRegimes = regimes.GroupBy(d => d.School, d => d).ToDictionary(g => g.Key, g => g.ToImmutableArray());
 
-            var result = new Dictionary<int, SchoolStatus>();
+            var result = new Dictionary<string, SchoolStatus>();
             foreach (var ga in groupedAbsences)
             {
                 if (!result.TryGetValue(ga.Key, out var status))

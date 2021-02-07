@@ -29,6 +29,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.11.1
+
+* Adds from/to filter to `api/school-status` endpoint
+* Changes school property to string in `api/school-status` endpoint
+
 ## 1.11.0
 
 * Adds `api/school-status` endpoint. It combines `schools-absences.csv` and `schools-regimes.csv` data into single source. Filtering on schools is available through argument id in URL.
