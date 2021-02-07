@@ -10,7 +10,6 @@ namespace SloCovidServer.Mappers
     {
         public ImmutableArray<VaccinationDay> GetVaccinationsFromRaw(string raw)
         {
-            VaccinationData GetData(int? today, int? toDate) => today.HasValue || toDate.HasValue ? new VaccinationData(today, toDate) : null;
             string[] lines = raw.Split('\n');
             var header = ParseHeader(lines[0]);
             int dateIndex = header["date"];
@@ -38,8 +37,8 @@ namespace SloCovidServer.Mappers
                     .Where(v => v.Value.HasValue)
                     .ToImmutableDictionary(v => v.Manufacturer, v => v.Value.Value);
                 var item = new VaccinationDay(date.Year, date.Month, date.Day,
-                    Administered: GetData(GetInt(fields[administeredIndex]), GetInt(fields[administeredToDateIndex])),
-                    Administered2nd: GetData(GetInt(fields[administered2ndIndex]), GetInt(fields[administered2ndToDateIndex])),
+                    Administered: new VaccinationData(GetInt(fields[administeredIndex]), GetInt(fields[administeredToDateIndex])),
+                    Administered2nd: new VaccinationData(GetInt(fields[administered2ndIndex]), GetInt(fields[administered2ndToDateIndex])),
                     UsedToDate: GetInt(fields[usedToDateIndex]),
                     DeliveredToDate: GetInt(fields[deliveredToDateIndex]),
                     deliveredByManufacturer
