@@ -128,7 +128,7 @@ namespace SloCovidServer.Mappers
                 }
                 else
                 {
-                    status = status with { Absences = status.Absences.AddRange(ga.Value) };
+                    result[ga.Key] = status with { Absences = status.Absences.AddRange(ga.Value) };
                 }
             }
             foreach (var gr in groupedRegimes)
@@ -140,7 +140,7 @@ namespace SloCovidServer.Mappers
                 }
                 else
                 {
-                    status = status with { Regimes = status.Regimes.AddRange(gr.Value) };
+                    result[gr.Key] = status with { Regimes = status.Regimes.AddRange(gr.Value) };
                 }
             }
             return result.ToImmutableDictionary();
