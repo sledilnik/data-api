@@ -68,6 +68,7 @@ namespace SloCovidServer
                         Url = "https://raw.githubusercontent.com/slo-covid-19/data-api/master/LICENSE"
                     };
                 };
+                config.UseRouteNameAsOperationId = true;
             });
             // don't include null value properties in JSON content to limit content payload
             services.AddMvc(options =>
