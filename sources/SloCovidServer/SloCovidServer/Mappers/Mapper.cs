@@ -114,10 +114,12 @@ namespace SloCovidServer.Mappers
         internal Models.Date GetDate(string text)
         {
             string[] parts = text.Split('-');
+            // in case date contains TimeZone
+            string day = parts[2].Contains('T') ? parts[2].Split('T')[0] : parts[0];
             return new Models.Date(
                 year: ParseInt(parts[0]),
                 month: ParseInt(parts[1]),
-                day: ParseInt(parts[2])
+                day: ParseInt(day)
             );
         }
 
