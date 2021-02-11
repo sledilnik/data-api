@@ -30,6 +30,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.12.1
+
+* Returns only results with absences and/or regimes when filtering school-status by date
+* Makes date parsing tolerant to included time
+
 ## 1.12.0
 
 * Adds `vaccination.csv` to API as `/api/vaccinations` endpoint
