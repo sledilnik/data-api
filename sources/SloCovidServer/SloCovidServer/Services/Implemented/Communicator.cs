@@ -533,7 +533,7 @@ namespace SloCovidServer.Services.Implemented
                         sync.Cache = new ETagCacheItem<TData>(newETag, null, data, null);
                     }
                 }
-                else
+                else if (response.StatusCode != System.Net.HttpStatusCode.NotModified)
                 {
                     logger.LogError("Failed loading {url} because of status code {status_code}", url, response.StatusCode);
                     _ = ProcessErrorAsync(url, response.ReasonPhrase);
