@@ -389,7 +389,10 @@ namespace SloCovidServer.Services.Implemented
                                     Regimes = FilterData(p.Value.Regimes, filter)
                                 }
                             );
-                        }).ToImmutableDictionary();
+                        })
+                            // returns only those that have at least one absence or at least on regime
+                            .Where(d => !d.Value.Absences.IsDefaultOrEmpty || !d.Value.Regimes.IsDefaultOrEmpty)
+                            .ToImmutableDictionary();
                     }
                     return (data, cache.ETag);
                 }
