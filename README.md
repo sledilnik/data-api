@@ -1,18 +1,18 @@
 # slo-covid-19 rest-server
-Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://api.sledilnik.org/api/stats), 
-[regions](https://api.sledilnik.org/api/regions), [patients](https://api.sledilnik.org/api/patients), 
-[hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list), 
-[municipalities-list](https://api.sledilnik.org/api/municipalities-list), 
+Provides REST API to data collected in [csv files](https://github.com/slo-covid-19/data). The sources are [stats](https://api.sledilnik.org/api/stats),
+[regions](https://api.sledilnik.org/api/regions), [patients](https://api.sledilnik.org/api/patients),
+[hospitals](https://api.sledilnik.org/api/hospitals), [hospitals-list](https://api.sledilnik.org/api/hospitals-list),
+[municipalities-list](https://api.sledilnik.org/api/municipalities-list),
 [municipalities](https://api.sledilnik.org/api/municipalities),
 [health-centers](https://api.sledilnik.org/api/health-centers), [owid](https://api.sledilnik.org/api/owid),
-[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia), 
-[lab-tests](https://api.sledilnik.org/api/lab-tests), 
-[daily-deaths-slovenia](https://api.sledilnik.org/api/daily-deaths-slovenia), 
+[monthly_deaths_slovenia](https://api.sledilnik.org/api/monthly-deaths-slovenia),
+[lab-tests](https://api.sledilnik.org/api/lab-tests),
+[daily-deaths-slovenia](https://api.sledilnik.org/api/daily-deaths-slovenia),
 [age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia),
-[summary](https://api.sledilnik.org/api/summary), 
+[summary](https://api.sledilnik.org/api/summary),
 [sewage](https://api.sledilnik.org/api/sewage),
-[schools](https://api.sledilnik.org/api/schools), 
-[school-status](https://api.sledilnik.org/api/school-status) and 
+[schools](https://api.sledilnik.org/api/schools),
+[school-status](https://api.sledilnik.org/api/school-status) and
 [vaccinations](https://api.sledilnik.org/api/vaccinations).
 
 Only GET method is supported, most of endpoints support parameters `from` and `to` (both dates).
@@ -29,6 +29,10 @@ Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.12.2
+
+* Sewage: fix parsing float numbers with exponent
 
 ## 1.12.1
 
@@ -52,7 +56,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.10.1
 
-* Adds today data for vaccination.administered 
+* Adds today data for vaccination.administered
 * Schema version 39
 
 ## 1.10.0
@@ -106,7 +110,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 ## 1.9.13
 
 * stats: remove obsolete recovered field
-* weekly-stats: remove vaccination field (now only in daily) 
+* weekly-stats: remove vaccination field (now only in daily)
 * municipalities: switch to municipality-cases.csv
 * regions: switch to municipality-confirmed.csv (obsolete)
 * deceased-regions: switch to municipality-deceased.csv (obsolete)
@@ -114,14 +118,14 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.9.12
 
-* Switch VaccinationSummary to daily numbers 
-* Updates stats with vaccination.administered 
+* Switch VaccinationSummary to daily numbers
+* Updates stats with vaccination.administered
 * Schema version 29
 
 ## 1.9.11
 
-* Add simple VaccinationSummary to summary 
-* Updates stats-weekly with vaccination.administered 
+* Add simple VaccinationSummary to summary
+* Updates stats-weekly with vaccination.administered
 * Schema version 28
 
 ## 1.9.10

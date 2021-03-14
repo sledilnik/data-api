@@ -104,7 +104,7 @@ namespace SloCovidServer.Mappers
         }
         internal float? GetFloat(string text)
         {
-            if (float.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float result))
+            if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float result))
             {
                 return result;
             }
