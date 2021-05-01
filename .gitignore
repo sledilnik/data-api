@@ -129,3 +129,5 @@ Artwork
 /tools/**
 !/tools/packages.config
 .cr/
+.fake
+.ionide
