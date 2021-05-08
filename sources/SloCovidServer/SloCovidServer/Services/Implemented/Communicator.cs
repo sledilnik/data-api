@@ -76,6 +76,9 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<LabTestDay> labTestsCache;
         readonly ArrayEndpointCache<DailyDeathsSlovenia> dailyDeathsSloveniaCache;
         readonly ArrayEndpointCache<AgeDailyDeathsSloveniaDay> ageDailyDeathsSloveniaCache;
+        readonly ArrayEndpointCache<VaccinationByAgeDay> vaccinationByAgeCache;
+        readonly ArrayEndpointCache<VaccinationByRegionDay> vaccinationByRegionCache;
+        readonly ArrayEndpointCache<VaccinationByMunicipalityDay> vaccinationByMunicipalityCache;
         readonly ArrayEndpointCache<SewageDay> sewageCache;
         readonly ArrayEndpointCache<SchoolCasesDay> schoolCasesCache;
         readonly ArrayEndpointCache<SchoolAbsenceDay> schoolAbsencesCache;
@@ -126,6 +129,9 @@ namespace SloCovidServer.Services.Implemented
             labTestsCache = new();
             dailyDeathsSloveniaCache = new();
             ageDailyDeathsSloveniaCache = new();
+            vaccinationByAgeCache = new();
+            vaccinationByRegionCache = new();
+            vaccinationByMunicipalityCache = new();
             sewageCache = new();
             schoolCasesCache = new();
             schoolAbsencesCache = new();
@@ -207,6 +213,9 @@ namespace SloCovidServer.Services.Implemented
             var labTests = RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
             var dailyDeathsSlovenia = RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
             var ageDeathsDeathSloveniaDay = RefreshEndpointCache($"{root}/daily_deaths_slovenia_by_age.csv", ageDailyDeathsSloveniaCache, new AgeDailyDeathsSloveniaMapper().GetFromRaw);
+            var vaccinationByAge = RefreshEndpointCache($"{root}/vaccination-by_age.csv", vaccinationByAgeCache, new VaccinationByAgeMapper().GetFromRaw);
+            var vaccinationByRegion = RefreshEndpointCache($"{root}/vaccination-by_region.csv", vaccinationByRegionCache, new VaccinationByRegionMapper().GetFromRaw);
+            var vaccinationByMunicipality = RefreshEndpointCache($"{root}/vaccination-by_municipality.csv", vaccinationByMunicipalityCache, new VaccinationByMunicipalityMapper().GetFromRaw);
             var sewageDay = RefreshEndpointCache($"{root}/sewage.csv", sewageCache, new SewageMapper().GetFromRaw);
             var schoolsMapper = new SchoolsMapper();
             var schoolCasesDay = RefreshEndpointCache($"{root}/schools-cases.csv", schoolCasesCache, schoolsMapper.GetCasesFromRaw);
@@ -220,7 +229,8 @@ namespace SloCovidServer.Services.Implemented
             await UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay, vaccinations);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, vaccinationByAge, vaccinationByRegion, vaccinationByMunicipality, 
+                sewageDay, schoolCasesDay, vaccinations);
 
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -328,6 +338,21 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/age_daily_deaths_slovenia.csv", ageDailyDeathsSloveniaCache, filter, ct);
+        }
+        public Task<(ImmutableArray<VaccinationByAgeDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationByAgeAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/vaccination-by_age.csv", vaccinationByAgeCache, filter, ct);
+        }
+        public Task<(ImmutableArray<VaccinationByRegionDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationByRegionAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/vaccination-by_region.csv", vaccinationByRegionCache, filter, ct);
+        }
+        public Task<(ImmutableArray<VaccinationByMunicipalityDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationByMunicipalityAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/vaccination-by_municipality.csv", vaccinationByMunicipalityCache, filter, ct);
         }
         public Task<(ImmutableArray<SewageDay>? Data, string raw, string ETag, long? Timestamp)> GetSewageAsync(string callerEtag,
             DataFilter filter, CancellationToken ct)
