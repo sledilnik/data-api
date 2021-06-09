@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Diagnostics;
 
 namespace SloCovidServer.Mappers
 {
@@ -125,4 +126,29 @@ namespace SloCovidServer.Mappers
 
         int ParseInt(string text) => int.Parse(text.Replace(".", ""), CultureInfo.InvariantCulture);
     }
+
+    [DebuggerDisplay("{Key,nq}")]
+    public record AgeBucketMeta
+    {
+        public string Key { get; }
+        public string TargetName { get; }
+        public int? AgeFrom { get; }
+        public int? AgeTo { get; }
+        public AgeBucketMeta(int ageFrom, int? ageTo)
+        {
+            AgeFrom = ageFrom;
+            AgeTo = ageTo;
+            if (ageTo.HasValue)
+            {
+                TargetName = $"from{ageFrom}to{ageTo}";
+                Key = $"{AgeFrom}-{AgeTo}";
+            }
+            else
+            {
+                TargetName = $"above{ageFrom}";
+                Key = $"{AgeFrom}+";
+            }
+        }
+    }
+
 }

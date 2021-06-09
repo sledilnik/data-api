@@ -32,7 +32,8 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.13.0
 
-* Vaccination: add used by manufacturer
+* Vaccinations: add used by manufacturer
+* Vaccinations: add administered by age groups
 
 ## 1.12.2
 

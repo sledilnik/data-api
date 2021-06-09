@@ -3,11 +3,26 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using SloCovidServer.Mappers;
 
 namespace SloCovidServer.Mappers
 {
     public class VaccinationMapper : Mapper
     {
+        static readonly ImmutableArray<AgeBucketMeta> ageBuckets;
+        static readonly int[] ageBucketRanges = new[] { 17, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89 };
+
+        static VaccinationMapper()
+        {
+            ageBuckets = ImmutableArray<AgeBucketMeta>.Empty;
+            int start = 0;
+            foreach (int r in ageBucketRanges)
+            {
+                ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, r));
+                start = r + 1;
+            }
+            ageBuckets = ageBuckets.Add(new AgeBucketMeta(start, null));
+        }
         public ImmutableArray<VaccinationDay> GetVaccinationsFromRaw(string raw)
         {
             string[] lines = raw.Split('\n');
@@ -48,13 +63,25 @@ namespace SloCovidServer.Mappers
                     .Select(i => new { Manufacturer = i.Manufacturer, Value = GetInt(fields[i.Index]) })
                     .Where(v => v.Value.HasValue)
                     .ToImmutableDictionary(v => v.Manufacturer, v => v.Value.Value);
+                var perAgeVaccinated = ImmutableArray<PerAgeBucket>.Empty;
+                foreach (var bucket in ageBuckets)
+                {
+                    var perAge = new PerAgeBucket(
+                        bucket.AgeFrom,
+                        bucket.AgeTo,
+                        GetInt($"vaccination.age.{bucket.Key}.1st.todate", header, fields),
+                        GetInt($"vaccination.age.{bucket.Key}.2nd.todate", header, fields)
+                    );
+                    perAgeVaccinated = perAgeVaccinated.Add(perAge);
+                }
                 var item = new VaccinationDay(date.Year, date.Month, date.Day,
                     Administered: new VaccinationData(GetInt(fields[administeredIndex]), GetInt(fields[administeredToDateIndex])),
                     Administered2nd: new VaccinationData(GetInt(fields[administered2ndIndex]), GetInt(fields[administered2ndToDateIndex])),
                     UsedToDate: GetInt(fields[usedToDateIndex]),
                     UsedByManufacturer: usedByManufacturer,
                     DeliveredToDate: GetInt(fields[deliveredToDateIndex]),
-                    DeliveredByManufacturer: deliveredByManufacturer
+                    DeliveredByManufacturer: deliveredByManufacturer,
+                    perAgeVaccinated
                 );
                 result.Add(item);
             }

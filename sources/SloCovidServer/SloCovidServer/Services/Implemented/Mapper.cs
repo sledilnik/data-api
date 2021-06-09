@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using SloCovidServer.Mappers;
 
 namespace SloCovidServer.Services.Implemented
 {
@@ -105,7 +105,7 @@ namespace SloCovidServer.Services.Implemented
             var result = lines.Skip(1).Where(l => !string.IsNullOrWhiteSpace(l))
                 .Select(l => GetHospitalFromRaw(idIndex, nameIndex, urlIndex, l))
                 .ToImmutableArray();
-            
+
             return result;
         }
 
@@ -200,12 +200,12 @@ namespace SloCovidServer.Services.Implemented
             }
             return meta;
         }
-        RetirementHomesDay GetRetirementHomesDayFromRaw(int dateIndex, int totalIndex, int employeeIndex, int occupantIndex, 
+        RetirementHomesDay GetRetirementHomesDayFromRaw(int dateIndex, int totalIndex, int employeeIndex, int occupantIndex,
             ImmutableArray<RetirementHomeMeta> meta, string line)
         {
             var fields = ParseLine(line);
             var date = GetDate(fields[dateIndex]);
-            var homes = meta.Select(m => 
+            var homes = meta.Select(m =>
                 new RetirementHomeDay(m.Id,
                     m.TotalIndex.HasValue ? GetInt(fields[m.TotalIndex.Value]): null,
                     m.EmployeeIndex.HasValue ? GetInt(fields[m.EmployeeIndex.Value]): null,
@@ -213,9 +213,9 @@ namespace SloCovidServer.Services.Implemented
                 )
             )
             .ToImmutableArray();
-            
+
             return new RetirementHomesDay(
-                date.Year, 
+                date.Year,
                 date.Month,
                 date.Day,
                 GetInt(fields[totalIndex]),
@@ -247,7 +247,7 @@ namespace SloCovidServer.Services.Implemented
                 perHospital.Add(hospital, GetHospitalDay(hospital, header, fields));
             }
             return new HospitalsDay(
-                date.Year, date.Month, date.Day, 
+                date.Year, date.Month, date.Day,
                 overall: GetHospitalDay(null, header, fields),
                 perHospital: perHospital.ToImmutableDictionary()
             );
@@ -627,30 +627,6 @@ namespace SloCovidServer.Services.Implemented
                 result.Add(row.ToImmutableArray());
             }
             return result.ToImmutableArray();
-        }
-    }
-
-    [DebuggerDisplay("{Key,nq}")]
-    public record AgeBucketMeta
-    {
-        public string Key { get; }
-        public string TargetName { get; }
-        public int? AgeFrom { get; }
-        public int? AgeTo { get; }
-        public AgeBucketMeta(int ageFrom, int? ageTo)
-        {
-            AgeFrom = ageFrom;
-            AgeTo = ageTo;
-            if (ageTo.HasValue)
-            {
-                TargetName = $"from{ageFrom}to{ageTo}";
-                Key = $"{AgeFrom}-{AgeTo}";
-            }
-            else
-            {
-                TargetName = $"above{ageFrom}";
-                Key = $"{AgeFrom}+";
-            }
         }
     }
 
