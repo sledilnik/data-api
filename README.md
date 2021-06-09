@@ -30,6 +30,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.13.0
+
+* Vaccination: add used by manufacturer
+
 ## 1.12.2
 
 * Sewage: fix parsing float numbers with exponent

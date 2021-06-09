@@ -16,7 +16,7 @@ namespace SloCovidServer
 {
     public class Startup
     {
-        const string SchemaVersion = "42";
+        const string SchemaVersion = "43";
         const string CorsPolicy = "Any";
         readonly IWebHostEnvironment env;
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
@@ -108,7 +108,7 @@ namespace SloCovidServer
             {
                 app.UseDeveloperExceptionPage();
             }
-           
+
             app.UseRouting();
             app.UseCors(CorsPolicy);
             app.UseResponseCompression();
