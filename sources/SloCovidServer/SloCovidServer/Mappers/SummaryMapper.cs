@@ -12,13 +12,14 @@ namespace SloCovidServer.Mappers
             var vaccinationToDate = GetVaccinationToDate(toDate, stats);
             var casesToDate = GetCasesToDate(toDate, stats);
             var casesActive = GetCasesActive(toDate, stats);
+            var casesActive100k = GetCasesActive100k(toDate, stats);
             var hospitalizedCurrent = GetHospitalizedCurrent(toDate, patients);
             var icuCurrent = GetIcuCurrent(toDate, patients);
             var deceasedToDay = GetDeceasedToDay(toDate, patients);
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
             var testsToday = GetTestsToday(toDate, labTests);
             var testsTodayHAT = GetTestsTodayHAT(toDate, labTests);
-            return new Summary(vaccinationToDate, casesToDate, casesActive, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
+            return new Summary(vaccinationToDate, casesToDate, casesActive, casesActive100k, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
         }
         internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
@@ -133,6 +134,24 @@ namespace SloCovidServer.Mappers
                 return null;
             }
         }
+        internal static CasesActive100k GetCasesActive100k(DateTime? toDate, ImmutableArray<StatsDaily> stats)
+        {
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.Cases?.Active != null);
+            if (lastStats.HasValue)
+            {
+                float? currentActive = CalculatePer100k (lastStats.Value.Last.Cases.Active);
+                float? previousActive = CalculatePer100k (lastStats.Value.Previous?.Cases?.Active);
+                return new CasesActive100k(
+                                    currentActive,
+                                    Sublabel: true,
+                                    CalculateDifference(currentActive, previousActive),
+                                    lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         internal static CasesToDateSummary GetCasesToDate(DateTime? toDate, ImmutableArray<StatsDaily> stats)
         {
@@ -177,13 +196,13 @@ namespace SloCovidServer.Mappers
             if (lastStats.HasValue)
             {
                 int? vaccinated1st = lastStats.Value.Last.Vaccination.Administered.ToDate;
-                int? vaccinated2nd = lastStats.Value.Last.Vaccination.Administered2nd.ToDate;
-                float? percentVaccinated = CalculatePopulationPercent(vaccinated1st);
+                int? vaccinatedFully = lastStats.Value.Last.Vaccination.Administered2nd.ToDate;
+                float? percentVaccinated = CalculatePopulationPercent(vaccinatedFully);
 
                 return new VaccinationSummary(
-                    vaccinated1st,
-                    new VaccinationSummarySubValues(vaccinated2nd, percentVaccinated),
-                    default, 
+                    vaccinatedFully,
+                    new VaccinationSummarySubValues(vaccinated1st, percentVaccinated),
+                    default,
                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
             else
@@ -191,12 +210,22 @@ namespace SloCovidServer.Mappers
                 return null;
             }
         }
+        static readonly int populationSlovenia = 2100126; // SURS 2020H2
+
+        internal static float? CalculatePer100k(int? value)
+        {
+            if (value.HasValue)
+            {
+                return (float)Math.Round(((float)value.Value * (float)100000 / (float)populationSlovenia), 3);
+            }
+            return null;
+        }
 
         internal static float? CalculatePopulationPercent(float? value)
         {
             if (value.HasValue)
             {
-                return (float)Math.Round((value.Value / (double)2100126) * 100, 3);
+                return (float)Math.Round((value.Value / (float)populationSlovenia) * 100, 3);
             }
             return null;
         }

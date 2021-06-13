@@ -30,6 +30,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.13.1
+
+* Vaccination info card: only show fully vaccinated
+* Active100k info card: 14-day incidence
+
 ## 1.13.0
 
 * Vaccinations: add used by manufacturer
