@@ -210,7 +210,7 @@ namespace SloCovidServer.Mappers
                 return null;
             }
         }
-        static readonly int populationSlovenia = 2100126; // SURS 2020H2
+        static readonly int populationSlovenia = 2108977; // SURS 2021H1
 
         internal static float? CalculatePer100k(int? value)
         {
