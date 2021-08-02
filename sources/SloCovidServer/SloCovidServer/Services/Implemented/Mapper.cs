@@ -358,7 +358,8 @@ namespace SloCovidServer.Services.Implemented
                     GetInt("cases.rh.employee.confirmed.todate", header, fields),
                     GetInt("cases.rh.occupant.confirmed.todate", header, fields)
                 ),
-                new UnclassifiedCases(GetInt("cases.unclassified.confirmed.todate", header, fields))
+                new UnclassifiedCases(GetInt("cases.unclassified.confirmed.todate", header, fields)),
+                GetInt("cases.vaccinated.confirmed.todate", header, fields)
             );
             var perTreatment = new PerTreatment(
                 GetInt("state.in_hospital", header, fields),

@@ -30,9 +30,13 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.13.3
+
+* stats: added vaccinated confirmed cases
+
 ## 1.13.2
 
-* Pupulation update to SURS 2021/H1
+* Population update to SURS 2021/H1
 
 ## 1.13.1
 

@@ -97,8 +97,9 @@ namespace SloCovidServer.Models
         public HealthSystemSCases HS { get; init; }
         public RetirementHomeCases RH { get; init; }
         public UnclassifiedCases Unclassified { get; init; }
+        public int? VaccinatedConfirmedToDate { get; init; }
         public Cases(int? confirmedToday, int? confirmedToDate, int? recoveredToDate, int? closedToDate, int? active, HealthSystemSCases hs, RetirementHomeCases rh,
-            UnclassifiedCases unclassified)
+            UnclassifiedCases unclassified, int? vaccinatedConfirmedToDate)
         {
             ConfirmedToday = confirmedToday;
             ConfirmedToDate = confirmedToDate;
@@ -108,6 +109,7 @@ namespace SloCovidServer.Models
             HS = hs;
             RH = rh;
             Unclassified = unclassified;
+            VaccinatedConfirmedToDate = vaccinatedConfirmedToDate;
         }
     }
     public record UnclassifiedCases
@@ -144,7 +146,7 @@ namespace SloCovidServer.Models
         }
     }
     public record Vaccination
-    {                
+    {
         public TodayToDate Administered { get; init; }
         public TodayToDate Administered2nd { get; init; }
         public TodayToDate Used { get; init; }
