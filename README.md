@@ -30,6 +30,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.13.4
+
+* stats-weekly: added vaccinated hospitalized cases
+
 ## 1.13.3
 
 * stats: added vaccinated confirmed cases

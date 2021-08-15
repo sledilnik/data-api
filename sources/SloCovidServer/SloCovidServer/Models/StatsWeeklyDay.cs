@@ -11,6 +11,8 @@ namespace SloCovidServer.Models
         public int Month { get; init; }
         public int Day { get; init; }
         public Date To { get; init; }
+        public int? HospitalizedVaccinated { get; init; }
+        public int? HospitalizedOther { get; init; }
         public int? Confirmed { get; init; }
         public int? Investigated { get; init; }
         public int? Healthcare { get; init; }
@@ -22,9 +24,9 @@ namespace SloCovidServer.Models
         public ImmutableDictionary<string, int?> Source { get; init; }
         public ImmutableDictionary<string, int?> From { get; init; }
         public ImmutableDictionary<string, int?> Locations { get; init; }
-        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? confirmed, int? investigated, 
+        public StatsWeeklyDay(string week, int year, int month, int day, Date to, int? hospitalizedVaccinated, int? hospitalizedOther,int? confirmed, int? investigated,
             int? healthcare, int? healthcareMale, int? healthcareFemale,int? rhOccupant,
-            StatsWeeklySentTo sentTo, 
+            StatsWeeklySentTo sentTo,
             ImmutableDictionary<string, int?> source,ImmutableDictionary<string, int?> from, ImmutableDictionary<string, int?> locations)
         {
             Week = week;
@@ -32,6 +34,8 @@ namespace SloCovidServer.Models
             Month = month;
             Day = day;
             To = to;
+            HospitalizedVaccinated = hospitalizedVaccinated;
+            HospitalizedOther = hospitalizedOther;
             Confirmed = confirmed;
             Investigated = investigated;
             Healthcare = healthcare;
