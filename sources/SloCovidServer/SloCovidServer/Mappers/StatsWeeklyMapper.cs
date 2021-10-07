@@ -15,6 +15,10 @@ namespace SloCovidServer.Mappers
             int dateToIndex = header["date.to"];
             int weekHospitalizedVaccinatedIndex = header["week.hospitalized.vaccinated"];
             int weekHospitalizedOtherIndex = header["week.hospitalized.other"];
+            int weekIcuVaccinatedIndex = header["week.icu.vaccinated"];
+            int weekIcuVaccinatedPartiallyIndex = header["week.icu.vaccinatedpartially"];
+            int weekIcuRecoveredIndex = header["week.icu.recovered"];
+            int weekIcuOtherIndex = header["week.icu.other"];
             int weekConfirmedIndex = header["week.confirmed"];
             int weekInvestigatedIndex = header["week.investigated"];
             int weekHealthcareIndex = header["week.healthcare"];
@@ -65,6 +69,10 @@ namespace SloCovidServer.Mappers
                 dateTo,
                 GetInt(fields[weekHospitalizedVaccinatedIndex]),
                 GetInt(fields[weekHospitalizedOtherIndex]),
+                GetInt(fields[weekIcuVaccinatedIndex]),
+                GetInt(fields[weekIcuVaccinatedPartiallyIndex]),
+                GetInt(fields[weekIcuRecoveredIndex]),
+                GetInt(fields[weekIcuOtherIndex]),
                 GetInt(fields[weekConfirmedIndex]),
                 GetInt(fields[weekInvestigatedIndex]),
                 GetInt(fields[weekHealthcareIndex]),
