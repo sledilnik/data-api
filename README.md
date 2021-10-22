@@ -30,6 +30,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.14
+
+* Vaccination: added 3rd dose
+* Schema version 45
+
 ## 1.13.5
 
 * stats-weekly: added vaccinated icu cases

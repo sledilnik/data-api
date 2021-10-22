@@ -388,7 +388,8 @@ namespace SloCovidServer.Services.Implemented
                     bucket.AgeTo,
                     GetInt($"age.{bucket.Key}.todate", header, fields),
                     GetInt($"age.female.{bucket.Key}.todate", header, fields),
-                    GetInt($"age.male.{bucket.Key}.todate", header, fields)
+                    GetInt($"age.male.{bucket.Key}.todate", header, fields),
+                    null, null, null
                 );
                 perAgeSum = perAgeSum.Add(perAge);
             }
@@ -400,7 +401,8 @@ namespace SloCovidServer.Services.Implemented
                     bucket.AgeTo,
                     GetInt($"deceased.{bucket.Key}.todate", header, fields),
                     GetInt($"deceased.female.{bucket.Key}.todate", header, fields),
-                    GetInt($"deceased.male.{bucket.Key}.todate", header, fields)
+                    GetInt($"deceased.male.{bucket.Key}.todate", header, fields),
+                    null, null, null
                 );
                 deceasedPerAge = deceasedPerAge.Add(perAge);
             }
@@ -465,6 +467,10 @@ namespace SloCovidServer.Services.Implemented
                     administered2nd: new TodayToDate(
                         GetInt("vaccination.administered2nd", header, fields),
                         GetInt("vaccination.administered2nd.todate", header, fields)
+                    ),
+                    administered3rd: new TodayToDate(
+                        GetInt("vaccination.administered3rd", header, fields),
+                        GetInt("vaccination.administered3rd.todate", header, fields)
                     ),
                     used: new TodayToDate(
                         null,
