@@ -125,6 +125,50 @@ namespace SloCovidServer.Mappers
         }
 
         int ParseInt(string text) => int.Parse(text.Replace(".", ""), CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// Collects all age values that are prefixed by <paramref name="root"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="header"></param>
+        /// <param name="fields"></param>
+        /// <param name="root"></param>
+        /// <param name="parseValue"></param>
+        /// <returns></returns>
+        /// <example>
+        /// Will collect following values
+        /// episari.covid.in.age.mean,
+        /// episari.covid.in.age.00-04,
+        /// episari.covid.in.age.05-14,
+        /// ...
+        /// when <paramref name="root"/> is episari.covid.in.age
+        /// </example>
+        internal ImmutableDictionary<string, T> CollectAgeValues<T>(ImmutableDictionary<string, int> header, ImmutableArray<string> fields,
+            string root, Func<string, (bool HasValue, T Value)> parseValue)
+        {
+            const int DefaultCapacity = 12;
+            var result = new Dictionary<string, T>(DefaultCapacity);
+            foreach (var pair in header
+                .Where(v => v.Key.Length > root.Length && v.Key.StartsWith(root, StringComparison.Ordinal)))
+            {
+                var age = pair.Key.AsSpan()[(root.Length+1)..];
+                if (!age.Contains('.'))
+                {
+                    var (hasValue, value) = parseValue(fields[pair.Value]);
+                    if (hasValue)
+                    {
+                        result.Add(age.ToString(), value);
+                    }
+                }
+            }
+            return result.ToImmutableDictionary();
+        }
+
+        internal (bool HasValue, int Value) GetIntAgeValue(string text)
+        {
+            int? value = GetInt(text);
+            return (value.HasValue, value ?? default);
+        }
     }
 
     [DebuggerDisplay("{Key,nq}")]

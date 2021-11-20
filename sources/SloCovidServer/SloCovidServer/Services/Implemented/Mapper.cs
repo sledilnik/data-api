@@ -338,7 +338,7 @@ namespace SloCovidServer.Services.Implemented
             }
         }
         StatsDaily GetDailyStatsFromRaw(ImmutableDictionary<string, int> header, string line, int? previousStateDecasedToDate, int? previousOutOfHospitalToDate,
-            int? previousDecasedToDate)
+            int? previousDeceasedToDate)
         {
             var fields = ParseLine(line);
             int? stateDeceasedToDate = GetInt("state.deceased.todate", header, fields);
@@ -346,7 +346,7 @@ namespace SloCovidServer.Services.Implemented
             int? outOfHospitalToDate = GetInt("state.out_of_hospital.todate", header, fields);
             int? outOfHospital = GetDelta(outOfHospitalToDate, previousOutOfHospitalToDate);
             int? deceasedToDate = GetInt("deceased.todate", header, fields);
-            int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
+            int? deceased = GetDelta(deceasedToDate, previousDeceasedToDate);
             var cases = new Cases(
                 GetInt("cases.confirmed", header, fields),
                 GetInt("cases.confirmed.todate", header, fields),
