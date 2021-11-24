@@ -49,7 +49,11 @@ namespace SloCovidServer.Controllers
             }
             string etag = RequestETag;
             var cache = communicator.GetOwidCountries(etag);
-            var data = cache.Data;
+            if (!cache.HasValue)
+            {
+                return StatusCode(500);
+            }
+            var data = cache.Value.Data;
             if (data == null)
             {
                 if (!string.IsNullOrEmpty(etag))
@@ -67,7 +71,7 @@ namespace SloCovidServer.Controllers
                 : null;
             var validColumns = !string.IsNullOrEmpty(columns) ?
                 // TODO possible improvement - switch to Span<T> for split
-                ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, columns.Split(',').Where(c => c != "date" && c != "isoCodde").ToArray())
+                ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, columns.Split(',').Where(c => c != "date" && c != "isoCode").ToArray())
                 : null;
             var query = from c in data
                         where validCountries == null || validCountries.Contains(c.Key)

@@ -25,12 +25,16 @@ namespace SloCovidServer.Controllers
             //    return StatusCode((int)HttpStatusCode.NotAcceptable);
             //}
             var result = communicator.GetSummary(RequestETag, toDate);
-            if (result.Summary is null && result.ETag is not null)
+            if (!result.HasValue)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+            if (result.Value.Summary is null && result.Value.ETag is not null)
             {
                 return StatusCode((int)HttpStatusCode.NotModified);
             }
-            Response.Headers[HeaderNames.ETag] = result.ETag;
-            return result.Summary;
+            Response.Headers[HeaderNames.ETag] = result.Value.ETag;
+            return result.Value.Summary;
         }
     }
 }

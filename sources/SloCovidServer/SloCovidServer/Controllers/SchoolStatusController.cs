@@ -22,12 +22,16 @@ namespace SloCovidServer.Controllers
         public ActionResult<ImmutableDictionary<string, SchoolStatus>> Get([FromQuery(Name = "id")]string[] schoolIds, DateTime? from, DateTime? to)
         {
             var result = communicator.GetSchoolsStatuses(RequestETag, new SchoolsStatusesFilter(schoolIds.ToImmutableArray(), from, to));
-            if (result.Summary is null && result.ETag is not null)
+            if (!result.HasValue)
+            {
+                return StatusCode(500);
+            }
+            if (result.Value.Summary is null && result.Value.ETag is not null)
             {
                 return StatusCode((int)HttpStatusCode.NotModified);
             }
-            Response.Headers[HeaderNames.ETag] = result.ETag;
-            return result.Summary;
+            Response.Headers[HeaderNames.ETag] = result.Value.ETag;
+            return result.Value.Summary;
         }
     }
 }

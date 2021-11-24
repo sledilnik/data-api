@@ -66,7 +66,7 @@ namespace SloCovidServer.Controllers
             }
         }
         protected async Task<ActionResult<T?>> ProcessRequestAsync<T>(
-            Func<string, DataFilter, CancellationToken, Task<(T? Data, string Raw, string ETag, long? Timestamp)>> retrieval,
+            Func<string, DataFilter, CancellationToken, Task<(T? Data, string Raw, string ETag, long? Timestamp)?>> retrieval,
             DataFilter filter,
             string endpointName = null)
             where T : struct
@@ -83,12 +83,16 @@ namespace SloCovidServer.Controllers
                 }
                 RequestCount.WithLabels(endpointName, hasETag.ToString()).Inc();
                 var result = await retrieval(etag, filter, CancellationToken.None);
-                Response.Headers[HeaderNames.ETag] = result.ETag;
-                if (result.Timestamp.HasValue)
+                if (!result.HasValue)
                 {
-                    Response.Headers["Timestamp"] = result.Timestamp.Value.ToString();
+                    return null;
                 }
-                if (result.Data.HasValue)
+                Response.Headers[HeaderNames.ETag] = result.Value.ETag;
+                if (result.Value.Timestamp.HasValue)
+                {
+                    Response.Headers["Timestamp"] = result.Value.Timestamp.Value.ToString();
+                }
+                if (result.Value.Data.HasValue)
                 {
                     if (hasETag)
                     {
@@ -96,11 +100,11 @@ namespace SloCovidServer.Controllers
                     }
                     if (IsCsvRequested)
                     {
-                        return Ok(result.Raw);
+                        return Ok(result.Value.Raw);
                     }
                     else
                     {
-                        return Ok(result.Data);
+                        return Ok(result.Value.Data);
                     }
 
                 }

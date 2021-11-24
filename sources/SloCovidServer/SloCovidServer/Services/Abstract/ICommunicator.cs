@@ -10,32 +10,32 @@ namespace SloCovidServer.Services.Abstract
     {
         Task InitialCacheRefreshAsync(CancellationToken ct);
         Task StartCacheRefresherAsync(CancellationToken ct);
-        Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<PatientsDay>? Data, string raw, string ETag, long? Timestamp)> GetPatientsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<HospitalsDay>? Data, string raw, string ETag, long? Timestamp)> GetHospitalsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<Hospital>? Data, string raw, string ETag, long? Timestamp)> GetHospitalsListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<Municipality>? Data, string raw, string ETag, long? Timestamp)> GetMunicipalitiesListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<RetirementHome>? Data, string raw, string ETag, long? Timestamp)> GetRetirementHomesListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<RetirementHomesDay>? Data, string raw, string ETag, long? Timestamp)> GetRetirementHomesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<MunicipalityDay>? Data, string raw, string ETag, long? Timestamp)> GetMunicipalitiesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<RegionCasesDay>? Data, string raw, string ETag, long? Timestamp)> GetRegionCasesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<HealthCentersDay>? Data, string raw, string ETag, long? Timestamp)> GetHealthCentersAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<StatsWeeklyDay>? Data, string raw, string ETag, long? Timestamp)> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        (ImmutableDictionary<string, Models.Owid.Country> Data, string raw, string eTag) GetOwidCountries(string callerEtag);
-        Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetMonthlyDeathsSloveniaAsync(string callerEtag,
+        Task<(ImmutableArray<StatsDaily>? Data, string raw, string ETag, long? Timestamp)?> GetStatsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<PatientsDay>? Data, string raw, string ETag, long? Timestamp)?> GetPatientsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<HospitalsDay>? Data, string raw, string ETag, long? Timestamp)?> GetHospitalsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<Hospital>? Data, string raw, string ETag, long? Timestamp)?> GetHospitalsListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<Municipality>? Data, string raw, string ETag, long? Timestamp)?> GetMunicipalitiesListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<RetirementHome>? Data, string raw, string ETag, long? Timestamp)?> GetRetirementHomesListAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<RetirementHomesDay>? Data, string raw, string ETag, long? Timestamp)?> GetRetirementHomesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<MunicipalityDay>? Data, string raw, string ETag, long? Timestamp)?> GetMunicipalitiesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<RegionCasesDay>? Data, string raw, string ETag, long? Timestamp)?> GetRegionCasesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<HealthCentersDay>? Data, string raw, string ETag, long? Timestamp)?> GetHealthCentersAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<StatsWeeklyDay>? Data, string raw, string ETag, long? Timestamp)?> GetStatsWeeklyAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        (ImmutableDictionary<string, Models.Owid.Country> Data, string raw, string eTag)? GetOwidCountries(string callerEtag);
+        Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)?> GetMonthlyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<LabTestDay>? Data, string raw, string ETag, long? Timestamp)> GetLabTestsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<DailyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)> GetDailyDeathsSloveniaAsync(string callerEtag,
+        Task<(ImmutableArray<LabTestDay>? Data, string raw, string ETag, long? Timestamp)?> GetLabTestsAsync(string callerEtag, DataFilter filter, CancellationToken ct);
+        Task<(ImmutableArray<DailyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)?> GetDailyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<AgeDailyDeathsSloveniaDay>? Data, string raw, string ETag, long? Timestamp)> GetAgeDailyDeathsSloveniaAsync(string callerEtag,
+        Task<(ImmutableArray<AgeDailyDeathsSloveniaDay>? Data, string raw, string ETag, long? Timestamp)?> GetAgeDailyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<SewageDay>? Data, string raw, string ETag, long? Timestamp)> GetSewageAsync(string callerEtag,
+        Task<(ImmutableArray<SewageDay>? Data, string raw, string ETag, long? Timestamp)?> GetSewageAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)> GetSchoolCasesAsync(string callerEtag,
+        Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)?> GetSchoolCasesAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        Task<(ImmutableArray<VaccinationDay>? Data, string raw, string ETag, long? Timestamp)> GetVaccinationsAsync(string callerEtag,
+        Task<(ImmutableArray<VaccinationDay>? Data, string raw, string ETag, long? Timestamp)?> GetVaccinationsAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
-        (Summary Summary, string ETag) GetSummary(string callerEtag, DateTime? toDate);
-        (ImmutableDictionary<string, SchoolStatus> Summary, string ETag) GetSchoolsStatuses(string callerEtag, SchoolsStatusesFilter filter);
+        (Summary Summary, string ETag)? GetSummary(string callerEtag, DateTime? toDate);
+        (ImmutableDictionary<string, SchoolStatus> Summary, string ETag)? GetSchoolsStatuses(string callerEtag, SchoolsStatusesFilter filter);
     }
 }

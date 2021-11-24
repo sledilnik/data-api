@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SloCovidServer.Services.Implemented
 {
@@ -11,8 +10,6 @@ namespace SloCovidServer.Services.Implemented
     public class EndpointCache<T>
     {
         readonly ReaderWriterLockSlim sync = new ReaderWriterLockSlim();
-        private TaskCompletionSource<bool> initPromise = new TaskCompletionSource<bool>();
-        private bool initialized = false;
         ETagCacheItem<T> cache;
 
         public ETagCacheItem<T> Cache
@@ -34,41 +31,11 @@ namespace SloCovidServer.Services.Implemented
                 sync.EnterWriteLock();
                 try
                 {
-                    if (!this.initialized)
-                    {
-                        // resolve promise on first instance
-                        this.initialized = true;
-                        this.initPromise.SetResult(true);
-                    }
                     cache = value;
                 }
                 finally
                 {
                     sync.ExitWriteLock();
-                }
-            }
-        }
-        public ETagCacheItem<T> CacheBlocking
-        {
-            get
-            {
-                if (!this.initialized)
-                {
-                    // wait for promise resolution on first request
-                    // owid countries requires a lot of time
-                    if (!this.initPromise.Task.Wait(120000))
-                    {
-                        throw new System.Exception("Timeout waiting cache");
-                    }
-                }
-                sync.EnterReadLock();
-                try
-                {
-                    return cache;
-                }
-                finally
-                {
-                    sync.ExitReadLock();
                 }
             }
         }
