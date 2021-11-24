@@ -338,7 +338,7 @@ namespace SloCovidServer.Services.Implemented
             }
         }
         StatsDaily GetDailyStatsFromRaw(ImmutableDictionary<string, int> header, string line, int? previousStateDecasedToDate, int? previousOutOfHospitalToDate,
-            int? previousDecasedToDate)
+            int? previousDeceasedToDate)
         {
             var fields = ParseLine(line);
             int? stateDeceasedToDate = GetInt("state.deceased.todate", header, fields);
@@ -346,7 +346,7 @@ namespace SloCovidServer.Services.Implemented
             int? outOfHospitalToDate = GetInt("state.out_of_hospital.todate", header, fields);
             int? outOfHospital = GetDelta(outOfHospitalToDate, previousOutOfHospitalToDate);
             int? deceasedToDate = GetInt("deceased.todate", header, fields);
-            int? deceased = GetDelta(deceasedToDate, previousDecasedToDate);
+            int? deceased = GetDelta(deceasedToDate, previousDeceasedToDate);
             var cases = new Cases(
                 GetInt("cases.confirmed", header, fields),
                 GetInt("cases.confirmed.todate", header, fields),
@@ -388,7 +388,8 @@ namespace SloCovidServer.Services.Implemented
                     bucket.AgeTo,
                     GetInt($"age.{bucket.Key}.todate", header, fields),
                     GetInt($"age.female.{bucket.Key}.todate", header, fields),
-                    GetInt($"age.male.{bucket.Key}.todate", header, fields)
+                    GetInt($"age.male.{bucket.Key}.todate", header, fields),
+                    null, null, null
                 );
                 perAgeSum = perAgeSum.Add(perAge);
             }
@@ -400,7 +401,8 @@ namespace SloCovidServer.Services.Implemented
                     bucket.AgeTo,
                     GetInt($"deceased.{bucket.Key}.todate", header, fields),
                     GetInt($"deceased.female.{bucket.Key}.todate", header, fields),
-                    GetInt($"deceased.male.{bucket.Key}.todate", header, fields)
+                    GetInt($"deceased.male.{bucket.Key}.todate", header, fields),
+                    null, null, null
                 );
                 deceasedPerAge = deceasedPerAge.Add(perAge);
             }
@@ -465,6 +467,10 @@ namespace SloCovidServer.Services.Implemented
                     administered2nd: new TodayToDate(
                         GetInt("vaccination.administered2nd", header, fields),
                         GetInt("vaccination.administered2nd.todate", header, fields)
+                    ),
+                    administered3rd: new TodayToDate(
+                        GetInt("vaccination.administered3rd", header, fields),
+                        GetInt("vaccination.administered3rd.todate", header, fields)
                     ),
                     used: new TodayToDate(
                         null,

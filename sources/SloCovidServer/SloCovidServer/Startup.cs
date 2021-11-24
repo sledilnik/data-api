@@ -10,13 +10,14 @@ using SloCovidServer.Formatters;
 using SloCovidServer.Services.Abstract;
 using SloCovidServer.Services.Implemented;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace SloCovidServer
 {
     public class Startup
     {
-        const string SchemaVersion = "44";
+        const string SchemaVersion = "46";
         const string CorsPolicy = "Any";
         readonly IWebHostEnvironment env;
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
@@ -95,7 +96,7 @@ namespace SloCovidServer
                 })
                 .AddJsonOptions(options =>
                 {
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 })
                 // adds support for text/csv output, won't work for nested structures
                 .AddCsvSerializerFormatters();

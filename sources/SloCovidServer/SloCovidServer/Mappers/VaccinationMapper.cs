@@ -32,6 +32,8 @@ namespace SloCovidServer.Mappers
             int administeredToDateIndex = header["vaccination.administered.todate"];
             int administered2ndIndex = header["vaccination.administered2nd"];
             int administered2ndToDateIndex = header["vaccination.administered2nd.todate"];
+            int administered3rdIndex = header["vaccination.administered3rd"];
+            int administered3rdToDateIndex = header["vaccination.administered3rd.todate"];
             int usedToDateIndex = header["vaccination.used.todate"];
             var usedByManufacturersIndex = header
                 .Select(h => new { Parts = h.Key.Split('.'), Index = h.Value })
@@ -69,14 +71,17 @@ namespace SloCovidServer.Mappers
                     var perAge = new PerAgeBucket(
                         bucket.AgeFrom,
                         bucket.AgeTo,
+                        null, null, null,
                         GetInt($"vaccination.age.{bucket.Key}.1st.todate", header, fields),
-                        GetInt($"vaccination.age.{bucket.Key}.2nd.todate", header, fields)
+                        GetInt($"vaccination.age.{bucket.Key}.2nd.todate", header, fields),
+                        GetInt($"vaccination.age.{bucket.Key}.3rd.todate", header, fields)
                     );
                     perAgeVaccinated = perAgeVaccinated.Add(perAge);
                 }
                 var item = new VaccinationDay(date.Year, date.Month, date.Day,
                     Administered: new VaccinationData(GetInt(fields[administeredIndex]), GetInt(fields[administeredToDateIndex])),
                     Administered2nd: new VaccinationData(GetInt(fields[administered2ndIndex]), GetInt(fields[administered2ndToDateIndex])),
+                    Administered3rd: new VaccinationData(GetInt(fields[administered3rdIndex]), GetInt(fields[administered3rdToDateIndex])),
                     UsedToDate: GetInt(fields[usedToDateIndex]),
                     UsedByManufacturer: usedByManufacturer,
                     DeliveredToDate: GetInt(fields[deliveredToDateIndex]),
