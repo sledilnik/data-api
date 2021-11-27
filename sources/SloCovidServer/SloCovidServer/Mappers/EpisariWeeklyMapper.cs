@@ -12,7 +12,7 @@ namespace SloCovidServer.Mappers
         internal EpisariPerAgeBucket ConvertToBucket(string age, EpisariPerAge data)
         {
             var (from, to) = ExtractAges(age);
-            return new EpisariPerAgeBucket(from, to, data.CovidIn, data.Vaccinated, data.Deceased, data.IcuIn);
+            return new EpisariPerAgeBucket(from, to, data.CovidIn, data.VaccinatedIn, data.IcuIn, data.Deceased);
         }
 
         /// <summary>
@@ -85,24 +85,14 @@ namespace SloCovidServer.Mappers
                             (k, v) => v with { CovidIn = d.Value });
                     }
                 });
-                var vaccinationPerAgeTask = Task.Run(() =>
+                var vaccinatedInPerAgeTask = Task.Run(() =>
                 {
                     var data = CollectAgeValues(header, fields, CovidInVaccinationAge, GetIntAgeValue);
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
                             new EpisariPerAge(default, d.Value, default, default),
-                            (k, v) => v with { Vaccinated = d.Value });
-                    }
-                });
-                var deceasedPerAgeTask = Task.Run(() =>
-                {
-                    var data = CollectAgeValues(header, fields, CovidDeceasedAgePrefix, GetIntAgeValue);
-                    foreach (var d in data)
-                    {
-                        var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(default, default, d.Value, default),
-                            (k, v) => v with { Deceased = d.Value });
+                            (k, v) => v with { VaccinatedIn = d.Value });
                     }
                 });
                 var icuInPerAgeTask = Task.Run(() =>
@@ -111,11 +101,21 @@ namespace SloCovidServer.Mappers
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(default, default, default, d.Value),
+                            new EpisariPerAge(default, default, d.Value, default),
                             (k, v) => v with { IcuIn = d.Value });
                     }
                 });
-                await Task.WhenAll(covidInPerAgeTask, vaccinationPerAgeTask, deceasedPerAgeTask, icuInPerAgeTask);
+                var deceasedPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidDeceasedAgePrefix, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, default, default, d.Value),
+                            (k, v) => v with { Deceased = d.Value });
+                    }
+                });
+                await Task.WhenAll(covidInPerAgeTask, vaccinatedInPerAgeTask, deceasedPerAgeTask, icuInPerAgeTask);
                 result.Add(new EpisariWeek(week: fields[weekIndex], dateFrom, dateTo)
                 {
                     Source = fields[sourceIndex],
@@ -125,9 +125,9 @@ namespace SloCovidServer.Mappers
                     CovidIn = GetInt(fields[covidInIndex]),
                     CovidOut = GetInt(fields[covidOutIndex]),
                     CovidInNotSari = GetInt(fields[covidInNotSariIndex]),
-                    CovidInVaccinatedYes = GetInt(fields[covidInVaccIndex]),
-                    CovidInVaccinatedNo = GetInt(fields[covidInNotVaccIndex]),
+                    CovidInVaccinated = GetInt(fields[covidInVaccIndex]),
                     CovidInVaccinatedUnknown = GetInt(fields[covidInVaccUnknownIndex]),
+                    CovidInNotVaccinated = GetInt(fields[covidInNotVaccIndex]),
                     CovidDiscoveredInHospital = GetInt(fields[covidDiscoveredInHospitalIndex]),
                     CovidAcquiredInHospital = GetInt(fields[covidAcquiredInHospitalIndex]),
                     CovidDeceased = GetInt(fields[covidDeceasedIndex]),

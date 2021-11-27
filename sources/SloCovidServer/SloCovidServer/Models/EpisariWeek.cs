@@ -14,9 +14,9 @@ namespace SloCovidServer.Models
         public int? CovidIn { get; init; }
         public int? CovidOut { get; init; }
         public int? CovidInNotSari { get; init; }
-        public int? CovidInVaccinatedYes { get; init; }
-        public int? CovidInVaccinatedNo { get; init; }
+        public int? CovidInVaccinated { get; init; }
         public int? CovidInVaccinatedUnknown { get; init; }
+        public int? CovidInNotVaccinated { get; init; }
         public int? CovidDiscoveredInHospital { get; init; }
         public int? CovidAcquiredInHospital { get; init; }
         public int? CovidDeceased { get; init; }
@@ -29,9 +29,9 @@ namespace SloCovidServer.Models
             To = to;
         }
     }
-    public record EpisariPerAge(int? CovidIn, int? Vaccinated, int? Deceased, int? IcuIn)
+    public record EpisariPerAge(int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased)
     {
         public static readonly EpisariPerAge Empty = new EpisariPerAge(default, default, default, default);
     }
-    public record EpisariPerAgeBucket(int? AgeFrom, int? AgeTo, int? CovidIn, int? Vaccination, int? Deceased, int? IcuIn);
+    public record EpisariPerAgeBucket(int? AgeFrom, int? AgeTo, int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased);
 }
