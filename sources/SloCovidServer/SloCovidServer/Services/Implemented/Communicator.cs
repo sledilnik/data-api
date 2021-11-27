@@ -314,7 +314,7 @@ namespace SloCovidServer.Services.Implemented
         {
             return GetFormCache(callerEtag, owidCountriesCache);
         }
-        public Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)?> GetMonthlyDeathsSloveniaAsync(string callerEtag, 
+        public Task<(ImmutableArray<MonthlyDeathsSlovenia>? Data, string raw, string ETag, long? Timestamp)?> GetMonthlyDeathsSloveniaAsync(string callerEtag,
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, filter, ct);
@@ -402,8 +402,8 @@ namespace SloCovidServer.Services.Implemented
                     {
                         data = data.Select(p =>
                         {
-                            return new KeyValuePair<string, SchoolStatus>(p.Key, 
-                                p.Value with { 
+                            return new KeyValuePair<string, SchoolStatus>(p.Key,
+                                p.Value with {
                                     Absences = FilterData(p.Value.Absences, filter),
                                     Regimes = FilterData(p.Value.Regimes, filter)
                                 }
@@ -568,7 +568,7 @@ namespace SloCovidServer.Services.Implemented
             }
         }
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TData"></typeparam>
         /// <param name="url"></param>
@@ -650,7 +650,7 @@ namespace SloCovidServer.Services.Implemented
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TData"></typeparam>
         /// <param name="callerEtag"></param>

@@ -8,7 +8,7 @@ using SloCovidServer.Services.Abstract;
 namespace SloCovidServer.Controllers
 {
     [ApiController]
-    [Route("api/episari-nijz-weekly")]
+    [Route("api/episari-weekly")]
     public class EpisariController : MetricsController<EpisariController>
     {
         public EpisariController(ILogger<EpisariController> logger, ICommunicator communicator)
