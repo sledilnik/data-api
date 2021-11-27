@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using SloCovidServer.Models;
 
@@ -8,6 +9,40 @@ namespace SloCovidServer.Mappers
 {
     public class EpisariWeeklyMapper : Mapper
     {
+        internal EpisariPerAgeBucket ConvertToBucket(string age, EpisariPerAge data)
+        {
+            var (from, to) = ExtractAges(age);
+            return new EpisariPerAgeBucket(from, to, data.CovidIn, data.Vaccinated, data.Deceased, data.IcuIn);
+        }
+
+        /// <summary>
+        /// Parses formats 'From-To', 'From+' and 'mean'
+        /// </summary>
+        /// <param name="age"></param>
+        /// <returns></returns>
+        internal (int? From, int? To) ExtractAges(string age)
+        {
+            if (string.Equals(age, "mean", System.StringComparison.Ordinal))
+            {
+                return (default, default);
+            }
+            int index = age.IndexOf('+');
+            if (index < 0)
+            {
+                index = age.IndexOf('-');
+            }
+            int? from = null;
+            int? to = null;
+            if (int.TryParse(age[0..index], out int temp))
+            {
+                from = temp;
+            }
+            if (int.TryParse(age[(index + 1)..], out temp))
+            {
+                to = temp;
+            }
+            return (from, to);
+        }
         public async Task<ImmutableArray<EpisariWeek>> GetEpisariWeeksFromRaw(string raw)
         {
             string[] lines = raw.Split('\n');
@@ -57,7 +92,7 @@ namespace SloCovidServer.Mappers
                     {
                         var item = perAge.AddOrUpdate(d.Key,
                             new EpisariPerAge(default, d.Value, default, default),
-                            (k, v) => v with { Vaccination = d.Value });
+                            (k, v) => v with { Vaccinated = d.Value });
                     }
                 });
                 var deceasedPerAgeTask = Task.Run(() =>
@@ -90,14 +125,14 @@ namespace SloCovidServer.Mappers
                     CovidIn = GetInt(fields[covidInIndex]),
                     CovidOut = GetInt(fields[covidOutIndex]),
                     CovidInNotSari = GetInt(fields[covidInNotSariIndex]),
-                    CovidInVaccinationYes = GetInt(fields[covidInVaccIndex]),
-                    CovidInVaccinationNo = GetInt(fields[covidInNotVaccIndex]),
-                    CovidInVaccinationUnknown = GetInt(fields[covidInVaccUnknownIndex]),
+                    CovidInVaccinatedYes = GetInt(fields[covidInVaccIndex]),
+                    CovidInVaccinatedNo = GetInt(fields[covidInNotVaccIndex]),
+                    CovidInVaccinatedUnknown = GetInt(fields[covidInVaccUnknownIndex]),
                     CovidDiscoveredInHospital = GetInt(fields[covidDiscoveredInHospitalIndex]),
                     CovidAcquiredInHospital = GetInt(fields[covidAcquiredInHospitalIndex]),
                     CovidDeceased = GetInt(fields[covidDeceasedIndex]),
                     CovidIcuIn = GetInt(fields[covidIcuInIndex]),
-                    PerAge = perAge.ToImmutableDictionary(),
+                    PerAge = perAge.Select(d => ConvertToBucket(d.Key, d.Value)).ToImmutableArray(),
                 });
             }
             return result.ToImmutableArray();
