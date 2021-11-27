@@ -14,7 +14,6 @@ namespace SloCovidServer.Models
         public int? SariIn { get; init; }
         public int? TestedIn { get; init; }
         public int? CovidIn { get; init; }
-        public int? CovidOut { get; init; }
         public int? CovidInNotSari { get; init; }
         public int? CovidInVaccinated { get; init; }
         public int? CovidInVaccinatedUnknown { get; init; }
@@ -22,6 +21,7 @@ namespace SloCovidServer.Models
         public int? CovidIcuIn { get; init; }
         public int? CovidDiscoveredInHospital { get; init; }
         public int? CovidAcquiredInHospital { get; init; }
+        public int? CovidOut { get; init; }
         public int? CovidDeceased { get; init; }
         public ImmutableArray<EpisariPerAgeBucket> PerAge { get; init; }
         public EpisariWeek(string week, Date from, Date to)
