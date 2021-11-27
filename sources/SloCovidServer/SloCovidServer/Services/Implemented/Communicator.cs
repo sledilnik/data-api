@@ -567,7 +567,20 @@ namespace SloCovidServer.Services.Implemented
                 _ = ProcessErrorAsync(url, ex.Message);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="url"></param>
+        /// <param name="sync"></param>
+        /// <param name="mapFromString"></param>
+        /// <returns></returns>
+        /// <remarks>Proxies async <paramref name="mapFromString"/> to async version.</remarks>
         async Task RefreshEndpointCache<TData>(string url, ArrayEndpointCache<TData> sync, Func<string, ImmutableArray<TData>> mapFromString)
+        {
+            await RefreshEndpointCache(url, sync, s => Task.FromResult(mapFromString(s)));
+        }
+        async Task RefreshEndpointCache<TData>(string url, ArrayEndpointCache<TData> sync, Func<string, Task<ImmutableArray<TData>>> mapFromString)
         {
 
             var policy = HttpPolicyExtensions
@@ -593,7 +606,8 @@ namespace SloCovidServer.Services.Implemented
                     response.Headers.TryGetValues("ETag", out headerETags);
                     string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
                     string responseBody = await response.Content.ReadAsStringAsync();
-                    sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(newETag, responseBody, mapFromString(responseBody), timestamp);
+                    var data = await mapFromString(responseBody);
+                    sync.Cache = new ETagCacheItem<ImmutableArray<TData>>(newETag, responseBody, data, timestamp);
                 }
                 else
                 {

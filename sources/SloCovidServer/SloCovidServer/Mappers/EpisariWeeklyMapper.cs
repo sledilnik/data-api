@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using SloCovidServer.Models;
 
 namespace SloCovidServer.Mappers
 {
     public class EpisariWeeklyMapper : Mapper
     {
-        public ImmutableArray<EpisariWeek> GetEpisariWeeksFromRaw(string raw)
+        public async Task<ImmutableArray<EpisariWeek>> GetEpisariWeeksFromRaw(string raw)
         {
             string[] lines = raw.Split('\n');
             var header = ParseHeader(lines[0]);
@@ -37,42 +39,65 @@ namespace SloCovidServer.Mappers
                 var fields = ParseLine(line);
                 var dateFrom = GetDate(fields[dateFromIndex]);
                 var dateTo = GetDate(fields[dateToIndex]);
+                var perAge = new ConcurrentDictionary<string, EpisariPerAge>();
+                var covidInPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidInAge, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(d.Value, default, default, default),
+                            (k, v) => v with { CovidIn = d.Value });
+                    }
+                });
+                var vaccinationPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidInVaccinationAge, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, d.Value, default, default),
+                            (k, v) => v with { Vaccination = d.Value });
+                    }
+                });
+                var deceasedPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidDeceasedAgePrefix, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, default, d.Value, default),
+                            (k, v) => v with { Deceased = d.Value });
+                    }
+                });
+                var icuInPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidIcuInAge, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, default, default, d.Value),
+                            (k, v) => v with { IcuIn = d.Value });
+                    }
+                });
+                await Task.WhenAll(covidInPerAgeTask, vaccinationPerAgeTask, deceasedPerAgeTask, icuInPerAgeTask);
                 result.Add(new EpisariWeek(week: fields[weekIndex], dateFrom, dateTo)
                 {
-                    Sari = new EpisariValueIn(new EpisariValue(GetInt(fields[sariInIndex]))),
-                    Tested = new EpisariValueIn(new EpisariValue(GetInt(fields[testedInIndex]))),
-                    Covid = new EpisariCovid
-                    {
-                        DiscoveredInHospital = GetInt(fields[covidDiscoveredInHospitalIndex]),
-                        AcquiredInHospital = GetInt(fields[covidAcquiredInHospitalIndex]),
-                        Deceased = new EpisariDeceased
-                        {
-                            Value = GetInt(fields[covidDeceasedIndex]),
-                            PerAge = CollectAgeValues(header, fields, CovidDeceasedAgePrefix, GetIntAgeValue),
-                        },
-                        Out = new EpisariValueOut(new EpisariValue(GetInt(fields[covidOutIndex]))),
-                        In = new EpisariCovidIn
-                        {
-                            Value = GetInt(fields[covidInIndex]),
-                            Vaccination = new EpisariVaccinationStatus
-                            {
-                                Yes = GetInt(fields[covidInVaccIndex]),
-                                No = GetInt(fields[covidInNotVaccIndex]),
-                                Unknown = GetInt(fields[covidInVaccUnknownIndex]),
-                                PerAge = CollectAgeValues(header, fields, CovidInVaccinationAge, GetIntAgeValue),
-                            },
-                            NotSari = GetInt(fields[covidInNotSariIndex]),
-                            PerAge = CollectAgeValues(header, fields, CovidInAge, GetIntAgeValue),
-                        },
-                        Icu = new EpisariIcu
-                        {
-                            In = new EpisariIcuIn
-                            {
-                                Value = GetInt(fields[covidIcuInIndex]),
-                                PerAge = CollectAgeValues(header, fields, CovidIcuInAge, GetIntAgeValue),
-                            }
-                        }
-                    },
+                    Source = fields[sourceIndex],
+                    Missing = fields[missingIndex],
+                    SariIn = GetInt(fields[sariInIndex]),
+                    TestedIn = GetInt(fields[testedInIndex]),
+                    CovidIn = GetInt(fields[covidInIndex]),
+                    CovidOut = GetInt(fields[covidOutIndex]),
+                    CovidInNotSari = GetInt(fields[covidInNotSariIndex]),
+                    CovidInVaccinationYes = GetInt(fields[covidInVaccIndex]),
+                    CovidInVaccinationNo = GetInt(fields[covidInNotVaccIndex]),
+                    CovidInVaccinationUnknown = GetInt(fields[covidInVaccUnknownIndex]),
+                    CovidDiscoveredInHospital = GetInt(fields[covidDiscoveredInHospitalIndex]),
+                    CovidAcquiredInHospital = GetInt(fields[covidAcquiredInHospitalIndex]),
+                    CovidDeceased = GetInt(fields[covidDeceasedIndex]),
+                    CovidIcuIn = GetInt(fields[covidIcuInIndex]),
+                    PerAge = perAge.ToImmutableDictionary(),
                 });
             }
             return result.ToImmutableArray();
