@@ -5,8 +5,10 @@ namespace SloCovidServer.Models
     public record EpisariWeek
     {
         public string Week { get; init; }
+        public int Year { get; init; }
+        public int Month { get; init; }
+        public int Day { get; init; }
         public Date To { get; init; }
-        public Date From { get; init; }
         public string Source { get; init; }
         public string Missing {  get; init; }
         public int? SariIn { get; init; }
@@ -17,15 +19,17 @@ namespace SloCovidServer.Models
         public int? CovidInVaccinated { get; init; }
         public int? CovidInVaccinatedUnknown { get; init; }
         public int? CovidInNotVaccinated { get; init; }
+        public int? CovidIcuIn { get; init; }
         public int? CovidDiscoveredInHospital { get; init; }
         public int? CovidAcquiredInHospital { get; init; }
         public int? CovidDeceased { get; init; }
-        public int? CovidIcuIn { get; init; }
         public ImmutableArray<EpisariPerAgeBucket> PerAge { get; init; }
         public EpisariWeek(string week, Date from, Date to)
         {
             Week = week;
-            From = from;
+            Year = from.Year;
+            Month = from.Month;
+            Day = from.Day;
             To = to;
         }
     }
