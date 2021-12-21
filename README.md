@@ -29,6 +29,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.16
+
+* Add support for 0-11 age range in vaccinations
+
 ## 1.15
 
 * Adds `episari-nijz-weekly.csv` to API as `api/episari-weekly` endpoint
