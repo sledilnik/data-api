@@ -10,7 +10,7 @@ namespace SloCovidServer.Mappers
     public class VaccinationMapper : Mapper
     {
         static readonly ImmutableArray<AgeBucketMeta> ageBuckets;
-        static readonly int[] ageBucketRanges = new[] { 17, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89 };
+        static readonly int[] ageBucketRanges = new[] { 11, 17, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89 };
 
         static VaccinationMapper()
         {
