@@ -11,8 +11,8 @@ using System.Linq;
 
 namespace SloCovidServer.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    // [ApiController]
+    // [Route("api/[controller]")]
     public class OwidController : MetricsController<OwidController>
     {
         public OwidController(ILogger<OwidController> logger, ICommunicator communicator) : base(logger, communicator)
