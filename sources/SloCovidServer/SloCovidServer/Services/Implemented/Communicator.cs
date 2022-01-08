@@ -206,7 +206,7 @@ namespace SloCovidServer.Services.Implemented
             var regionCasesDay = RefreshEndpointCache($"{root}/region-cases.csv", regionCasesCache, new RegionCasesMapper().GetDayFromRaw);
             var healthCentersDay = RefreshEndpointCache($"{root}/health_centers.csv", healthCentersDayCache, new HealthCentersMapper().GetHealthCentersDayFromRaw);
             var statsWeeklyDay = RefreshEndpointCache($"{root}/stats-weekly.csv", statsWeeklyDayCache, new StatsWeeklyMapper().GetStatsWeeklyDayFromRaw);
-            // var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
+            var owidCountries = RefreshJsonEndpointCache("https://covid.ourworldindata.org/data/owid-covid-data.json", owidCountriesCache, owidSerializer, ct);
             var monthlyDeathsSlovenia = RefreshEndpointCache($"{root}/monthly_deaths_slovenia.csv", monthlyDeathsSloveniaCache, new MonthlyDeathsSloveniaMapper().GetFromRaw);
             var labTests = RefreshEndpointCache($"{root}/lab-tests.csv", labTestsCache, new LabTestsMapper().MapFromRaw);
             var dailyDeathsSlovenia = RefreshEndpointCache($"{root}/daily_deaths_slovenia.csv", dailyDeathsSloveniaCache, new DailyDeathsSloveniaMapper().GetFromRaw);
@@ -224,7 +224,7 @@ namespace SloCovidServer.Services.Implemented
             await Task.WhenAll(schoolAbsences, schoolRegimes);
             await UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
-                retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, monthlyDeathsSlovenia,
+                retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
                 labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay, vaccinations, episariWeek);
 
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
