@@ -29,6 +29,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.17
+
+* Summary: add daily new cases to CasesAvg7Days
+
 ## 1.16
 
 * Add support for 0-11 age range in vaccinations
