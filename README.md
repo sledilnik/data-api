@@ -29,6 +29,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.18
+
+* Patients: add red-zone and leadingCovid
+* Schema version 47
+
 ## 1.17
 
 * Summary: add daily new cases to CasesAvg7Days

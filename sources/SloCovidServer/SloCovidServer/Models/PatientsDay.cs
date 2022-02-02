@@ -24,16 +24,16 @@ namespace SloCovidServer.Models
     public record GeneralUnit : BaseUnit<StateDeceased>
     {
         public OutOfHospital OutOfHospital { get; init; }
-        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, StateDeceased deceased, HospitalMovement care, TodayToDate deceasedCare,
-            OutOfHospital outOfHospital) : base(inHospital, iCU, niv, critical, deceased, care, deceasedCare)
+        public GeneralUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, StateDeceased deceased, HospitalMovement redZone, HospitalMovement care, TodayToDate deceasedCare,
+            OutOfHospital outOfHospital) : base(inHospital, iCU, niv, critical, deceased, redZone, care, deceasedCare)
         {
             OutOfHospital = outOfHospital;
         }
     }
     public record Unit : BaseUnit<HospitalDeceased>
     {
-        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
-            : base(inHospital, iCU, niv, critical, deceased, care, deceasedCare)
+        public Unit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, HospitalDeceased deceased, HospitalMovement redZone, HospitalMovement care, TodayToDate deceasedCare)
+            : base(inHospital, iCU, niv, critical, deceased, redZone, care, deceasedCare)
         {
         }
     }
@@ -45,15 +45,18 @@ namespace SloCovidServer.Models
         public HospitalMovement NIV { get; init; }
         public HospitalMovement Critical { get; init; }
         public TDeceased Deceased { get; init; }
+        public HospitalMovement RedZone { get; init; }
         public HospitalMovement Care { get; init; }
         public TodayToDate DeceasedCare { get; init; }
-        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, TDeceased deceased, HospitalMovement care, TodayToDate deceasedCare)
+        public BaseUnit(HospitalMovement inHospital, HospitalMovement iCU, HospitalMovement niv, HospitalMovement critical, TDeceased deceased, HospitalMovement redZone, HospitalMovement care, TodayToDate deceasedCare)
         {
             InHospital = inHospital;
             ICU = iCU;
             NIV = niv;
             Critical = critical;
             Deceased = deceased;
+
+            RedZone = redZone;
 
             Care = care;
             DeceasedCare = deceasedCare;
@@ -66,12 +69,14 @@ namespace SloCovidServer.Models
         public int? Out { get; init; }
         public int? Today { get; init; }
         public int? ToDate { get; init; }
-        public HospitalMovement(int? inMovement, int? outMovement, int? current, int? today)
+        public int? ReasonCovid { get; init; }
+        public HospitalMovement(int? inMovement, int? outMovement, int? current, int? today, int? covid)
         {
             In = inMovement;
             Out = outMovement;
             Today = current;
             ToDate = today;
+            ReasonCovid = covid;
         }
     }
 
