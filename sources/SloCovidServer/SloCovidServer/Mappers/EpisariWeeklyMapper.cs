@@ -66,7 +66,7 @@ namespace SloCovidServer.Mappers
             int covidInVacc3Index = header["episari.covid.in.vacc.3"];
             int covidInVaccFullIndex = header["episari.covid.in.vacc.full"];
             int covidInVaccPartialIndex = header["episari.covid.in.vacc.partial"];
-            int covidInVaccPartialIndex = header["episari.covid.in.vacc.none"];
+            int covidInVaccNoneIndex = header["episari.covid.in.vacc.none"];
             const string CovidInVaccinationAge = "episari.covid.in.vacc.age";
             int covidInNotSariIndex = header["episari.covid.in.notsari"];
             const string CovidInAge = "episari.covid.in.age";
@@ -133,7 +133,7 @@ namespace SloCovidServer.Mappers
                     CovidInVaccinated3 = GetInt(fields[covidInVacc3Index]),
                     CovidInVaccinatedFull = GetInt(fields[covidInVaccFullIndex]),
                     CovidInVaccinatedPartial = GetInt(fields[covidInVaccPartialIndex]),
-                    CovidInVaccinatedNone = GetInt(fields[CovidInVaccinatedNone]),
+                    CovidInVaccinatedNone = GetInt(fields[covidInVaccNoneIndex]),
                     CovidInVaccinatedUnknown = GetInt(fields[covidInVaccUnknownIndex]),
                     CovidInNotVaccinated = GetInt(fields[covidInNotVaccIndex]),
                     CovidDiscoveredInHospital = GetInt(fields[covidDiscoveredInHospitalIndex]),
