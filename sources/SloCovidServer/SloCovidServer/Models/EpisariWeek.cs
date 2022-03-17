@@ -23,7 +23,6 @@ namespace SloCovidServer.Models
         public int? CovidAcquiredInHospital { get; init; }
         public int? CovidOut { get; init; }
         public int? CovidDeceased { get; init; }
-        public int? CovidIcuIn { get; init; }
         public int? CovidInVaccinated3 { get; init; }
         public int? CovidInVaccinatedFull { get; init; }
         public int? CovidInVaccinatedPartial { get; init; }
