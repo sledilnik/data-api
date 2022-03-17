@@ -511,6 +511,7 @@ namespace SloCovidServer.Services.Implemented
                 GetHospitalMovement(facility: null, "niv", header, fields),
                 GetHospitalMovement(facility: null, "critical", header, fields),
                 GetStateDeceased(header, fields),
+                GetHospitalMovement(facility: null, "redzone", header, fields),
                 GetHospitalMovement(facility: null, "care", header, fields),
                 GetDeceasedCare(facility: null, header, fields),
                 new OutOfHospital(GetInt(fields[header["state.out_of_hospital.todate"]]))
@@ -524,6 +525,7 @@ namespace SloCovidServer.Services.Implemented
                     GetHospitalMovement(facility, "niv", header, fields),
                     GetHospitalMovement(facility, "critical", header, fields),
                     GetDeceased(facility, header, fields),
+                    GetHospitalMovement(facility, "redzone", header, fields),
                     GetHospitalMovement(facility, "care", header, fields),
                     GetDeceasedCare(facility, header, fields)
                 );
@@ -539,11 +541,13 @@ namespace SloCovidServer.Services.Implemented
             string outKey = $"state{location}.{type}.out";
             string currentKey = $"state{location}.{type}";
             string toDateKey = $"state{location}.{type}.todate";
+            string covidKey = $"state{location}.{type}.covid";
             return new HospitalMovement(
                 header.ContainsKey(inKey) ? GetInt(fields[header[inKey]]) : null,
                 header.ContainsKey(outKey) ? GetInt(fields[header[outKey]]): null,
                 header.ContainsKey(currentKey) ? GetInt(fields[header[currentKey]]): null,
-                header.ContainsKey(toDateKey) ? GetInt(fields[header[toDateKey]]): null
+                header.ContainsKey(toDateKey) ? GetInt(fields[header[toDateKey]]): null,
+                header.ContainsKey(covidKey) ? GetInt(fields[header[covidKey]]): null
             );
         }
 

@@ -25,7 +25,8 @@ namespace SloCovidServer.Models
     public record CasesActiveSubValues(int? In, int? Out);
     public record CasesActive(int? Value, CasesActiveSubValues SubValues, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record CasesActive100k(float? Value, bool Sublabel, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
-    public record CasesAvg7Days(float? Value, bool Sublabel, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
+    public record CasesAvg7DaysSubValues(int? In);
+    public record CasesAvg7Days(float? Value, CasesAvg7DaysSubValues SubValues, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record HospitalizedCurrentSubValues(int? In, int? Out, int? Deceased);
     public record HospitalizedCurrent(int? Value, HospitalizedCurrentSubValues SubValues, float? DiffPercentage, int Year, int Month, int Day) : SummaryBase(DiffPercentage, Year, Month, Day);
     public record ICUCurrentSubValues(int? In, int? Out, int? Deceased);

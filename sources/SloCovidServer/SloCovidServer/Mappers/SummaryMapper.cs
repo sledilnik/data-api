@@ -181,7 +181,9 @@ namespace SloCovidServer.Mappers
                     : null;
                 return new CasesAvg7Days(
                     lastDayAvg,
-                    Sublabel: true,
+                    new CasesAvg7DaysSubValues(
+                        lastStats.Value.Last.Cases?.ConfirmedToday
+                    ),
                     CalculateDifference(lastDayAvg, previousDayAvg),
                     lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day);
             }
