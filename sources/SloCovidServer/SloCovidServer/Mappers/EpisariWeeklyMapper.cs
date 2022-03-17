@@ -12,7 +12,7 @@ namespace SloCovidServer.Mappers
         internal EpisariPerAgeBucket ConvertToBucket(string age, EpisariPerAge data)
         {
             var (from, to) = ExtractAges(age);
-            return new EpisariPerAgeBucket(from, to, data.CovidIn, data.VaccinatedIn, data.IcuIn, data.Deceased);
+            return new EpisariPerAgeBucket(from, to, data.CovidIn, data.VaccinatedIn, data.IcuIn, data.Deceased, data.VaccinatedIn3, data.VaccinatedInFull);
         }
 
         /// <summary>
@@ -68,6 +68,8 @@ namespace SloCovidServer.Mappers
             int covidInVaccPartialIndex = header["episari.covid.in.vacc.partial"];
             int covidInVaccNoneIndex = header["episari.covid.in.vacc.none"];
             const string CovidInVaccinationAge = "episari.covid.in.vacc.age";
+            const string CovidInVaccination3Age = "episari.covid.in.vacc.3.age";
+            const string CovidInVaccinationFullAge = "episari.covid.in.vacc.full.age";
             int covidInNotSariIndex = header["episari.covid.in.notsari"];
             const string CovidInAge = "episari.covid.in.age";
             int covidIcuInIndex = header["episari.covid.icu.in"];
@@ -85,7 +87,7 @@ namespace SloCovidServer.Mappers
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(d.Value, default, default, default),
+                            new EpisariPerAge(d.Value, default, default, default, default, default),
                             (k, v) => v with { CovidIn = d.Value });
                     }
                 });
@@ -95,7 +97,7 @@ namespace SloCovidServer.Mappers
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(default, d.Value, default, default),
+                            new EpisariPerAge(default, d.Value, default, default, default, default),
                             (k, v) => v with { VaccinatedIn = d.Value });
                     }
                 });
@@ -105,7 +107,7 @@ namespace SloCovidServer.Mappers
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(default, default, d.Value, default),
+                            new EpisariPerAge(default, default, d.Value, default, default, default),
                             (k, v) => v with { IcuIn = d.Value });
                     }
                 });
@@ -115,11 +117,31 @@ namespace SloCovidServer.Mappers
                     foreach (var d in data)
                     {
                         var item = perAge.AddOrUpdate(d.Key,
-                            new EpisariPerAge(default, default, default, d.Value),
+                            new EpisariPerAge(default, default, default, d.Value, default, default),
                             (k, v) => v with { Deceased = d.Value });
                     }
                 });
-                await Task.WhenAll(covidInPerAgeTask, vaccinatedInPerAgeTask, deceasedPerAgeTask, icuInPerAgeTask);
+                var vaccinatedIn3PerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidInVaccination3Age, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, default, default, default, d.Value, default),
+                            (k, v) => v with { VaccinatedIn3 = d.Value });
+                    }
+                });
+                var vaccinatedInFullPerAgeTask = Task.Run(() =>
+                {
+                    var data = CollectAgeValues(header, fields, CovidInVaccinationFullAge, GetIntAgeValue);
+                    foreach (var d in data)
+                    {
+                        var item = perAge.AddOrUpdate(d.Key,
+                            new EpisariPerAge(default, default, default, default, default, d.Value),
+                            (k, v) => v with { VaccinatedInFull = d.Value });
+                    }
+                });
+                await Task.WhenAll(covidInPerAgeTask, vaccinatedInPerAgeTask, deceasedPerAgeTask, icuInPerAgeTask, vaccinatedIn3PerAgeTask, vaccinatedInFullPerAgeTask);
                 result.Add(new EpisariWeek(week: fields[weekIndex], dateFrom, dateTo)
                 {
                     Source = fields[sourceIndex],
