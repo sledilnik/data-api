@@ -23,6 +23,11 @@ namespace SloCovidServer.Models
         public int? CovidAcquiredInHospital { get; init; }
         public int? CovidOut { get; init; }
         public int? CovidDeceased { get; init; }
+        public int? CovidIcuIn { get; init; }
+        public int? CovidInVaccinated3 { get; init; }
+        public int? CovidInVaccinatedFull { get; init; }
+        public int? CovidInVaccinatedPartial { get; init; }
+        public int? CovidInVaccinatedNone { get; init; }
         public ImmutableArray<EpisariPerAgeBucket> PerAge { get; init; }
         public EpisariWeek(string week, Date from, Date to)
         {
@@ -33,9 +38,9 @@ namespace SloCovidServer.Models
             To = to;
         }
     }
-    public record EpisariPerAge(int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased)
+    public record EpisariPerAge(int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased, int? VaccinatedIn3, int? VaccinatedInFull)
     {
-        public static readonly EpisariPerAge Empty = new EpisariPerAge(default, default, default, default);
+        public static readonly EpisariPerAge Empty = new EpisariPerAge(default, default, default, default, default, default);
     }
-    public record EpisariPerAgeBucket(int? AgeFrom, int? AgeTo, int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased);
+    public record EpisariPerAgeBucket(int? AgeFrom, int? AgeTo, int? CovidIn, int? VaccinatedIn, int? IcuIn, int? Deceased, int? VaccinatedIn3, int? VaccinatedInFull);
 }
