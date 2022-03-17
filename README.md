@@ -29,6 +29,11 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.19
+
+* Update for changes in EPISARI vacc
+* Schema version 48
+
 ## 1.18
 
 * Patients: add red-zone and leadingCovid
