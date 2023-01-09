@@ -49,28 +49,6 @@ namespace SloCovidServer
                 });
             });
             services.AddResponseCompression();
-            services.AddSwaggerDocument(config =>
-            {
-                config.PostProcess = document =>
-                {
-                    document.Info.Version = $"v{SchemaVersion}";
-                    document.Info.Title = "slo-covid-19 data API";
-                    document.Info.Description = "SchemaVersion";
-                    document.Info.TermsOfService = "None";
-                    document.Info.Contact = new NSwag.OpenApiContact
-                    {
-                        Name = "Miha Markič",
-                        Email = "miha@rthand.com",
-                        Url = "https://blog.rthand.com/"
-                    };
-                    document.Info.License = new NSwag.OpenApiLicense
-                    {
-                        Name = "Use under MIT",
-                        Url = "https://raw.githubusercontent.com/slo-covid-19/data-api/master/LICENSE"
-                    };
-                };
-                config.UseRouteNameAsOperationId = true;
-            });
             // don't include null value properties in JSON content to limit content payload
             services.AddMvc(options =>
                 {
@@ -129,9 +107,6 @@ namespace SloCovidServer
                     new string[] { "Accept-Encoding" };
                 await next.Invoke();
             });
-            // Register the Swagger generator and the Swagger UI middleware
-            app.UseOpenApi();
-            app.UseSwaggerUi3();
 
             // notifies slack when an exception occurs
             app.UseExceptionHandler(errorApp =>

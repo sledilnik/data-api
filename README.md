@@ -23,11 +23,14 @@ Current Docker container for this project is available at [covid19sledilnik/data
 
 Response compression is supported, Etag/If-None-Match as well.
 
-Swagger endpoint is at [https://api.sledilnik.org/swagger](https://api.sledilnik.org/swagger).
-
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.20
+
+* Removes Swagger
+* Updates libraries
 
 ## 1.19
 
