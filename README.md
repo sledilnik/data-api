@@ -29,6 +29,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## 1.20
 
+* Updates to .NET 7
 * Removes Swagger
 * Updates libraries
 
