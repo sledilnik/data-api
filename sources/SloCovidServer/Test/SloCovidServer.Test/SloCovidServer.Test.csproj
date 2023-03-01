@@ -10,7 +10,7 @@
     <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="AutoFixture.AutoNSubstitute" Version="4.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1">
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
