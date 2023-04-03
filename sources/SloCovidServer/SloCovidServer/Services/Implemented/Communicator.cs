@@ -82,6 +82,7 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<SchoolRegimeDay> schoolRegimesCache;
         readonly ArrayEndpointCache<VaccinationDay> vaccinationsCache;
         readonly ArrayEndpointCache<SewageWeeklyCases> sewageWeeklyCasesCache;
+        readonly ArrayEndpointCache<SewageGenomeDay> sewageGenomesCache;
         readonly ArrayEndpointCache<EpisariWeek> episariWeekCache;
         /// <summary>
         /// Holds error flags against endpoints
@@ -134,6 +135,7 @@ namespace SloCovidServer.Services.Implemented
             schoolRegimesCache = new();
             vaccinationsCache = new();
             sewageWeeklyCasesCache = new();
+            sewageGenomesCache = new();
             episariWeekCache = new ArrayEndpointCache<EpisariWeek>();
             summaryCache = new SummaryCache(default, ImmutableArray<StatsDaily>.Empty, default, ImmutableArray<PatientsDay>.Empty,
                 default, ImmutableArray<LabTestDay>.Empty, default);
@@ -220,6 +222,7 @@ namespace SloCovidServer.Services.Implemented
             var schoolRegimes = RefreshEndpointCache($"{root}/schools-regimes.csv", schoolRegimesCache, schoolsMapper.GetRegimesFromRaw);
             var vaccinations = RefreshEndpointCache($"{root}/vaccination.csv", vaccinationsCache, new VaccinationMapper().GetVaccinationsFromRaw);
             var sewageWeeklyCases = RefreshEndpointCache($"{root}/sewage-cases.csv", sewageWeeklyCasesCache, new SewageWeeklyCasesMapper().GetSewageWeeklyCasesFromRaw);
+            var sewageGenomes = RefreshEndpointCache($"{root}/sewage-genome.csv", sewageGenomesCache, new SewageGenomesMapper().GetSewageGenomesFromRaw);
             var episariWeek = RefreshEndpointCache($"{root}/episari-nijz-weekly.csv", episariWeekCache, new EpisariWeeklyMapper().GetEpisariWeeksFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
@@ -356,6 +359,11 @@ namespace SloCovidServer.Services.Implemented
             DataFilter filter, CancellationToken ct)
         {
             return GetAsync(callerEtag, $"{root}/sewage-cases.csv", sewageWeeklyCasesCache, filter, ct);
+        }
+        public Task<(ImmutableArray<SewageGenomeDay>? Data, string raw, string ETag, long? Timestamp)?> GetSewageGenomesAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/sewage-genome.csv", sewageGenomesCache, filter, ct);
         }
         public Task<(ImmutableArray<EpisariWeek>? Data, string raw, string ETag, long? Timestamp)?> GetEpisariWeeksAsync(string callerEtag,
             DataFilter filter, CancellationToken ct)

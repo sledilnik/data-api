@@ -12,6 +12,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [summary](https://api.sledilnik.org/api/summary),
 [sewage](https://api.sledilnik.org/api/sewage),
 [sewage-cases](https://api.sledilnik.org/api/sewage-cases),
+[sewage-genomes](https://api.sledilnik.org/api/sewage-genomes),
 [schools](https://api.sledilnik.org/api/schools),
 [school-status](https://api.sledilnik.org/api/school-status), [vaccinations](https://api.sledilnik.org/api/vaccinations) and [episari-weekly](https://api.sledilnik.org/api/episari-weekly).
 
@@ -31,6 +32,7 @@ In case of failures a notification is set to slack channel #alert through Data A
 ## 1.21
 
 * Adds `sewage-cases.csv` to API as `api/sewage-cases` endpoint
+* Adds `sewage-genome.csv` to API as `api/sewage-genomes` endpoint
 
 ## 1.20
 
