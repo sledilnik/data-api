@@ -11,6 +11,7 @@ Provides REST API to data collected in [csv files](https://github.com/slo-covid-
 [age-daily-deaths-slovenia](https://api.sledilnik.org/api/age-daily-deaths-slovenia),
 [summary](https://api.sledilnik.org/api/summary),
 [sewage](https://api.sledilnik.org/api/sewage),
+[sewage-cases](https://api.sledilnik.org/api/sewage-cases),
 [schools](https://api.sledilnik.org/api/schools),
 [school-status](https://api.sledilnik.org/api/school-status), [vaccinations](https://api.sledilnik.org/api/vaccinations) and [episari-weekly](https://api.sledilnik.org/api/episari-weekly).
 
@@ -26,6 +27,10 @@ Response compression is supported, Etag/If-None-Match as well.
 In case of failures a notification is set to slack channel #alert through Data API bot defined by a secret (see sample docker-compose file below).
 
 ## Changelog
+
+## 1.21
+
+* Adds `sewage-cases.csv` to API as `api/sewage-cases` endpoint
 
 ## 1.20
 

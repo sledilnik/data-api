@@ -34,7 +34,8 @@ namespace SloCovidServer.Services.Abstract
         Task<(ImmutableArray<SchoolCasesDay>? Data, string raw, string ETag, long? Timestamp)?> GetSchoolCasesAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<VaccinationDay>? Data, string raw, string ETag, long? Timestamp)?> GetVaccinationsAsync(string callerEtag,
-            DataFilter filter, CancellationToken ct);
+        DataFilter filter, CancellationToken ct); Task<(ImmutableArray<SewageWeeklyCases>? Data, string raw, string ETag, long? Timestamp)?> 
+            GetSewageWeeklyCasesAsync(string callerEtag, DataFilter filter, CancellationToken ct);
         Task<(ImmutableArray<EpisariWeek>? Data, string raw, string ETag, long? Timestamp)?> GetEpisariWeeksAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
         (Summary Summary, string ETag)? GetSummary(string callerEtag, DateTime? toDate);
