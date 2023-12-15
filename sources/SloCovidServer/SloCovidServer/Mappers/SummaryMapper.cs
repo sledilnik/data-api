@@ -15,11 +15,11 @@ namespace SloCovidServer.Mappers
             var casesActive100k = GetCasesActive100k(toDate, stats);
             var hospitalizedCurrent = GetHospitalizedCurrent(toDate, patients);
             var icuCurrent = GetIcuCurrent(toDate, patients);
-            var deceasedToDay = GetDeceasedToDay(toDate, patients);
+            var deceasedToday = GetDeceasedToday(toDate, stats);
             var casesAvg7Days = GetCasesAvg7Days(toDate, stats);
             var testsToday = GetTestsToday(toDate, labTests);
             var testsTodayHAT = GetTestsTodayHAT(toDate, labTests);
-            return new Summary(vaccinationToDate, casesToDate, casesActive, casesActive100k, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToDay, testsToday, testsTodayHAT);
+            return new Summary(vaccinationToDate, casesToDate, casesActive, casesActive100k, casesAvg7Days, hospitalizedCurrent, icuCurrent, deceasedToday, testsToday, testsTodayHAT);
         }
         internal static TestsToday GetTestsToday(DateTime? toDate, ImmutableArray<LabTestDay> labTests)
         {
@@ -80,7 +80,7 @@ namespace SloCovidServer.Mappers
                     lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
                 : null;
         }
-        internal static DeceasedToDate GetDeceasedToDay(DateTime? toDate, ImmutableArray<PatientsDay> patients)
+        internal static DeceasedToDate GetDeceasedToday(DateTime? toDate, ImmutableArray<PatientsDay> patients)
         {
             var lastPatient = GetLastAndPreviousItem(toDate, patients, p => p.Total?.Deceased?.ToDate != null);
             return lastPatient.HasValue ?
@@ -106,6 +106,19 @@ namespace SloCovidServer.Mappers
                                 ),
                                 CalculateDifference(lastPatient.Value.Last.Total?.ICU?.Today, lastPatient.Value.Previous?.Total?.ICU?.Today),
                                 lastPatient.Value.Last.Year, lastPatient.Value.Last.Month, lastPatient.Value.Last.Day)
+                            : null;
+        }
+        internal static DeceasedToDate GetDeceasedToday(DateTime? toDate, ImmutableArray<StatsDaily> stats)
+        {
+            var lastStats = GetLastAndPreviousItem(toDate, stats, s => s.DeceasedToDate != null);
+            return lastStats.HasValue ?
+                            new DeceasedToDate(
+                                lastStats.Value.Last.DeceasedToDate,
+                                new DeceasedToDateSubValues(
+                                    lastStats.Value.Last.Deceased
+                                ),
+                                CalculateDifference(lastStats.Value.Last.DeceasedToDate, lastStats.Value.Previous?.DeceasedToDate),
+                                lastStats.Value.Last.Year, lastStats.Value.Last.Month, lastStats.Value.Last.Day)
                             : null;
         }
         internal static CasesActive GetCasesActive(DateTime? toDate, ImmutableArray<StatsDaily> stats)
