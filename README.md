@@ -29,6 +29,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.22
+
+* Use NIJZ OPSI deaths for Deceased card in `api/summary` endpoint
+
 ## 1.21
 
 * Adds `sewage-cases.csv` to API as `api/sewage-cases` endpoint
