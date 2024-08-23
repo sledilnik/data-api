@@ -38,7 +38,7 @@ public class SewageWeeklyCasesMapper : Mapper
             var item = new SewageWeeklyCases(
                 date.Year, date.Month, date.Day,
                 fields[stationIndex],
-                GetInt(fields[flowIndex]),
+                GetFloat(fields[flowIndex]),
                 n3,
                 GetInt(fields[codIndex]),
                 cases,

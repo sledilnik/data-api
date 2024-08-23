@@ -29,6 +29,12 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.23
+
+* Updates .NET to 8.0
+* Updates all NuGet libraries
+* Fixes Sewage Cases by changing flow type from int to float
+
 ## 1.22
 
 * Use NIJZ OPSI deaths for Deceased card in `api/summary` endpoint
