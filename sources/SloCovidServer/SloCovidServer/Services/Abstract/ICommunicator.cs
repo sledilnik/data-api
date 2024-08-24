@@ -41,6 +41,10 @@ namespace SloCovidServer.Services.Abstract
         Task<(ImmutableArray<EpisariWeek>? Data, string raw, string ETag, long? Timestamp)?> GetEpisariWeeksAsync(string callerEtag,
             DataFilter filter, CancellationToken ct);
         (Summary Summary, string ETag)? GetSummary(string callerEtag, DateTime? toDate);
+
+        Task<(ImmutableArray<OpsiCase>? Data, string raw, string ETag, long? Timestamp)?> GetOpsiCasesAsync(
+            string callerEtag,
+            DataFilter filter, CancellationToken ct);
         (ImmutableDictionary<string, SchoolStatus> Summary, string ETag)? GetSchoolsStatuses(string callerEtag, SchoolsStatusesFilter filter);
     }
 }

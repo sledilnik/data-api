@@ -84,11 +84,12 @@ namespace SloCovidServer.Services.Implemented
         readonly ArrayEndpointCache<SewageWeeklyCases> sewageWeeklyCasesCache;
         readonly ArrayEndpointCache<SewageGenomeDay> sewageGenomesCache;
         readonly ArrayEndpointCache<EpisariWeek> episariWeekCache;
+        readonly ArrayEndpointCache<OpsiCase> opsiCasesCache;
         /// <summary>
         /// Holds error flags against endpoints
         /// </summary>
         readonly ConcurrentDictionary<string, object> errors;
-        readonly static JsonSerializer owidSerializer;
+        static readonly JsonSerializer owidSerializer;
         /// Contains summary data calculated for the most recent date
         SummaryCache summaryCache;
         /// <summary>
@@ -141,6 +142,7 @@ namespace SloCovidServer.Services.Implemented
                 default, ImmutableArray<LabTestDay>.Empty, default);
             schoolsStatusesCache = new SchoolsStatusesCache(default, default,
                 ImmutableArray<SchoolAbsenceDay>.Empty, ImmutableArray<SchoolRegimeDay>.Empty, ImmutableDictionary<string, SchoolStatus>.Empty);
+            opsiCasesCache = new ArrayEndpointCache<OpsiCase>();
             errors = new();
         }
         SummaryCache SummaryCache => Interlocked.CompareExchange(ref summaryCache, null, null);
@@ -224,6 +226,7 @@ namespace SloCovidServer.Services.Implemented
             var sewageWeeklyCases = RefreshEndpointCache($"{root}/sewage-cases.csv", sewageWeeklyCasesCache, new SewageWeeklyCasesMapper().GetSewageWeeklyCasesFromRaw);
             var sewageGenomes = RefreshEndpointCache($"{root}/sewage-genome.csv", sewageGenomesCache, new SewageGenomesMapper().GetSewageGenomesFromRaw);
             var episariWeek = RefreshEndpointCache($"{root}/episari-nijz-weekly.csv", episariWeekCache, new EpisariWeeklyMapper().GetEpisariWeeksFromRaw);
+            var opsiCases = RefreshEndpointCache($"{root}/cases-opsi-light.csv", opsiCasesCache, new OpsiCasesMapper().GetFromRaw);
 
             await Task.WhenAll(stats, patients, labTests);
             await UpdateStatsAsync(ct);
@@ -231,7 +234,7 @@ namespace SloCovidServer.Services.Implemented
             await UpdateSchoolsStatusesAsync(ct);
             await Task.WhenAll(stats, patients, hospitals, hospitalsList, municipalitiesList, retirementHomesList,
                 retirementHomes, municipalityDay, regionCasesDay, healthCentersDay, statsWeeklyDay, owidCountries, monthlyDeathsSlovenia,
-                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay, vaccinations, episariWeek);
+                labTests, dailyDeathsSlovenia, ageDeathsDeathSloveniaDay, sewageDay, schoolCasesDay, vaccinations, episariWeek, opsiCases);
 
             logger.LogDebug($"GH cache refreshed in {sw.Elapsed}");
         }
@@ -370,6 +373,11 @@ namespace SloCovidServer.Services.Implemented
         {
             return GetAsync(callerEtag, $"{root}/episari-nijz-weekly.csv", episariWeekCache, filter, ct);
         }
+        public Task<(ImmutableArray<OpsiCase>? Data, string raw, string ETag, long? Timestamp)?> GetOpsiCasesAsync(string callerEtag,
+            DataFilter filter, CancellationToken ct)
+        {
+            return GetAsync(callerEtag, $"{root}/cases-opsi-light.csv", opsiCasesCache, filter, ct);
+        }
         public (Models.Summary Summary, string ETag)? GetSummary(string callerEtag, DateTime? toDate)
         {
             var cache = SummaryCache;
@@ -502,44 +510,6 @@ namespace SloCovidServer.Services.Implemented
             }
             return null;
         }
-        //async Task RefreshJsonEndpointCache<TData>(string url, EndpointCache<TData> sync, JsonSerializer serializer)
-        //{
-        //    var policy = HttpPolicyExtensions
-        //        .HandleTransientHttpError()
-        //        .RetryAsync(1);
-
-        //    HttpResponseMessage response;
-        //    try
-        //    {
-        //        response = await policy.ExecuteAsync(() =>
-        //        {
-        //            var request = new HttpRequestMessage(HttpMethod.Get, url);
-        //            RequestCount.WithLabels(url).Inc();
-        //            return client.SendAsync(request);
-        //        });
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            _ = ProcessErrorRemovalAsync(url);
-
-        //            IEnumerable<string> headerETags;
-        //            response.Headers.TryGetValues("ETag", out headerETags);
-        //            string newETag = headerETags != null ? headerETags.SingleOrDefault() : null;
-        //            using (StreamReader sr = new StreamReader(await response.Content.ReadAsStreamAsync()))
-        //            {
-        //                var data = (TData)serializer.Deserialize(sr, typeof(TData));
-        //                sync.Cache = new ETagCacheItem<TData>(newETag, null, data, null);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _ = ProcessErrorAsync(url, response.ReasonPhrase);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _ = ProcessErrorAsync(url, ex.Message);
-        //    }
-        //}
         async Task RefreshJsonEndpointCache<TData>(string url, EndpointCache<TData> sync, JsonSerializer serializer,
             CancellationToken ct)
         {

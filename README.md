@@ -29,6 +29,10 @@ In case of failures a notification is set to slack channel #alert through Data A
 
 ## Changelog
 
+## 1.24
+
+* Adds `opsi-cases.csv` to API as `api/opsi-cases` endpoint
+
 ## 1.23
 
 * Updates .NET to 8.0
